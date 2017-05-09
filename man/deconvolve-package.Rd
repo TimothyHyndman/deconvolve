@@ -1,6 +1,6 @@
-\name{fDKDEheterosc-package}
-\alias{fDKDEheterosc-package}
-\alias{fDKDEheterosc}
+\name{deconvolve-package}
+\alias{deconvolve-package}
+\alias{deconvolve}
 \docType{package}
 \title{
 Computing the deconvolution kernel density estimator and its bandwidths in the heteroscedastic case}
@@ -9,7 +9,7 @@ This package illustrates how to use the functions for computing the deconvolutio
 }
 \details{
 \tabular{ll}{
-Package: \tab fDKDEheterosc\cr
+Package: \tab deconvolve\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
 Date: \tab 2017-03-18\cr
@@ -26,7 +26,7 @@ Maintainer: Tianying Wang <tianying@stat.tamu.edu>
 \keyword{ package }
 
 \examples{
-library("fDKDEheterosc")
+library("deconvolve")
 #This code illustrates how to use the functions for computing the deconvolution kernel density estimator and its bandwidths in the case where the errors are heteroscedastic
 
 #-----------------------------------------------------

@@ -1,4 +1,4 @@
-Package: fDKDEheterosc
+Package: deconvolve
 Type: Package
 Title: Computing the deconvolution kernel density estimator and its
         bandwidths in the heteroscedastic case
