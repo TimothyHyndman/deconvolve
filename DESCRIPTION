@@ -10,3 +10,4 @@ Description: This package illustrates how to use the functions for computing the
 License: GPL-2
 NeedsCompilation: no
 Packaged: 2017-03-19 02:59:48 UTC; tianying
+RoxygenNote: 6.0.1
