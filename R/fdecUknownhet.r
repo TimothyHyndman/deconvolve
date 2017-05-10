@@ -63,16 +63,13 @@
 #' @section Author:
 #' Aurore Delaigle
 #' 
-#' @examples #See examples for this package
+#' @example man/examples/fDKDEheterosc_eg.R
 #' 
 #' @keywords heteroscedastic deconvolution kernel density estimator
+#' 
+#' @export
 
 fdecUknownhet<-function(n,xx,W,h,errortype,sigUj,phiUkvec,rescale=0,phiK=phiK2,muK2=6,RK=1024/3003/pi,deltat = .0002,tt = seq(-1,1,deltat))
-
-
-#Author: Aurore Delaigle
-#Compute the deconvolution kernel density estimator when the errors are heteroscedastic.
-#as in Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic error. Bernoulli, 14, 562-579
 
 #----------------------------
 #Required arguments:
@@ -98,11 +95,6 @@ fdecUknownhet<-function(n,xx,W,h,errortype,sigUj,phiUkvec,rescale=0,phiK=phiK2,m
 #------------------------------------------------------------------------------------------------------------------------
 
 #rescale: to rescale the estimator so that it integrates to 1 after the negative parts have been truncated to zero. Default: 0= do not rescale. If you want to rescale, set to 1.
-#Rescaling requires xx to be a fine grid of equispaced x-values that covers the whole range of x-values where the estimated density is significantly non zero.
-
-#-------------------------------------------------------------------------------------------------------------------------------------
-#Changing the kernel: (if you change one of the arguments below you must change them all as they need to correspond to the same kernel):
-#-------------------------------------------------------------------------------------------------------------------------------------
 #phiK: Fourier transfrom of the kernel. The default is (1-t^2)^3 on the interval [-1,1]
 #muK2: second moment of the kernel, i.e. \int x^2 K(x) dx
 #RK: integral of the square of the kernel, i.e. \int K^2(x) dx
@@ -112,23 +104,7 @@ fdecUknownhet<-function(n,xx,W,h,errortype,sigUj,phiUkvec,rescale=0,phiK=phiK2,m
 #deltat: distance between two points of the t grid 
 
 
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#								WARNINGS:
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# The kernel K here must match the phiK used to compute the bandwidth (PI, CV or other)
-#
-# The DKDE can also be computed using the Fast Fourier Transform, which is a bit more complex. 
-# See Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating integrals and optimizing objective functions: a case study in density deconvolution.   Statistics and Computing,  17,  349 - 355
-# However if the grid of t-values is fine enough, the estimator can simply be computed like here without having problems with oscillations.
-#
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
 {
-
 
 #Check optional arguments
 

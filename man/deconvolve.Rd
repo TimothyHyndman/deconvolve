@@ -21,7 +21,6 @@ License: \tab  GPL>=2\cr
 }
 }
 \examples{
-library("deconvolve")
 #This code illustrates how to use the functions for computing the deconvolution kernel density estimator and its bandwidths in the case where the errors are heteroscedastic
 
 #-----------------------------------------------------
@@ -62,7 +61,7 @@ sigmaj=sigU*sqrt(1.0+(1:n)/n)*sqrt(0.5);
 errortype="norm";
 U=rep(1,n);
 for (i in 1:n)
-U[i]=rnorm(1,0,sigmaj[i]);
+	U[i]=rnorm(1,0,sigmaj[i]);
  
 #Contaminated data
 W=as.vector(X+U);

@@ -1,21 +1,13 @@
 ####This is a example for R package "fDKDEheterosc"
-library("fDKDEheterosc")
 
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDEheterosc/PI_deconvUknownth4het.r")
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDEheterosc/fdecUknownhet.r")
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/phiK2.r")
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/rlap.r")
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/outerop.R")
-
-
-
-#Author: Aurore Delaigle
-#This code illustrates how to use the functions for computing the deconvolution kernel density estimator and its bandwidths in the case where the errors are heteroscedastic
+# Author: Aurore Delaigle
+# This code illustrates how to use the functions for computing the deconvolution 
+# kernel density estimator and its bandwidths in the case where the errors are 
+# heteroscedastic
 
 #-----------------------------------------------------
 #Start by generating some data contaminated by noise:
 #-----------------------------------------------------
-
 
 #Sample size
 n=200
@@ -97,6 +89,3 @@ fnaive=apply(dnorm(xout,0,h),1,sum)/n;
 lines(xx,fnaive,col='cyan')
 
 legend(x="topright",legend=c( "true f","fdec, hPI", "fdec rescaled, hPI", "fdec hPI v2", "naive estimator, hNR"),col=c("red","black","green","magenta","cyan"),lty=c(1,1,1,2,1),cex=0.73)
-
-
-
