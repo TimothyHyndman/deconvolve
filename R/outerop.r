@@ -21,17 +21,24 @@
 #   Copyright Murphy O'Brien 2005
 #   all rights unreserved
 #
-outerop<-function(a,b,operator)
-{
-if (missing(operator))
-    {operator="+"}                      # for only two arguments assume outerproduct   
+outerop<-function(a,b,operator){
 
-if (operator=="*")                      # common operator 
-    {y=a%*%b} else    
-  {outera=as.matrix(a)%*%rep(1,length(b))          # these are the matrices that 
-  outerb=as.matrix(rep(1,length(a)))%*%b # meshgrid(A,B) would generate 
-  functionHandle=match.fun(operator)    # new R14 functionality
-  y=functionHandle(outera,outerb)  }    # allows faster/neater method
-return (y)
+	if ( missing(operator) ) {
+		operator="+"
+	}                      # for only two arguments assume outerproduct   
+
+	if (operator=="*"){
+		a <- matrix(a, ncol = 1)				# Need to make sure we have colvec * rowvec
+		b <- matrix(b, nrow = 1)
+		y <- a %*% b 							# common operator
+	} else {   
+		outera=as.matrix(a) %*% rep(1,length(b)) 	# these are the matrices that 
+		outerb=as.matrix(rep(1,length(a))) %*% b 	# meshgrid(A,B) would generate 
+		functionHandle=match.fun(operator)    	# new R14 functionality
+		y=functionHandle(outera,outerb)			# allows faster/neater method
+	}
+
+	return (y)
+
 }
 
