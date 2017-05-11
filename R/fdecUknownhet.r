@@ -17,7 +17,7 @@
 #' value of sigUj below.
 #' @param sigUj	vector of length n which contains the parameters of each of the 
 #' n Laplace or normal errors.
-#' @param phiUveck vector of n functions that give the characteristic functiona 
+#' @param phiUkvec vector of n functions that give the characteristic functiona 
 #' of the n errors. Produce this vector by c(func1,func2,...,funcn) where each 
 #' funcj is a function of tt
 #' @param rescale to rescale the estimator so that it integrates to 1 after the 
@@ -64,6 +64,8 @@
 #' Aurore Delaigle
 #' 
 #' @example man/examples/fDKDEheterosc_eg.R
+#' 
+#' @example man/examples/fDKDE_eg.R
 #' 
 #' @keywords heteroscedastic deconvolution kernel density estimator
 #' 
