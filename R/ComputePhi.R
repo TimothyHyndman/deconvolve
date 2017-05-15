@@ -1,3 +1,6 @@
+#' @export
+# Just exporting for testing, will remove later
+
 ComputePhi <- function(W, tt, longt){
 # W is vector of data for which we calculate PhiW
 # tt is coarse vector on which we initially calculate PhiW

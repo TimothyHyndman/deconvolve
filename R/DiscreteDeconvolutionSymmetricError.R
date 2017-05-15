@@ -1,3 +1,5 @@
+#' @export
+
 DiscreteDeconvolutionSymmetricError <- function(W, weight.type = 'Epanechnikov'){
 
 	n <- length(W)
@@ -17,31 +19,27 @@ DiscreteDeconvolutionSymmetricError <- function(W, weight.type = 'Epanechnikov')
 
 	#Choose theta and p to minimize T(theta,p) = int |psi.hat(t) - blahblah | w(t) dt
 	# under the constraint that blah
+	m <- 5
 
-
-	# Minimize the variance subject to T(theta,p) not increasing
 	theta0 <- seq( min(W), max(W), length.out = m )
 	p0 <- numeric( m - 1 ) + 1/m
 	x0 <- c(p0, theta0)
-
-	f <- function(x){
-		CalculateTp(x, phi.W, weight)
-	}
 
 	A <- matrix(0, nrow = m, ncol = 2*m-1)
 	A[1:m-1, 1:m-1] <- diag( m - 1 )   #pj non-negative
 	ci = numeric(m)
 	A[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) #pj sum to less than 1
 	ci[m] = -1
-
-
-	min.sol <- constrOptim(x0, f, NULL, A, ci)
+	
+	min.sol <- constrOptim(x0, CalculateTp, NULL, A, ci, phi.W = phi.W, weight = weight)
 	x.sol <- min.sol$par
 
 	p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
 	theta.sol <- x.sol[m:(2 * m - 1)]
 
 	return( list( "ProbWeights" = p.sol, "Support" = theta.sol) )
+
+	# Minimize the variance subject to T(theta,p) not increasing
 
 }
 
