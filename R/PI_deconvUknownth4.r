@@ -1,3 +1,5 @@
+#' @export
+
 PI_deconvUknownth4<-function(n,W,errortype,sigU,phiU,phiK=phiK2,muK2=6,RK=1024/3003/pi,deltat = .0002,tt = seq(-1,1,deltat))
 
 #Authors: Aurore Delaigle

@@ -1,21 +1,13 @@
 ####This is a example for R package "fDKDEheterosc"
-library("fDKDEheterosc")
 
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDEheterosc/PI_deconvUknownth4het.r")
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDEheterosc/fdecUknownhet.r")
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/phiK2.r")
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/rlap.r")
-source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/outerop.R")
-
-
-
-#Author: Aurore Delaigle
-#This code illustrates how to use the functions for computing the deconvolution kernel density estimator and its bandwidths in the case where the errors are heteroscedastic
+# Author: Aurore Delaigle
+# This code illustrates how to use the functions for computing the deconvolution 
+# kernel density estimator and its bandwidths in the case where the errors are 
+# heteroscedastic
 
 #-----------------------------------------------------
 #Start by generating some data contaminated by noise:
 #-----------------------------------------------------
-
 
 #Sample size
 n=200
@@ -30,10 +22,11 @@ X=rnorm(n,mu1,sig1);
 X2=rnorm(n,mu2,sig2);
 
 pmix=0.75;
-tmp=matrix(runif(n,0,1),nrow=1,ncol=n,byrow=T);
+tmp=matrix(runif(n,0,1),nrow=1,ncol=n,byrow=TRUE);
 X[which(tmp<pmix)]=X2[which(tmp<pmix)];
 
-#Grid where to estimate the true mixture density, and calculation of true density
+#Grid where to estimate the true mixture density, and calculation of true 
+#density
 xx=seq(-5,5,0.1);
 dx=xx[2]-xx[1];
 truedens=(1-pmix)*dnorm(xx,mu1,sig1)+pmix*dnorm(xx,mu2,sig2);
@@ -65,7 +58,8 @@ hPI=PI_deconvUknownth4het(n,W,varX,errortype,sigmaj);
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
 y=fdecUknownhet(n,xx,W,hPI,errortype,sigmaj);
 
-#DKDE estimator with rescaling: here xx must be equispaced and must cover the range where the estimated density is significantly non zero
+#DKDE estimator with rescaling: here xx must be equispaced and must cover the 
+#range where the estimated density is significantly non zero
 y2=fdecUknownhet(n,xx,W,hPI,errortype,sigmaj,rescale=1);
 
 #Plot the true density
@@ -73,7 +67,8 @@ plot(xx,truedens,'l',col='red',xlab="",ylab="")
 lines(xx,y,col='black')
 lines(xx,y2,col="green")
 
-#Example of how to provide the vector of phiU_k's instead of the error type and the standard deviations
+#Example of how to provide the vector of phiU_k's instead of the error type and 
+#the standard deviations
 
 phiUkvec=c()
 for(k in 1:n)
@@ -88,7 +83,8 @@ lines(xx,y3,col='magenta',lty=2)
 
 
 
-#Compare with the naive KDE estimator that ignores the error (using normal reference bandwidth and standard normal kernel)
+#Compare with the naive KDE estimator that ignores the error (using normal 
+#reference bandwidth and standard normal kernel)
 h=1.06*sqrt(var(W))*n^(-1/5);
 xout=outerop(xx,t(W),"-");
 
@@ -96,7 +92,6 @@ fnaive=apply(dnorm(xout,0,h),1,sum)/n;
 
 lines(xx,fnaive,col='cyan')
 
-legend(x="topright",legend=c( "true f","fdec, hPI", "fdec rescaled, hPI", "fdec hPI v2", "naive estimator, hNR"),col=c("red","black","green","magenta","cyan"),lty=c(1,1,1,2,1),cex=0.73)
-
-
-
+legend(x="topright",legend=c( "true f","fdec, hPI", "fdec rescaled, hPI", 
+	   "fdec hPI v2", "naive estimator, hNR"),
+	   col=c("red","black","green","magenta","cyan"),lty=c(1,1,1,2,1),cex=0.73)
