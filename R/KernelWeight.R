@@ -1,7 +1,7 @@
 #' @export
 # Just exporting for testing, will remove later
 
-KernelWeight <- function( weight.type, x ){
+KernelWeight <- function(x, weight.type = "Epanechnikov"){
 # x is vector of values (symmetric about zero) on which to calculate weight
 # weight.type tells us which type of weight we're calcualting
 
