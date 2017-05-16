@@ -1,17 +1,6 @@
-#Put here the path where you have put the R codes, for example:
-
-# library(fDKDE)
-
-# source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/CVdeconv.R")
-# source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/PI_deconvUknownth4.r")
-# source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/fdecUknown.r")
-# source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/phiK2.r")
-# source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/rlap.r")
-# source("C:/Users/delaigle/Documents/articles post these/CodesDeconvolution/decon_Rpackages_Tianying/code_decon/fDKDE/outerop.R")
-
-
-#Author: Aurore Delaigle
-#This code illustrates how to use the functions for computing the deconvolution kernel density estimator and its bandwidths
+# Author: Aurore Delaigle
+# This code illustrates how to use the functions for computing the deconvolution 
+# kernel density estimator and its bandwidths
 
 #-----------------------------------------------------
 #Start by generating some data contaminated by noise:

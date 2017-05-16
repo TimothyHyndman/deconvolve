@@ -97,7 +97,7 @@ W=as.vector(W)
 maxh=(max(W)-min(W))/10
 
 #normal reference bandwidth of the naive KDE estimator (estimator that ignores the errors) using the same kernel as above
-hnaive=((8*sqrt(pi)*RK/3/muK2^2)^0.2)*sqrt(var(W))*n^(-1/5)
+hnaive=((8*sqrt(pi)*RK/3/muK2^2)^0.2)*sqrt(stats::var(W))*n^(-1/5)
 
 #grid of h values on which we will look for hPI, If you did not find a minimum on that grid you can redefine it
 hgrid=seq(hnaive/3,maxh,(maxh-hnaive/3)/100)
@@ -106,7 +106,7 @@ dim(hgrid)=c(1,lh)
 
 
 #Estimator of the standard deviation of X
-stdevx = max(sqrt(var(W) - sigU^2),1/n) #####I changed varU into sigU^2
+stdevx = max(sqrt(stats::var(W) - sigU^2),1/n) #####I changed varU into sigU^2
 
 
 

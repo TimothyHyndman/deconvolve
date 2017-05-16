@@ -76,14 +76,14 @@ NWDecridgeL1OCUknown<-function(n,W,Y,errortype,sigU,h,rhogrid,midbin,indbin,nbin
   #Finally compute weighted CV, where the ith term of the sum is weighted by f_W(W_i)
   
   rhogrid=rhogrid*(2*pi*h*n)/dt;
-  hW=1.06*sqrt(var(W))*n^(-1/5);
+  hW=1.06*sqrt(stats::var(W))*n^(-1/5);
   xout=outerop(W,W,"-");
   
   fWEF=rep(0,length(W))
   for  (i in 1:(length(W)))
   {for (j in 1:(length(W)))
-  {xout[i,j]=dnorm(xout[i,j],0,hW)}
-  fWEF[i]=mean(dnorm(xout[i,],0,hW));}
+  {xout[i,j]=stats::dnorm(xout[i,j],0,hW)}
+  fWEF[i]=mean(stats::dnorm(xout[i,],0,hW));}
   
   CV=0*rhogrid;
   for (krho in 1:length(rhogrid))

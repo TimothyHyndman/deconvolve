@@ -1,20 +1,20 @@
 hSIMEXUknown <- function(W,Y,errortype,sigU,n){
   
-  
   rlap=function(szC,n1,n2){
-    y=matrix(runif(n1*n2,0,1),nrow=n1,ncol=n2,byrow=T);
+    y=matrix(stats::runif(n1*n2,0,1),nrow=n1,ncol=n2,byrow=T);
     reponse= szC*log(2*y);
     reponse[which(y>0.5)]=-szC*log(2-2*y[which(y>0.5)]);
-    return(reponse)}
-  BinData<-function(W,nbin)
-  {
+    return(reponse)
+  }
+
+  BinData<-function(W,nbin){
     #Author: Aurore Delaigle
     #This program bins the data W into nbins
     
     dim(W)=c(n,1);
     
     #Compute extremities of the bins
-    ab=quantile(W,c(0.05,0.95));
+    ab=stats::quantile(W,c(0.05,0.95));
     
     
     #Bin widths
@@ -43,8 +43,7 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
     return (list2)}
   
   
-  PI_deconvUknownth4<-function(W,errortype,varU,sigU)
-  {
+  PI_deconvUknownth4<-function(W,errortype,varU,sigU){
     
     # --------------------------------------------------------
     # Preliminary calculations and initialisation of functions
@@ -78,14 +77,14 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
     maxh=(max(W)-min(W))/10;
     
     #NR bandwidth of the KDE estimator using the same kernel as we use in the DKDE case
-    hnaive=((8*sqrt(pi)*RK/3/muK2^2)^0.2)*sqrt(var(W))*n^(-1/5);
+    hnaive=((8*sqrt(pi)*RK/3/muK2^2)^0.2)*sqrt(stats::var(W))*n^(-1/5);
     hgrid=seq(hnaive/3,maxh,(maxh-hnaive/3)/100);
     lh = length(hgrid);
     dim(hgrid)=c(1,lh);
     
     
     #Estimator of the standard deviation of X
-    stdevx = max(sqrt(var(W) - varU),1/n);
+    stdevx = max(sqrt(stats::var(W) - varU),1/n);
     
     
     
@@ -244,12 +243,12 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
   
   #Estimator of fW(q_{0.05}) and fW(q_{0.95}) using standard (error-free) KDE and normal reference bandwidth, where q_{alpha} denotes the alpha empirical quantile of the W_i's.
   W=as.vector(W)
-  hW=1.06*sqrt(var(W))*n^(-1/5);
-  ab=quantile(W,probs=c(0.05,0.95));
+  hW=1.06*sqrt(stats::var(W))*n^(-1/5);
+  ab=stats::quantile(W,probs=c(0.05,0.95));
   xout=outerop(ab,W,"-");
   fWEF=c(0,0);
-  fWEF[1]=mean(dnorm(xout[1,],0,hW));
-  fWEF[2]=mean(dnorm(xout[2,],0,hW))
+  fWEF[1]=mean(stats::dnorm(xout[1,],0,hW));
+  fWEF[2]=mean(stats::dnorm(xout[2,],0,hW))
   gridrho=min(fWEF)*seq(0.025,4,0.025);
   
   
@@ -274,7 +273,7 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
     if (errortype=="Lap")
     {Wstar=W+rlap(sigU,1,n);}
     if (errortype=="norm")
-    {Wstar=W+rnorm(n,0,sigU);}
+    {Wstar=W+stats::rnorm(n,0,sigU);}
     
     
     #For each h in the grid of h-candidates, compute the CV criterion for the data Wstar (this will automatically consider all rho candiates)
@@ -311,8 +310,8 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
     {Wstar=W+rlap(sigU,1,n);
      Wstar2=Wstar+rlap(sigU,1,n);}
     if (errortype=="norm")
-    {Wstar=W+rnorm(n,0,sigU);
-     Wstar2=Wstar+rnorm(n,0,sigU);}
+    {Wstar=W+stats::rnorm(n,0,sigU);
+     Wstar2=Wstar+stats::rnorm(n,0,sigU);}
     
     
     

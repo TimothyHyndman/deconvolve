@@ -59,14 +59,14 @@ DiscreteDeconvolutionSymmetricError <- function(W){
 
 	# Minimize T(p)
 
-	# min.tp.sol <- constrOptim(x0, CalculateTp, NULL, A, ci, phi.W = phi.W, 
+	# min.tp.sol <- stats::constrOptim(x0, CalculateTp, NULL, A, ci, phi.W = phi.W, 
 	# 						  weight = weight)
 	
 	# Minimize the variance subject to T(theta,p) not increasing
 	# This is currently not working well as optim can't find any feasible 
 	# points other than the initial.
 
-	# min.var.sol <- constrOptim(min.tp.sol$par, CalculateVarwithConstr, NULL, A, 
+	# min.var.sol <- stats::constrOptim(min.tp.sol$par, CalculateVarwithConstr, NULL, A, 
 	# 						   ci, max.tp = min.tp.sol$value, phi.W = phi.W, 
 	# 						   weight = weight)
 
@@ -81,7 +81,7 @@ DiscreteDeconvolutionSymmetricError <- function(W){
 	# Option 2
 	#--------------------------------------------------------------------------#
 
-	min.comb.sol <- constrOptim(x0, CombinedObjective, NULL, A, ci, 
+	min.comb.sol <- stats::constrOptim(x0, CombinedObjective, NULL, A, ci, 
 								phi.W = phi.W, weight = weight, lambda = 10000)
 
 	x.sol <- min.comb.sol$par
