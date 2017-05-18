@@ -1,4 +1,4 @@
-#Fourier transform of commonly used kernel function in deconvolution.
+#Fourier transform of commonly used kernel function in deconvolution. (a default setting for the input)
 
 phiK2 <-function(tt)
 {
