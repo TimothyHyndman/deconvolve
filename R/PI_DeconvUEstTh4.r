@@ -1,4 +1,4 @@
-PI_DeconvUEstTh4 <- function(W, t.limits, phi.U, hat.var.U, phi.U, tt){
+PI_DeconvUEstTh4 <- function(W, t.limits, phi.U, hat.var.U, tt){
 	n <- length(W)
 	PhiK <- function(t){
 		(1 - t^2)^3
@@ -45,8 +45,33 @@ PI_DeconvUEstTh4 <- function(W, t.limits, phi.U, hat.var.U, phi.U, tt){
 
 	# Find h2 for th2
 	rr <- 2
-	
+	term1 <- -h.grid^2 * mu.K.2 * th3
+	term2 <- matrix( rep( t^(2*rr) * phi.K.2, length(h.grid) ), 
+					ncol = length(h.grid) ) 
+	term2 <- term2 / phi.U.2
+	term2 <- colSums(term2) * dt / ( 2 * pi * n * h.grid^(2 * rr + 1) )
 
+	A.bias.2 <- (term1 + term2)^2
+	ind.h2 <- which(A.bias.2 == min(A.bias.2))
+	ind.h2 <- ind.h2[1]
+	h2 <- h.grid[ind.h2]
+
+	#Estimate empirical characteristic function of W
+	phi.W <- ComputePhiEmp(W, t/h2)
+	th2 <- t^(2 * rr) * phi.W$norm * phi.K.2 / phi.U.2[,ind.h2]
+	th2 <- sum(th2) * dt / ( 2 * pi * h2^(2 * rr + 1) )
+
+	term1 <- h.grid^4 * mu.K.2^2 * th2/4
+	term2 <- matrix( rep( phi.K.2, length(h.grid) ), ncol = length(h.grid) )
+	term2 <- term2 / phi.U.2
+	term2 <- colSums(term2) * dt / (2 * pi * n * h.grid)
+
+	AMISE <- term1 + term2
+	ind.h <- which(AMISE == min(AMISE))
+	ind.h <- ind.h[1]
+	h.PI <- h.grid[ind.h]
+
+	return(h.PI)
 }
 
 PhiUSpline <- function(t.over.h, hat.var.U, t.limits, phi.U, tt){
@@ -59,7 +84,7 @@ PhiUSpline <- function(t.over.h, hat.var.U, t.limits, phi.U, tt){
 
 	y <- 0*t.over.h
 
-	y[ind1] <- spline( tt, phi.U, xout = t.over.h[ind1] )$yinch #What method is this using? Compare to MATLAB code.
+	y[ind1] <- spline( tt, phi.U, xout = t.over.h[ind1] )$y #What method is this using? Compare to MATLAB code.
 	y[ind2] <- PhiULap(t.over.h[ind2])
 
 	return(y)
