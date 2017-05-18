@@ -1,3 +1,4 @@
+##This function is seperated from hSIMEX.r
 NWDecridgeL1OCUknown<-function(n,W,Y,errortype,sigU,h,rhogrid,midbin,indbin,nbin)
 {
   #Author: Aurore Delaigle
