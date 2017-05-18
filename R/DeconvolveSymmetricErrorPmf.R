@@ -6,13 +6,17 @@
 #' Details here
 #' 
 #' @param W A vector of the contaminated data
+#' @param m The number of support points to use in finding the Pmf
 #' 
 #' @return A list with components:
 #' 	\item{support}{The support of the deconvolved distribution}
 #' 	\item{probweights}{The sizes of the probability mass at each respective 
 #' 					   point of support.}
+#' 	\item{phi.W}{The empirical distribution of W and the t values on which it is 
+#' 				 calculated}
 #' 
-#'
+#' @example man/examples/SymmetricError_eg.R
+#' 
 #' @export
 
 # There are two ways we can solve this optimization problem. 
@@ -23,7 +27,7 @@
 # Option 1 is preferable I think, but harder to implement since T(p) = T* is a 
 # very tight constraint
 
-DeconvolveSymmetricErrorPmf <- function(W){
+DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 
 	n <- length(W)
 
@@ -57,8 +61,6 @@ DeconvolveSymmetricErrorPmf <- function(W){
 	# Solve optimization problem to find PMF
 	#--------------------------------------------------------------------------#
 
-	m <- 10	#Number of probability masses to use
-
 	# Initial point for optimization routine
 	theta0 <- seq( min(W), max(W), length.out = m )
 	p0 <- numeric( m - 1 ) + 1/m
@@ -89,6 +91,9 @@ DeconvolveSymmetricErrorPmf <- function(W){
 	# 						   b, max.tp = min.tp.sol$value, phi.W = phi.W, 
 	# 						   weight = weight)
 
+	# min.var.sol <- stats::constrOptim(min.tp.sol$par, CombinedObjective, NULL, 
+	# 								  A, b, phi.W = phi.W, weight = weight)
+
 	# x.sol <- min.var.sol$par
 	# p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
 	# theta.sol <- x.sol[m:(2 * m - 1)]
@@ -101,13 +106,17 @@ DeconvolveSymmetricErrorPmf <- function(W){
 	#------------------------------------#
 
 	min.comb.sol <- stats::constrOptim(x0, CombinedObjective, NULL, A, b, 
-								phi.W = phi.W, weight = weight, lambda = 10000)
+								phi.W = phi.W, weight = weight)
 
 	x.sol <- min.comb.sol$par
 	p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
 	theta.sol <- x.sol[m:(2 * m - 1)]
 
-	return(list("support" = theta.sol, "probweights" = p.sol))
+	#--------------------------------------------------------------------------#
+	# Return
+	#--------------------------------------------------------------------------#
+
+	return(list("support" = theta.sol, "probweights" = p.sol, "phi.W" = phi.W))
 }
 
 CalculateTp <- function(x, phi.W, weight){

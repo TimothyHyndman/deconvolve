@@ -1,15 +1,15 @@
 # X.pmf is a list with parts "support" and "probweights"
 #' @export
 # Just for testing
-SymmetricErrorPmfToPdf <- function(X.pmf, W, phi.W){
+SymmetricErrorPmfToPdf <- function(theta, p, W, phi.W){
 
-	tt <- phi.W$t.values
-	theta <- X.pmf$support
-	p <- X.pmf$probweights
+	# theta <- X.pmf$support
+	# p <- X.pmf$probweights
 
 	# Estimate phi.X and phi.U
-	phi.X <- ComputePhiPmf(theta, p, tt)
-	phi.U <- phi.W$norm / Mod(phi.X)
+	tt <- phi.W$t.values
+	# a <- phi.W
+	
 
 	#---------------------------------------------------------------------------
 	# Estimate var(U): approximate phi.U by poly of degree 2, and estimate varU 
@@ -21,7 +21,7 @@ SymmetricErrorPmfToPdf <- function(X.pmf, W, phi.W){
 
 	phi.W.BB <- ComputePhiEmp(W, tt.BB)
 	phi.X.BB <- ComputePhiPmf(theta, p, tt.BB)
-	phi.U.BB <- phi.W.BB$norm / Mod(phi.X)
+	phi.U.BB <- phi.W.BB$norm / Mod(phi.X.BB)
 
 	t.vec <- 		  tt.BB[ phi.U.BB >= 0.95 ]
 	phi.U.t.vec <- phi.U.BB[ phi.U.BB >= 0.95 ]
@@ -29,19 +29,37 @@ SymmetricErrorPmfToPdf <- function(X.pmf, W, phi.W){
 	pp <- stats::lm(phi.U.t.vec ~ poly(t.vec, 2, raw = T))
 	hat.var.U <- -2 * pp$coefficients[[3]]
 
-	#---------------------------------------------------------------------------
-	# Compute density estimator as indicated in the paper
-	#---------------------------------------------------------------------------
+	# Find Plug-In Bandwidth
+	phi.X <- ComputePhiPmf(theta, p, tt)
+	phi.U <- phi.W$norm / Mod(phi.X)
+	h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt)
 
-	t.limits <- c(min(tt), max(tt))
-	# pp.phi.U <- spline(tt, hat.phi.U)	#No need to do this calculation here.
-	# We'll do it later on in phiUspline or PI_deconvUestth4
+	# Kernel stuff
+	dt <- 0.0002
+	t <- seq(-1,1, by = dt)
+	PhiK <- function(t){
+		(1 - t^2)^3
+	}
 
-	h.PIc <- PI_deconvUestth4(W, tlim, phi.U, hat.var.U, phi.U, tt)
+	phi.U.PI <- PhiUSpline(t/h.PIc, hat.var.U, phi.U, tt)
+	phi.W.PI <- ComputePhiEmp(W, t/h.PIc)
 
-	# fX.dec <- fXKernDec2()
+	phi.X.re <- phi.W.PI$re / phi.U.PI
+	phi.X.im <- phi.W.PI$im / phi.U.PI
 
-	# fX.dec[fX.dec < 0] <- 0
-	# fX.dec <- fX.dec / sum(fX.dec)
+	xx.length <- 100
+	xx <- seq(min(W), max(W), length.out = xx.length)
+	xt <- outerop(t/h.PIc, xx, "*")
+
+	fX <- cos(xt) * matrix( rep(phi.X.re, length(xx)), ncol = length(xx)) + 
+	sin(xt) * matrix( rep(phi.X.im, length(xx)), ncol = length(xx))
+
+	fX <- colSums(fX * matrix( rep(PhiK(t), length(xx)), ncol = length(xx))) / 
+	(2 * pi) * dt / h.PIc
+
+	fX[fX < 0] <- 0
+	fX <- fX / sum(fX)
+
+	return(list("x" = xx, "y" = fX))
 
 }

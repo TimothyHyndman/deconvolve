@@ -4,16 +4,20 @@
 \alias{DeconvolveSymmetricErrorPmf}
 \title{Estimate Discrete Deconvolution of Data With Symmetric Error}
 \usage{
-DeconvolveSymmetricErrorPmf(W)
+DeconvolveSymmetricErrorPmf(W, m = 10)
 }
 \arguments{
 \item{W}{A vector of the contaminated data}
+
+\item{m}{The number of support points to use in finding the Pmf}
 }
 \value{
 A list with components:
 	\item{support}{The support of the deconvolved distribution}
 	\item{probweights}{The sizes of the probability mass at each respective 
 					   point of support.}
+	\item{phi.W}{The empirical distribution of W and the t values on which it is 
+				 calculated}
 }
 \description{
 Estimates deconvolution of data \eqn{W = X + U}, where \eqn{U} is symmetric, 
@@ -21,4 +25,25 @@ with a probability mass function.
 }
 \details{
 Details here
+}
+\examples{
+# Generate Test Data
+
+n <- 500
+W <- GenerateTestData(n)
+
+# Deconvolve
+out <- DeconvolveSymmetricErrorPmf(W, m = 10)
+theta <- out$support
+p <- out$probweights
+phi.W <- out$phi.W
+
+# Convert to Probability Density
+fX <- SymmetricErrorPmfToPdf(theta, p, W, phi.W)
+
+# Plot results
+par(mfcol = c(1,2))
+
+plot(theta, p)
+plot(fX$x, fX$y,"l")
 }

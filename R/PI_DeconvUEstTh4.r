@@ -1,4 +1,4 @@
-PI_DeconvUEstTh4 <- function(W, t.limits, phi.U, hat.var.U, tt){
+PI_DeconvUEstTh4 <- function(W, phi.U, hat.var.U, tt){
 	n <- length(W)
 	PhiK <- function(t){
 		(1 - t^2)^3
@@ -22,7 +22,7 @@ PI_DeconvUEstTh4 <- function(W, t.limits, phi.U, hat.var.U, tt){
 	h.grid <- matrix(h.grid, nrow = 1)
 	t.over.h <- t %*% (1 / h.grid)
 
-	phi.U.2 <- PhiUSpline(t.over.h, hat.var.U, t.limits, phi.U, tt)
+	phi.U.2 <- PhiUSpline(t.over.h, hat.var.U, phi.U, tt)
 	phi.K.2 <- (PhiK(t))^2
 
 	# Find h3 for th3
@@ -72,20 +72,4 @@ PI_DeconvUEstTh4 <- function(W, t.limits, phi.U, hat.var.U, tt){
 	h.PI <- h.grid[ind.h]
 
 	return(h.PI)
-}
-
-PhiUSpline <- function(t.over.h, hat.var.U, t.limits, phi.U, tt){
-	ind1 <- ( t.over.h >= t.limits[1] ) & ( t.over.h <= t.limits[2] )
-	ind2 <- ( t.over.h <  t.limits[1] ) | ( t.over.h >  t.limits[2] )
-
-	PhiULap <- function(t){
-		1 / ( 1 + hat.var.U / 2 * t^2)
-	}
-
-	y <- 0*t.over.h
-
-	y[ind1] <- spline( tt, phi.U, xout = t.over.h[ind1] )$y #What method is this using? Compare to MATLAB code.
-	y[ind2] <- PhiULap(t.over.h[ind2])
-
-	return(y)
 }
