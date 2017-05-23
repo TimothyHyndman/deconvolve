@@ -105,12 +105,32 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	# Option 2
 	#------------------------------------#
 
-	min.comb.sol <- stats::constrOptim(x0, CombinedObjective, NULL, A, b, 
-								phi.W = phi.W, weight = weight)
+	# min.comb.sol <- stats::constrOptim(x0, CombinedObjective, NULL, A, b, 
+	# 							phi.W = phi.W, weight = weight)
 
-	x.sol <- min.comb.sol$par
-	p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
-	theta.sol <- x.sol[m:(2 * m - 1)]
+	# x.sol <- min.comb.sol$par
+	# p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
+	# theta.sol <- x.sol[m:(2 * m - 1)]
+
+	#------------------------------------#
+	# Option 3
+	#------------------------------------#
+
+	min.tp.sol <- stats::constrOptim(x0, CalculateTp, NULL, A, b, phi.W = phi.W, 
+							  weight = weight)
+
+
+	lb <- numeric(2*m-1)
+	lb[m:(2 * m - 1)] <- min(W)
+	ub <- numeric(2*m-1) + 1
+	ub[m:(2 * m - 1)] <- max(W)
+
+	opts <- list("algorithm"="NLOPT_LD_SLSQP", "maxeval" = 1e4)
+	min.var.sol <- nloptr::nloptr(min.tp.sol$par, eval_f = CalculateVar, 
+								  eval_grad_f = CalculateVarGrad, lb = lb, 
+								  ub = ub, eval_g_ineq = Constraints, 
+								  phi.W = phi.W, weight = weight,
+								  tp.max = min.tp.sol$value, opts = opts)
 
 	#--------------------------------------------------------------------------#
 	# Return
@@ -138,27 +158,62 @@ CalculateTp <- function(x, phi.W, weight){
 	return(tp)
 }
 
-CalculateVar <- function(x){
+CalculateVar <- function(x, phi.W, weight, tp.max){
 	m <- (length(x) + 1) / 2
-	p <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
+	p <- c( x[ 1:(m - 1) ], 1 - sum( x[ 1:(m - 1) ] ) )
 	theta <- x[ m:(2 * m - 1) ]
 	mean <- sum(p*theta)
 	var <- sum(p*(theta - mean)^2)
 	return(var)
 }
 
-CalculateVarwithConstr <- function(x, max.tp, phi.W, weight){
-	#Check that tp hasn't gotten any bigger
-	tp <- CalculateTp(x, phi.W, weight)
-	if (tp > max.tp){
-		return(Inf)
-	}
+CalculateVarGrad <- function(x, phi.W, weight, tp.max){
+	var.x <- CalculateVar(x, phi.W, weight, tp.max)
+	dx <- 0.01
+	grad <- numeric(length(x))
 
-	# All constraints are met so calculate variance
-	var <- CalculateVar(x)
-	return(var)
+	for (i in 1:length(x)){
+		y <- x
+		y[i] <- x[i] + dx
+		var.x1 <- CalculateVar(x1, phi.W, weight, tp.max)
+		grad[i] <- (var.x1 - var.x) / dx	
+	}
+	
+	return(grad)
 }
 
-CombinedObjective <- function(x, phi.W, weight, lambda = 10000){
-	CalculateVar(x) + lambda * CalculateTp(x, phi.W, weight)
+# CalculateVarwithConstr <- function(x, max.tp, phi.W, weight){
+# 	#Check that tp hasn't gotten any bigger
+# 	tp <- CalculateTp(x, phi.W, weight)
+# 	if (tp > max.tp){
+# 		return(Inf)
+# 	}
+
+# 	# All constraints are met so calculate variance
+# 	var <- CalculateVar(x)
+# 	return(var)
+# }
+
+# CombinedObjective <- function(x, phi.W, weight, lambda = 10000){
+# 	CalculateVar(x) + lambda * CalculateTp(x, phi.W, weight)
+# }
+
+Constraints <- function(x, phi.W, weight, tp.max){
+	tp <- CalculateTp(x, phi.W, weight)
+	const1 <- tp - tp.max
+
+	m <- (length(x) + 1) / 2
+	p <- c( x[ 1:m - 1 ], 1 - sum( x[ 1: (m - 1) ] ) )
+	theta <- x[ m:(2 * m - 1) ]
+
+	const2 <- sum(p < 0)
+	const3 <- sum(p > 1)
+
+	return(c(const1, const2, const3))
+}
+
+ConstraintsGrad <- function(x, phi.W, weight, tp.max){
+	tp.x <- CalculateTp(x, phi.W, weight, tp.max)
+	dx <- 0.01
+	grad <- numeric(length(x))
 }
