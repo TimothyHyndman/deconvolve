@@ -53,11 +53,6 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	# Solve optimization problem to find PMF
 	#--------------------------------------------------------------------------#
 
-	# Initial point for optimization routine
-	theta0 <- seq( min(W) + 0.01, max(W) - 0.01, length.out = m )
-	p0 <- numeric( m - 1 ) + 1/m
-	x0 <- c(p0, theta0)
-
 	# Set up constraints in form Ax \geq b
 	A <- matrix(0, nrow = m-1 + 1 + 2*m, ncol = 2*m-1)
 	A[1:m-1, 1:m-1] <- diag( m - 1 )   # pj non-negative
@@ -71,23 +66,25 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	A[(2 * m + 1):(3 * m), m:(2 * m - 1)] <- -diag(m)
 	b[(2*m+1):(3*m)] <- -max(W)
 
+	# Initial point for optimization routine
+	theta0 <- seq( min(W) + 0.01, max(W) - 0.01, length.out = m )
+	p0 <- numeric( m - 1 ) + 1/m
+	x0 <- c(p0, theta0)
 
 	min.tp.sol <- stats::constrOptim(x0, CalculateTp, NULL, A, b, phi.W = phi.W, 
 							  weight = weight)
-
 
 	lb <- numeric(2*m-1)
 	lb[m:(2 * m - 1)] <- min(W)
 	ub <- numeric(2*m-1) + 1
 	ub[m:(2 * m - 1)] <- max(W)
 
-	# opts <- list("algorithm"="NLOPT_LD_SLSQP", "maxeval" = 1e3, 
-	# 			 "xtol_rel" = 1e-4)
-	local.opts <- list( "algorithm" = "NLOPT_LD_MMA", 
-					  	"xtol_rel" = 1e-4 )
+	local.opts <- list( "algorithm" = "NLOPT_LD_SLSQP", 
+					  	"xtol_rel" = 1e-6 ,
+					  	"ftol_rel" = 0)
 	opts <- list( "algorithm"="NLOPT_LD_AUGLAG", 
-				  "maxeval" = 1e4, 
-				  "xtol_rel" = 1e-4, 
+				  "maxeval" = 1e5, 
+				  "xtol_rel" = 1e-6, 
 				  "local_opts" = local.opts )
 	
 	min.var.sol <- nloptr::nloptr(min.tp.sol$par, eval_f = CalculateVar, 
@@ -96,13 +93,45 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 								  eval_jac_g_ineq = ConstraintsGrad,
 								  opts = opts, phi.W = phi.W, weight = weight,
 								  tp.max = min.tp.sol$value)
+	
+	#--------------------------------------------------------------------------#
+	# Convert to nice formats and return results
+	#--------------------------------------------------------------------------#
 
+	# Convert back to normal vectors
 	x.sol <- min.var.sol$solution
 	p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
 	theta.sol <- x.sol[m:(2 * m - 1)]
-	plot(theta.sol, p.sol)
+	simple.sol <- SimplifyPmf(theta.sol, p.sol)
+	p.sol <- simple.sol$ProbWeights
+	theta.sol <- simple.sol$Support
 
-	return(list("support" = theta.sol, "probweights" = p.sol, "phi.W" = phi.W))
+	# See effect of min variance.
+	x.min.tp <- min.tp.sol$par
+	p.min.tp <- c( x.min.tp[1:m-1], 1 - sum(x.min.tp[1:m-1]))
+	theta.min.tp <- x.min.tp[m:(2 * m - 1)]
+	simple.min.tp <- SimplifyPmf(theta.min.tp, p.min.tp)
+	p.min.tp <- simple.min.tp$ProbWeights
+	theta.min.tp <- simple.min.tp$Support
+
+
+
+	# Plot for diagnostics
+	df.sol <- data.frame(p.sol, theta.sol)
+	df.min.tp <- data.frame(p.min.tp, theta.min.tp)
+	plot <- ggplot() + geom_point(data = df.min.tp, 
+								  aes(theta.min.tp, p.min.tp), 
+								  color = "magenta") + 
+				 	   geom_point(data = df.sol, 
+				 	   			  aes(theta.sol, p.sol), 
+				 	   			  color = "blue")
+
+	return(list("plot" = plot, 
+				"support" = theta.sol, 
+				"probweights" = p.sol, 
+				"phi.W" = phi.W,
+				"var.opt.results" = min.var.sol,
+				"tp.opt.results" = min.tp.sol))
 }
 #' @export
 CalculateTp <- function(x, phi.W, weight){
@@ -141,7 +170,7 @@ CalculateVarGrad <- function(x, phi.W, weight, tp.max){
 #' @export
 Constraints <- function(x, phi.W, weight, tp.max){
 	tp <- CalculateTp(x, phi.W, weight)
-	const1 <- tp - tp.max	# Does giving it a little slack help?
+	const1 <- tp - tp.max - 0.0001 # Does giving it a little slack help?
 
 	m <- (length(x) + 1) / 2
 	p <- c( x[ 1:m - 1 ], 1 - sum( x[ 1: (m - 1) ] ) )
@@ -156,4 +185,38 @@ Constraints <- function(x, phi.W, weight, tp.max){
 ConstraintsGrad <- function(x, phi.W, weight, tp.max){
 	numDeriv::jacobian(Constraints, x, method = "simple", phi.W = phi.W, weight = weight,
 					   tp.max = tp.max)
+}
+#' @export
+SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
+	
+	# Remove ps that are too small
+	theta <- theta[p > zero.tol]
+	p <- p[p > zero.tol]
+	p <- p / sum(p)
+
+	# Combine thetas that are too close together
+	if (length(p) > 1){
+		looping <- T
+	} else {
+		looping <- F
+	}
+
+	i <- 1
+	while (looping){
+		if (theta[i+1] - theta[i] > adj.tol){
+			i <- i + 1
+		} else {
+			theta[i] <- (p[i] * theta[i] + p[i + 1] * theta[i + 1]) / 
+						(p[i] + p[i + 1])
+			theta <- theta[- (i + 1)]
+			p[i] <- p[i] + p[i + 1]
+			p <- p[- (i + 1)]
+		}
+
+		if (i >= length(p)){
+			looping <- F
+		}
+	}
+
+	return(list("Support" = theta, "ProbWeights" = p))
 }
