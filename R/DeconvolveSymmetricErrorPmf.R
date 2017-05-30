@@ -53,6 +53,10 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	# Solve optimization problem to find PMF
 	#--------------------------------------------------------------------------#
 
+	# ---------
+	# Min T(p)
+	# ---------
+
 	# Set up constraints in form Ax \geq b
 	A <- matrix(0, nrow = m-1 + 1 + 2*m, ncol = 2*m-1)
 	A[1:m-1, 1:m-1] <- diag( m - 1 )   # pj non-negative
@@ -74,25 +78,37 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	min.tp.sol <- stats::constrOptim(x0, CalculateTp, NULL, A, b, phi.W = phi.W, 
 							  weight = weight)
 
-	lb <- numeric(2*m-1)
-	lb[m:(2 * m - 1)] <- min(W)
-	ub <- numeric(2*m-1) + 1
-	ub[m:(2 * m - 1)] <- max(W)
+	# ---------
+	# Min Var
+	# ---------
 
-	local.opts <- list( "algorithm" = "NLOPT_LD_SLSQP", 
-					  	"xtol_rel" = 1e-6 ,
-					  	"ftol_rel" = 0)
-	opts <- list( "algorithm"="NLOPT_LD_AUGLAG", 
-				  "maxeval" = 1e5, 
-				  "xtol_rel" = 1e-6, 
-				  "local_opts" = local.opts )
-	
-	min.var.sol <- nloptr::nloptr(min.tp.sol$par, eval_f = CalculateVar, 
-								  eval_grad_f = CalculateVarGrad, lb = lb, 
-								  ub = ub, eval_g_ineq = Constraints, 
-								  eval_jac_g_ineq = ConstraintsGrad,
-								  opts = opts, phi.W = phi.W, weight = weight,
-								  tp.max = min.tp.sol$value)
+	# Ax <= B
+	# pj non-negative
+	A <- matrix(0, nrow = 2*m-1, ncol = 2*m-1)
+	A[1:m-1, 1:m-1] <- - diag(m - 1)
+	B = numeric(2 * m - 1)
+	# pj sum to less than 1
+	A[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
+	B[m] = 1
+	#thetaj are increasing
+	for (i in 1:(m-1)){
+		A[m+i, (m+i-1):(m+i)] <- c(1, -1)	
+	}
+	B <- matrix(B, ncol = 1)
+	# lb <= x <= ub
+	lb <- numeric(2*m-1)
+	ub <- numeric(2*m-1) + 1
+	lb[m:(2 * m - 1)] <- min(W)
+	ub[m:(2 * m - 1)] <- max(W)
+	lb <- matrix(lb, ncol = 1)
+	ub <- matrix(lb, ncol = 1)
+	ConFun <- function(x){
+		Constraints(x, phi.W, weight, min.tp.sol$value)
+	}
+
+	x0 <- min.tp.sol$par
+	min.var.sol <- NlcOptim::solnl(x0, CalculateVar, ConFun, A, B, lb, ub)	#lb and ub 
+	# aren't working yet :(
 	
 	#--------------------------------------------------------------------------#
 	# Convert to nice formats and return results
@@ -153,7 +169,7 @@ CalculateTp <- function(x, phi.W, weight){
 	return(tp)
 }
 #' @export
-CalculateVar <- function(x, phi.W, weight, tp.max){
+CalculateVar <- function(x){
 	m <- (length(x) + 1) / 2
 	p <- c( x[ 1:(m - 1) ], 1 - sum( x[ 1:(m - 1) ] ) )
 	theta <- x[ m:(2 * m - 1) ]
@@ -161,31 +177,14 @@ CalculateVar <- function(x, phi.W, weight, tp.max){
 	var <- sum(p*(theta - mean)^2)
 	return(var)
 }
-#' @export
-CalculateVarGrad <- function(x, phi.W, weight, tp.max){
-	numDeriv::grad(CalculateVar, x, method = "simple", phi.W = phi.W, weight = weight, 
-				   tp.max = tp.max)
-}
 
 #' @export
 Constraints <- function(x, phi.W, weight, tp.max){
 	tp <- CalculateTp(x, phi.W, weight)
-	const1 <- tp - tp.max - 0.0001 # Does giving it a little slack help?
-
-	m <- (length(x) + 1) / 2
-	p <- c( x[ 1:m - 1 ], 1 - sum( x[ 1: (m - 1) ] ) )
-	theta <- x[ m:(2 * m - 1) ]
-
-	const2 <- -sum(p[p < 0])
-	const3 <- sum(p[p > 1] - 1)
-
-	return(c(const1, const2, const3))
+	const1 <- tp - tp.max
+	return(list(ceq = NULL, c = const1))
 }
-#' @export
-ConstraintsGrad <- function(x, phi.W, weight, tp.max){
-	numDeriv::jacobian(Constraints, x, method = "simple", phi.W = phi.W, weight = weight,
-					   tp.max = tp.max)
-}
+
 #' @export
 SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
 	
