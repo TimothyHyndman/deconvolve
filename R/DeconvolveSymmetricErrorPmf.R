@@ -21,6 +21,10 @@
 
 DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 
+	if (m < 2){
+		stop("m must be at least 2")
+	}
+	
 	n <- length(W)
 
 	#--------------------------------------------------------------------------#
@@ -53,69 +57,108 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	# Solve optimization problem to find PMF
 	#--------------------------------------------------------------------------#
 
-	# ---------
-	# Min T(p)
-	# ---------
-
-	# Set up constraints in form Ax \geq b
-	A <- matrix(0, nrow = m-1 + 1 + 2*m, ncol = 2*m-1)
-	A[1:m-1, 1:m-1] <- diag( m - 1 )   # pj non-negative
-	b = numeric(m + 2 * m)
-	A[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) # pj sum to less than 1
-	b[m] = -1
-	# thetaj greater than min(W)
-	A[(m + 1):(2 * m), m:(2 * m - 1)] <- diag(m)
-	b[(m+1):(2*m)] <- min(W)
-	# thetaj less than max(W)
-	A[(2 * m + 1):(3 * m), m:(2 * m - 1)] <- -diag(m)
-	b[(2*m+1):(3*m)] <- -max(W)
-
-	# Initial point for optimization routine
-	theta0 <- seq( min(W) + 0.01, max(W) - 0.01, length.out = m )
-	p0 <- numeric( m - 1 ) + 1/m
-	x0 <- c(p0, theta0)
-
-	min.tp.sol <- stats::constrOptim(x0, CalculateTp, NULL, A, b, phi.W = phi.W, 
-							  weight = weight)
-
-	# ---------
-	# Min Var
-	# ---------
-
-	# Ax <= B
+	# ------------------
+	# Setup for Min T(p)
+	# ------------------
+	# Set up constraints in form Ax \geq B
+	
 	# pj non-negative
-	A <- matrix(0, nrow = 2*m-1, ncol = 2*m-1)
-	A[1:m-1, 1:m-1] <- - diag(m - 1)
-	B = numeric(2 * m - 1)
+	A.tp <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	A.tp[1:m-1, 1:m-1] <- diag( m - 1 )   
+	B.tp = numeric(2 * m - 1)
 	# pj sum to less than 1
-	A[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
-	B[m] = 1
-	#thetaj are increasing
+	A.tp[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) 
+	B.tp[m] = -1
+	# thetaj are increasing
 	for (i in 1:(m-1)){
-		A[m+i, (m+i-1):(m+i)] <- c(1, -1)	
+		A.tp[m+i, (m+i-1):(m+i)] <- c(-1, 1)	
 	}
-	B <- matrix(B, ncol = 1)
-	# lb <= x <= ub
-	lb <- numeric(2*m-1)
-	ub <- numeric(2*m-1) + 1
-	lb[m:(2 * m - 1)] <- min(W)
-	ub[m:(2 * m - 1)] <- max(W)
-	lb <- matrix(lb, ncol = 1)
-	ub <- matrix(lb, ncol = 1)
+	# min(W) < thetaj < max(W)
+	A.tp[2*m, m] <- 1
+	A.tp[2*m+1, 2*m-1] <- -1
+	B.tp[2*m] <- min(W)
+	B.tp[2*m+1] <- -max(W)
+
+	# ------------------
+	# Setup for Min Var
+	# ------------------
+	# Set up constraints in form Ax \leq B, ConFun(x) <= 0
+
+	# pj non-negative
+	A.var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	A.var[1:m-1, 1:m-1] <- -diag(m - 1)
+	B.var <- numeric(2 * m - 1)
+	# pj sum to less than 1
+	A.var[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
+	B.var[m] = 1
+	# thetaj are increasing
+	for (i in 1:(m-1)){
+		A.var[m+i, (m+i-1):(m+i)] <- c(1, -1)	
+	}
+	# min(W) < thetaj < max(W)
+	A.var[2*m, m] <- -1
+	A.var[2*m+1, 2*m-1] <- 1
+	B.var[2*m] <- -min(W)
+	B.var[2*m+1] <- max(W)
+
+	# ----------------------
+	# Perform Minimizations
+	# ----------------------
+
+	n.iterations.tp <- 5
+	n.iterations.var <- 5
+
+	tp.min <- 1e15
+	print("Minimizing T(p)")
+	for (i in 1:n.iterations.tp){
+		theta0 <- sort(runif(m, min = min(W), max = max(W)))
+		p0 <- runif(m, min = 0, max = 1)
+		p0 <- p0 / sum(p0)
+
+		x0 <- c(p0[1:(m-1)], theta0)
+
+		min.tp.sol.test <- stats::constrOptim(x0, CalculateTp, NULL, A.tp, B.tp, 
+									 		  phi.W = phi.W, weight = weight)
+		if (min.tp.sol.test$value < tp.min){
+			tp.min <- min.tp.sol.test$value
+			min.tp.sol <- min.tp.sol.test
+			print(tp.min)
+		}
+	}
+
 	ConFun <- function(x){
 		Constraints(x, phi.W, weight, min.tp.sol$value)
 	}
 
-	x0 <- min.tp.sol$par
-	min.var.sol <- NlcOptim::solnl(x0, CalculateVar, ConFun, A, B, lb, ub)	#lb and ub 
-	# aren't working yet :(
+	print("Minimizing Variance")
+	var.min <- 1e15
+	# x0 <- min.tp.sol$par
+	for (i in 1:n.iterations.var){
+		theta0 <- sort(runif(m, min = min(W), max = max(W)))
+		p0 <- runif(m, min = 0, max = 1)
+		p0 <- p0 / sum(p0)
+
+		x0 <- c(p0[1:(m-1)], theta0)
+
+		min.var.sol.test <- NlcOptim::solnl(x0, CalculateVar, ConFun, A.var, 
+											B.var)
+
+		if (min.var.sol.test$fn < var.min){
+			var.min <- min.var.sol.test$fn
+			min.var.sol <- min.var.sol.test
+			print(var.min)
+		}
+	}
+
+	
+	
 	
 	#--------------------------------------------------------------------------#
 	# Convert to nice formats and return results
 	#--------------------------------------------------------------------------#
 
 	# Convert back to normal vectors
-	x.sol <- min.var.sol$solution
+	x.sol <- min.var.sol$par
 	p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
 	theta.sol <- x.sol[m:(2 * m - 1)]
 	simple.sol <- SimplifyPmf(theta.sol, p.sol)
@@ -135,12 +178,13 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	# Plot for diagnostics
 	df.sol <- data.frame(p.sol, theta.sol)
 	df.min.tp <- data.frame(p.min.tp, theta.min.tp)
-	plot <- ggplot() + geom_point(data = df.min.tp, 
-								  aes(theta.min.tp, p.min.tp), 
-								  color = "magenta") + 
-				 	   geom_point(data = df.sol, 
-				 	   			  aes(theta.sol, p.sol), 
-				 	   			  color = "blue")
+	plot <- ggplot2::ggplot() + 
+			ggplot2::geom_point(data = df.min.tp, 
+			  					aes(theta.min.tp, p.min.tp), 
+			  					color = "magenta") + 
+			ggplot2::geom_point(data = df.sol, 
+			  					aes(theta.sol, p.sol), 
+			  					color = "blue")
 
 	return(list("plot" = plot, 
 				"support" = theta.sol, 
@@ -181,7 +225,8 @@ CalculateVar <- function(x){
 #' @export
 Constraints <- function(x, phi.W, weight, tp.max){
 	tp <- CalculateTp(x, phi.W, weight)
-	const1 <- tp - tp.max
+	lambda <- 1
+	const1 <- tp - lambda*tp.max
 	return(list(ceq = NULL, c = const1))
 }
 
