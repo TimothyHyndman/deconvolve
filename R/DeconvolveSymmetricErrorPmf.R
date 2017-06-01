@@ -85,28 +85,28 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	# Set up constraints in form Ax \leq B, ConFun(x) <= 0
 
 	# pj non-negative
-	A.var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
-	A.var[1:m-1, 1:m-1] <- -diag(m - 1)
-	B.var <- numeric(2 * m - 1)
-	# pj sum to less than 1
-	A.var[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
-	B.var[m] = 1
-	# thetaj are increasing
-	for (i in 1:(m-1)){
-		A.var[m+i, (m+i-1):(m+i)] <- c(1, -1)	
-	}
-	# min(W) < thetaj < max(W)
-	A.var[2*m, m] <- -1
-	A.var[2*m+1, 2*m-1] <- 1
-	B.var[2*m] <- -min(W)
-	B.var[2*m+1] <- max(W)
+	# A.var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	# A.var[1:m-1, 1:m-1] <- -diag(m - 1)
+	# B.var <- numeric(2 * m - 1)
+	# # pj sum to less than 1
+	# A.var[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
+	# B.var[m] = 1
+	# # thetaj are increasing
+	# for (i in 1:(m-1)){
+	# 	A.var[m+i, (m+i-1):(m+i)] <- c(1, -1)	
+	# }
+	# # min(W) < thetaj < max(W)
+	# A.var[2*m, m] <- -1
+	# A.var[2*m+1, 2*m-1] <- 1
+	# B.var[2*m] <- -min(W)
+	# B.var[2*m+1] <- max(W)
 
 	# ----------------------
 	# Perform Minimizations
 	# ----------------------
 
-	n.iterations.tp <- 5
-	n.iterations.var <- 5
+	n.iterations.tp <- 1
+	n.iterations.var <- 1
 
 	tp.min <- 1e15
 	print("Minimizing T(p)")
@@ -127,7 +127,7 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	}
 
 	ConFun <- function(x){
-		Constraints(x, phi.W, weight, min.tp.sol$value)
+		Constraints(x, phi.W, weight, min.tp.sol$value, A.tp, B.tp)
 	}
 
 	print("Minimizing Variance")
@@ -140,11 +140,14 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 
 		x0 <- c(p0[1:(m-1)], theta0)
 
-		min.var.sol.test <- NlcOptim::solnl(x0, CalculateVar, ConFun, A.var, 
-											B.var)
+		control.outer = list("trace" = F)
+		min.var.sol.test <- alabama::auglag(x0, CalculateVar, hin = ConFun, 
+											control.outer = control.outer)
+		# min.var.sol.test <- alabama::constrOptim.nl(x0, CalculateVar, hin = ConFun, 
+		# 									control.outer = control.outer)
 
-		if (min.var.sol.test$fn < var.min){
-			var.min <- min.var.sol.test$fn
+		if (min.var.sol.test$value < var.min){
+			var.min <- min.var.sol.test$value
 			min.var.sol <- min.var.sol.test
 			print(var.min)
 		}
@@ -161,6 +164,11 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	x.sol <- min.var.sol$par
 	p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
 	theta.sol <- x.sol[m:(2 * m - 1)]
+
+	# print(A.tp %*% x.sol  - B.tp)
+	print(p.sol)
+	print(theta.sol)
+	print(ConFun(x.sol))
 	simple.sol <- SimplifyPmf(theta.sol, p.sol)
 	p.sol <- simple.sol$ProbWeights
 	theta.sol <- simple.sol$Support
@@ -180,10 +188,10 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	df.min.tp <- data.frame(p.min.tp, theta.min.tp)
 	plot <- ggplot2::ggplot() + 
 			ggplot2::geom_point(data = df.min.tp, 
-			  					aes(theta.min.tp, p.min.tp), 
+			  					ggplot2::aes(theta.min.tp, p.min.tp), 
 			  					color = "magenta") + 
 			ggplot2::geom_point(data = df.sol, 
-			  					aes(theta.sol, p.sol), 
+			  					ggplot2::aes(theta.sol, p.sol), 
 			  					color = "blue")
 
 	return(list("plot" = plot, 
@@ -223,11 +231,13 @@ CalculateVar <- function(x){
 }
 
 #' @export
-Constraints <- function(x, phi.W, weight, tp.max){
+Constraints <- function(x, phi.W, weight, tp.max, A, B){
 	tp <- CalculateTp(x, phi.W, weight)
 	lambda <- 1
-	const1 <- tp - lambda*tp.max
-	return(list(ceq = NULL, c = const1))
+	tp.const <- (lambda * tp.max - tp) / tp.max
+	linear.const <- A %*% x - B
+
+	c(tp.const, linear.const)
 }
 
 #' @export
