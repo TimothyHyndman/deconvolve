@@ -4,7 +4,7 @@ GenerateTestData <- function(n = 500, NSR = 0.2){
 	
 	# True 
 	df <- 3
-	X <- rchisq(n, df)
+	X <- stats::rchisq(n, df)
 	var.X <- 2*df
 	X <- X / sqrt(var.X)
 	var.X <- 1
@@ -17,7 +17,7 @@ GenerateTestData <- function(n = 500, NSR = 0.2){
 
 	# Error
 	sig.U = sqrt(NSR * var.X)
-	U <- rnorm(n, sd = sig.U)
+	U <- stats::rnorm(n, sd = sig.U)
 
 	W <- X + U
 	return(W)

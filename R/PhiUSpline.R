@@ -9,7 +9,8 @@ PhiUSpline <- function(t.over.h, hat.var.U, phi.U, tt){
 
 	y <- 0*t.over.h
 
-	y[ind1] <- spline( tt, phi.U, xout = t.over.h[ind1] )$y #What method is this using? Compare to MATLAB code.
+	y[ind1] <- stats::spline( tt, phi.U, xout = t.over.h[ind1] )$y 
+	#What method is this using? Compare to MATLAB code.
 	y[ind2] <- PhiULap(t.over.h[ind2])
 
 	return(y)

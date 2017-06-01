@@ -7,8 +7,9 @@
 #' 
 #' @param W A vector of the contaminated data
 #' @param m The number of support points to use in finding the Pmf
-#' @param n.iter.tp The number of times to minimize T(p)
-#' @param n.iter.var The number of times to minimize the variance
+#' @param n.iter.tp The number of times to attempt minimization of T(p)
+#' @param n.iter.var The number of times to attempt minimization of the variance
+#' @param show.diagnostics Flag indicating whether to show diagnostics
 #' 
 #' @return A list with components:
 #' 	\item{support}{The support of the deconvolved distribution}
@@ -21,8 +22,12 @@
 #' 
 #' @export
 
-DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5, 
-										n.iter.var = 2){
+DeconErrSymPmf <- function(W, m = 10, n.iter.tp = 5, 
+										n.iter.var = 2, show.diagnostics = F){
+
+	Diagnostic <- function(message){
+		PrintDiagnostic(message, show.diagnostics)
+	}
 
 	if (m < 2){
 		stop("m must be at least 2")
@@ -35,22 +40,20 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5,
 	#--------------------------------------------------------------------------#
 	# Calculate phi.W on [-8,8] so we can find t*
 	tt.length <- 100
-	a <- -8
-	b <- 8
-	tt <- seq( a, b, length.out = tt.length )
+	tt <- seq(-1, 8, length.out = tt.length)
 	phi.W <- ComputePhiEmp(W, tt)
 
 	# Calculate t*
 	tmp <- tt[phi.W$norm < n^(-0.25)]
 	if ( length( tmp[ tmp > 0] ) == 0 ){
-		t.star <- max( tt )
+		t.star <- max(tt)
 	} else {
 		t.star <- min( tmp[ tmp > 0 ] )
 	}
 
 	# Calculate phi.W on [-t*,t*]
 	tt.new.length <- 100
-	tt.new <- seq( -t.star, t.star, length.out = tt.new.length )
+	tt.new <- seq(-t.star, t.star, length.out = tt.new.length)
 	phi.W <- ComputePhiEmp(W, tt.new)
 
 	# Calculate weight w(t) on [-t*, t*]
@@ -85,7 +88,7 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5,
 	# ------------------
 	# Setup for Min Var
 	# ------------------
-	# Set up constraints in form Ax \leq B, ConFun(x) <= 0
+	# Set up constraints in form Ax \leq B
 
 	# pj non-negative
 	A.var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
@@ -107,12 +110,12 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5,
 	# ----------------------
 	# Perform Minimizations
 	# ----------------------
+	Diagnostic("Minimizing T(p)")
 
-	tp.min <- 1e15
-	print("Minimizing T(p)")
+	tp.min <- Inf
 	for (i in 1:n.iter.tp){
-		theta0 <- sort(runif(m, min = min(W), max = max(W)))
-		p0 <- runif(m, min = 0, max = 1)
+		theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
+		p0 <- stats::runif(m, min = 0, max = 1)
 		p0 <- p0 / sum(p0)
 
 		x0 <- c(p0[1:(m-1)], theta0)
@@ -122,18 +125,18 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5,
 		if (min.tp.sol.test$value < tp.min){
 			tp.min <- min.tp.sol.test$value
 			min.tp.sol <- min.tp.sol.test
-			print(tp.min)
+			Diagnostic(tp.min)
 		}
 	}
 
+	# ConFun(x) <= 0
 	ConFun <- function(x){
 		Constraints(x, phi.W, weight, min.tp.sol$value)
 	}
-
-	print("Minimizing Variance")
-	print(cat("Initial Variance is ", CalculateVar(min.tp.sol$par), "\n"))
 	
-	var.min <- 1e15
+	Diagnostic("Minimizing Variance")
+
+	var.min <- Inf
 	for (i in 1:n.iter.var){
 		looping <- T
 		while (looping){			
@@ -143,8 +146,8 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5,
 			# values and ignore everything until we get no error
 			looping <- F
 
-			theta0 <- sort(runif(m, min = min(W), max = max(W)))
-			p0 <- runif(m, min = 0, max = 1)
+			theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
+			p0 <- stats::runif(m, min = 0, max = 1)
 			p0 <- p0 / sum(p0)
 			x0 <- c(p0[1:(m-1)], theta0)
 
@@ -155,8 +158,9 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5,
 													maxnFun = 100*(2*m-1), 
 													tolX = 1e-6)
 			}, error = function(e){
-				cat("ERROR :", conditionMessage(e), "\n")
-				min.var.sol.test <- NULL
+				err.mess <- paste("ERROR :", conditionMessage(e), sep = " ")
+				Diagnostic(err.mess)
+				min.var.sol.test <- NULL						
 			})
 
 			if (is.null(min.var.sol.test)) {
@@ -167,9 +171,17 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5,
 		if (min.var.sol.test$fn < var.min){
 			var.min <- min.var.sol.test$fn
 			min.var.sol <- min.var.sol.test
-			print(var.min)
+			Diagnostic(var.min)
 		}
 	}
+
+	Diagnostic(paste("Initial Variance was", CalculateVar(min.tp.sol$par), 
+				 	 sep  = " "))
+	Diagnostic(paste("Final Variance is", var.min, sep  = " "))
+
+	tp.diff <- tp.min - CalculateTp(min.var.sol$par, phi.W, weight)
+	Diagnostic(paste("T(p) decreased by", tp.diff, "while minimizing variance", 
+					 sep = " "))
 	
 	#--------------------------------------------------------------------------#
 	# Convert to nice formats and return results
@@ -183,33 +195,23 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5,
 	p.sol <- simple.sol$ProbWeights
 	theta.sol <- simple.sol$Support
 
-	# See effect of min variance.
 	x.min.tp <- min.tp.sol$par
 	p.min.tp <- c( x.min.tp[1:m-1], 1 - sum(x.min.tp[1:m-1]))
 	theta.min.tp <- x.min.tp[m:(2 * m - 1)]
+
 	simple.min.tp <- SimplifyPmf(theta.min.tp, p.min.tp)
 	p.min.tp <- simple.min.tp$ProbWeights
 	theta.min.tp <- simple.min.tp$Support
 
-	# Plot for diagnostics
-	df.sol <- data.frame(p.sol, theta.sol)
-	df.min.tp <- data.frame(p.min.tp, theta.min.tp)
-	plot <- ggplot2::ggplot() + 
-			ggplot2::geom_point(data = df.min.tp, 
-			  					ggplot2::aes(theta.min.tp, p.min.tp), 
-			  					color = "magenta") + 
-			ggplot2::geom_point(data = df.sol, 
-			  					ggplot2::aes(theta.sol, p.sol), 
-			  					color = "blue")
-
-	return(list("plot" = plot, 
-				"support" = theta.sol, 
+	return(list("support" = theta.sol, 
 				"probweights" = p.sol, 
+				"support.min.tp" = theta.min.tp,
+				"probweights.min.tp" = p.min.tp,
 				"phi.W" = phi.W,
 				"var.opt.results" = min.var.sol,
 				"tp.opt.results" = min.tp.sol))
 }
-#' @export
+
 CalculateTp <- function(x, phi.W, weight){
 	m <- (length(x) + 1) / 2
 
@@ -228,7 +230,7 @@ CalculateTp <- function(x, phi.W, weight){
 
 	return(tp)
 }
-#' @export
+
 CalculateVar <- function(x){
 	m <- (length(x) + 1) / 2
 	p <- c( x[ 1:(m - 1) ], 1 - sum( x[ 1:(m - 1) ] ) )
@@ -238,7 +240,6 @@ CalculateVar <- function(x){
 	return(var)
 }
 
-#' @export
 Constraints <- function(x, phi.W, weight, tp.max){
 	tp <- CalculateTp(x, phi.W, weight)
 	lambda <- 1.0
@@ -246,7 +247,6 @@ Constraints <- function(x, phi.W, weight, tp.max){
 	return(list(ceq = NULL, c = const1))
 }
 
-#' @export
 SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
 	
 	# Remove ps that are too small
@@ -279,4 +279,10 @@ SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
 	}
 
 	return(list("Support" = theta, "ProbWeights" = p))
+}
+
+PrintDiagnostic <- function(message, show.diagnostics){
+	if (show.diagnostics){
+		print(message)
+	}
 }

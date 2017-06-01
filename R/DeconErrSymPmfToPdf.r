@@ -1,10 +1,28 @@
-# X.pmf is a list with parts "support" and "probweights"
+#' Create Probability Density Function from Probability Mass Function
+#' 
+#' Takes the output of DeconErrSymPmf along with the contaminated data, W, and
+#' uses a kernel estimator to find a probability density function for X.
+#' 
+#' Details here
+#' 
+#' @param X.pmf A list with parts "support" and "probweights"
+#' @param W A vector of the contaminated data
+#' @param phi.W A list with parts "complex", "re", "im", "norm" and "t.values" 
+#' containing phi.W, Re(phi.W), Im(phi.W), Norm(phi.W) and the t values on which
+#' they were calculated respectively.
+#' 
+#' @return A list with components:
+#' \item{x}{The values on which \eqn{f_X} was calculated}
+#' \item{y}{The density \eqn{f_X(x)} evaluated at each x}
+#' 
+#' @example man/examples/SymmetricError_eg.R
+#' 
 #' @export
-# Just for testing
-SymmetricErrorPmfToPdf <- function(theta, p, W, phi.W){
 
-	# theta <- X.pmf$support
-	# p <- X.pmf$probweights
+DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W){
+
+	theta <- X.pmf$support
+	p <- X.pmf$probweights
 
 	# Estimate phi.X and phi.U
 	tt <- phi.W$t.values
@@ -49,6 +67,7 @@ SymmetricErrorPmfToPdf <- function(theta, p, W, phi.W){
 
 	xx.length <- 100
 	xx <- seq(min(W), max(W), length.out = xx.length)
+	dx <- xx[2] - xx[1]
 	xt <- outerop(t/h.PIc, xx, "*")
 
 	fX <- cos(xt) * matrix( rep(phi.X.re, length(xx)), ncol = length(xx)) + 
@@ -58,7 +77,7 @@ SymmetricErrorPmfToPdf <- function(theta, p, W, phi.W){
 	(2 * pi) * dt / h.PIc
 
 	fX[fX < 0] <- 0
-	fX <- fX / sum(fX)
+	fX <- fX / sum(fX) / dx
 
 	return(list("x" = xx, "y" = fX))
 

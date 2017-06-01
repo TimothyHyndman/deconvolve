@@ -1,4 +1,3 @@
-#' @export
 ComputePhiPmf <- function(theta, p, tt){
 	# Returns phi calculated on tt as a complex vector
 	i <- complex(imaginary = 1)
@@ -6,7 +5,7 @@ ComputePhiPmf <- function(theta, p, tt){
 
 	return(as.vector(phi))
 }
-#' @export
+
 ComputePhiEmp <- function(W, tt){
 	# Returns a list containing Phi and the Real, Imaginary, Normed parts of Phi
 	n <- length( W )
