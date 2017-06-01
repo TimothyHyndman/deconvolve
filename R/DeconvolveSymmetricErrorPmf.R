@@ -7,6 +7,8 @@
 #' 
 #' @param W A vector of the contaminated data
 #' @param m The number of support points to use in finding the Pmf
+#' @param n.iter.tp The number of times to minimize T(p)
+#' @param n.iter.var The number of times to minimize the variance
 #' 
 #' @return A list with components:
 #' 	\item{support}{The support of the deconvolved distribution}
@@ -19,16 +21,13 @@
 #' 
 #' @export
 
-# There are two ways we can solve this optimization problem. 
-# 1. Find T* = min(T(p)) then minimize variance under constraint that T(p) = T*
-#
-# 2. Minimize var + lambda*T(p) for some suitable lambda.
-#
-# Option 1 is preferable I think, but harder to implement since T(p) = T* is a 
-# very tight constraint
+DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5, 
+										n.iter.var = 2){
 
-DeconvolveSymmetricErrorPmf <- function(W, m = 10){
-
+	if (m < 2){
+		stop("m must be at least 2")
+	}
+	
 	n <- length(W)
 
 	#--------------------------------------------------------------------------#
@@ -61,64 +60,156 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	# Solve optimization problem to find PMF
 	#--------------------------------------------------------------------------#
 
-	# Initial point for optimization routine
-	theta0 <- seq( min(W), max(W), length.out = m )
-	p0 <- numeric( m - 1 ) + 1/m
-	x0 <- c(p0, theta0)
-
-	# Set up constraints in form Ax \geq b
-	A <- matrix(0, nrow = m, ncol = 2*m-1)
-	A[1:m-1, 1:m-1] <- diag( m - 1 )   #pj non-negative
-	b = numeric(m)
-	A[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) #pj sum to less than 1
-	b[m] = -1
+	# ------------------
+	# Setup for Min T(p)
+	# ------------------
+	# Set up constraints in form Ax \geq B
 	
+	# pj non-negative
+	A.tp <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	A.tp[1:m-1, 1:m-1] <- diag( m - 1 )   
+	B.tp = numeric(2 * m - 1)
+	# pj sum to less than 1
+	A.tp[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) 
+	B.tp[m] = -1
+	# thetaj are increasing
+	for (i in 1:(m-1)){
+		A.tp[m+i, (m+i-1):(m+i)] <- c(-1, 1)	
+	}
+	# min(W) < thetaj < max(W)
+	A.tp[2*m, m] <- 1
+	A.tp[2*m+1, 2*m-1] <- -1
+	B.tp[2*m] <- min(W)
+	B.tp[2*m+1] <- -max(W)
 
-	#----------------------------------#
-	# Option 1
-	#----------------------------------#
+	# ------------------
+	# Setup for Min Var
+	# ------------------
+	# Set up constraints in form Ax \leq B, ConFun(x) <= 0
 
-	# Minimize T(p)
+	# pj non-negative
+	A.var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	A.var[1:m-1, 1:m-1] <- -diag(m - 1)
+	B.var <- numeric(2 * m - 1)
+	# pj sum to less than 1
+	A.var[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
+	B.var[m] = 1
+	# thetaj are increasing
+	for (i in 1:(m-1)){
+		A.var[m+i, (m+i-1):(m+i)] <- c(1, -1)	
+	}
+	# min(W) < thetaj < max(W)
+	A.var[2*m, m] <- -1
+	A.var[2*m+1, 2*m-1] <- 1
+	B.var[2*m] <- -min(W)
+	B.var[2*m+1] <- max(W)
 
-	# min.tp.sol <- stats::constrOptim(x0, CalculateTp, NULL, A, b, phi.W = phi.W, 
-	# 						  weight = weight)
+	# ----------------------
+	# Perform Minimizations
+	# ----------------------
+
+	tp.min <- 1e15
+	print("Minimizing T(p)")
+	for (i in 1:n.iter.tp){
+		theta0 <- sort(runif(m, min = min(W), max = max(W)))
+		p0 <- runif(m, min = 0, max = 1)
+		p0 <- p0 / sum(p0)
+
+		x0 <- c(p0[1:(m-1)], theta0)
+
+		min.tp.sol.test <- stats::constrOptim(x0, CalculateTp, NULL, A.tp, B.tp, 
+									 		  phi.W = phi.W, weight = weight)
+		if (min.tp.sol.test$value < tp.min){
+			tp.min <- min.tp.sol.test$value
+			min.tp.sol <- min.tp.sol.test
+			print(tp.min)
+		}
+	}
+
+	ConFun <- function(x){
+		Constraints(x, phi.W, weight, min.tp.sol$value)
+	}
+
+	print("Minimizing Variance")
+	print(cat("Initial Variance is ", CalculateVar(min.tp.sol$par), "\n"))
 	
-	# Minimize the variance subject to T(theta,p) not increasing
-	# This is currently not working well as optim can't find any feasible 
-	# points other than the initial.
+	var.min <- 1e15
+	for (i in 1:n.iter.var){
+		looping <- T
+		while (looping){			
+			# NlcOptim can't handle it if the Generated QP problem is infeasible
+			# However, this error only pops up some of the time. For now, a 
+			# dirty solution is to keep running the code with different starting
+			# values and ignore everything until we get no error
+			looping <- F
 
-	# min.var.sol <- stats::constrOptim(min.tp.sol$par, CalculateVarwithConstr, NULL, A, 
-	# 						   b, max.tp = min.tp.sol$value, phi.W = phi.W, 
-	# 						   weight = weight)
+			theta0 <- sort(runif(m, min = min(W), max = max(W)))
+			p0 <- runif(m, min = 0, max = 1)
+			p0 <- p0 / sum(p0)
+			x0 <- c(p0[1:(m-1)], theta0)
 
-	# min.var.sol <- stats::constrOptim(min.tp.sol$par, CombinedObjective, NULL, 
-	# 								  A, b, phi.W = phi.W, weight = weight)
+			min.var.sol.test <- tryCatch({
+	    		min.var.sol.test <- NlcOptim::solnl(x0, CalculateVar, ConFun, 
+	    											A.var, B.var, 
+	    											maxIter = 400, 
+													maxnFun = 100*(2*m-1), 
+													tolX = 1e-6)
+			}, error = function(e){
+				cat("ERROR :", conditionMessage(e), "\n")
+				min.var.sol.test <- NULL
+			})
 
-	# x.sol <- min.var.sol$par
-	# p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
-	# theta.sol <- x.sol[m:(2 * m - 1)]
+			if (is.null(min.var.sol.test)) {
+				looping <- T
+			}
+		}
+		
+		if (min.var.sol.test$fn < var.min){
+			var.min <- min.var.sol.test$fn
+			min.var.sol <- min.var.sol.test
+			print(var.min)
+		}
+	}
+	
+	#--------------------------------------------------------------------------#
+	# Convert to nice formats and return results
+	#--------------------------------------------------------------------------#
 
-	# return(list("support" = theta.sol, "probweights" = p.sol))
-
-
-	#------------------------------------#
-	# Option 2
-	#------------------------------------#
-
-	min.comb.sol <- stats::constrOptim(x0, CombinedObjective, NULL, A, b, 
-								phi.W = phi.W, weight = weight)
-
-	x.sol <- min.comb.sol$par
+	# Convert back to normal vectors
+	x.sol <- min.var.sol$par
 	p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
 	theta.sol <- x.sol[m:(2 * m - 1)]
+	simple.sol <- SimplifyPmf(theta.sol, p.sol)
+	p.sol <- simple.sol$ProbWeights
+	theta.sol <- simple.sol$Support
 
-	#--------------------------------------------------------------------------#
-	# Return
-	#--------------------------------------------------------------------------#
+	# See effect of min variance.
+	x.min.tp <- min.tp.sol$par
+	p.min.tp <- c( x.min.tp[1:m-1], 1 - sum(x.min.tp[1:m-1]))
+	theta.min.tp <- x.min.tp[m:(2 * m - 1)]
+	simple.min.tp <- SimplifyPmf(theta.min.tp, p.min.tp)
+	p.min.tp <- simple.min.tp$ProbWeights
+	theta.min.tp <- simple.min.tp$Support
 
-	return(list("support" = theta.sol, "probweights" = p.sol, "phi.W" = phi.W))
+	# Plot for diagnostics
+	df.sol <- data.frame(p.sol, theta.sol)
+	df.min.tp <- data.frame(p.min.tp, theta.min.tp)
+	plot <- ggplot2::ggplot() + 
+			ggplot2::geom_point(data = df.min.tp, 
+			  					ggplot2::aes(theta.min.tp, p.min.tp), 
+			  					color = "magenta") + 
+			ggplot2::geom_point(data = df.sol, 
+			  					ggplot2::aes(theta.sol, p.sol), 
+			  					color = "blue")
+
+	return(list("plot" = plot, 
+				"support" = theta.sol, 
+				"probweights" = p.sol, 
+				"phi.W" = phi.W,
+				"var.opt.results" = min.var.sol,
+				"tp.opt.results" = min.tp.sol))
 }
-
+#' @export
 CalculateTp <- function(x, phi.W, weight){
 	m <- (length(x) + 1) / 2
 
@@ -137,28 +228,55 @@ CalculateTp <- function(x, phi.W, weight){
 
 	return(tp)
 }
-
+#' @export
 CalculateVar <- function(x){
 	m <- (length(x) + 1) / 2
-	p <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
+	p <- c( x[ 1:(m - 1) ], 1 - sum( x[ 1:(m - 1) ] ) )
 	theta <- x[ m:(2 * m - 1) ]
 	mean <- sum(p*theta)
 	var <- sum(p*(theta - mean)^2)
 	return(var)
 }
 
-CalculateVarwithConstr <- function(x, max.tp, phi.W, weight){
-	#Check that tp hasn't gotten any bigger
+#' @export
+Constraints <- function(x, phi.W, weight, tp.max){
 	tp <- CalculateTp(x, phi.W, weight)
-	if (tp > max.tp){
-		return(Inf)
-	}
-
-	# All constraints are met so calculate variance
-	var <- CalculateVar(x)
-	return(var)
+	lambda <- 1.0
+	const1 <- tp - lambda*tp.max
+	return(list(ceq = NULL, c = const1))
 }
 
-CombinedObjective <- function(x, phi.W, weight, lambda = 10000){
-	CalculateVar(x) + lambda * CalculateTp(x, phi.W, weight)
+#' @export
+SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
+	
+	# Remove ps that are too small
+	theta <- theta[p > zero.tol]
+	p <- p[p > zero.tol]
+	p <- p / sum(p)
+
+	# Combine thetas that are too close together
+	if (length(p) > 1){
+		looping <- T
+	} else {
+		looping <- F
+	}
+
+	i <- 1
+	while (looping){
+		if (theta[i+1] - theta[i] > adj.tol){
+			i <- i + 1
+		} else {
+			theta[i] <- (p[i] * theta[i] + p[i + 1] * theta[i + 1]) / 
+						(p[i] + p[i + 1])
+			theta <- theta[- (i + 1)]
+			p[i] <- p[i] + p[i + 1]
+			p <- p[- (i + 1)]
+		}
+
+		if (i >= length(p)){
+			looping <- F
+		}
+	}
+
+	return(list("Support" = theta, "ProbWeights" = p))
 }
