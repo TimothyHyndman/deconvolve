@@ -7,6 +7,8 @@
 #' 
 #' @param W A vector of the contaminated data
 #' @param m The number of support points to use in finding the Pmf
+#' @param n.iter.tp The number of times to minimize T(p)
+#' @param n.iter.var The number of times to minimize the variance
 #' 
 #' @return A list with components:
 #' 	\item{support}{The support of the deconvolved distribution}
@@ -19,7 +21,8 @@
 #' 
 #' @export
 
-DeconvolveSymmetricErrorPmf <- function(W, m = 10){
+DeconvolveSymmetricErrorPmf <- function(W, m = 10, n.iter.tp = 5, 
+										n.iter.var = 2){
 
 	if (m < 2){
 		stop("m must be at least 2")
@@ -105,12 +108,9 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	# Perform Minimizations
 	# ----------------------
 
-	n.iterations.tp <- 5
-	n.iterations.var <- 5
-
 	tp.min <- 1e15
 	print("Minimizing T(p)")
-	for (i in 1:n.iterations.tp){
+	for (i in 1:n.iter.tp){
 		theta0 <- sort(runif(m, min = min(W), max = max(W)))
 		p0 <- runif(m, min = 0, max = 1)
 		p0 <- p0 / sum(p0)
@@ -131,27 +131,45 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	}
 
 	print("Minimizing Variance")
+	print(cat("Initial Variance is ", CalculateVar(min.tp.sol$par), "\n"))
+	
 	var.min <- 1e15
-	# x0 <- min.tp.sol$par
-	for (i in 1:n.iterations.var){
-		theta0 <- sort(runif(m, min = min(W), max = max(W)))
-		p0 <- runif(m, min = 0, max = 1)
-		p0 <- p0 / sum(p0)
+	for (i in 1:n.iter.var){
+		looping <- T
+		while (looping){			
+			# NlcOptim can't handle it if the Generated QP problem is infeasible
+			# However, this error only pops up some of the time. For now, a 
+			# dirty solution is to keep running the code with different starting
+			# values and ignore everything until we get no error
+			looping <- F
 
-		x0 <- c(p0[1:(m-1)], theta0)
+			theta0 <- sort(runif(m, min = min(W), max = max(W)))
+			p0 <- runif(m, min = 0, max = 1)
+			p0 <- p0 / sum(p0)
+			x0 <- c(p0[1:(m-1)], theta0)
 
-		min.var.sol.test <- NlcOptim::solnl(x0, CalculateVar, ConFun, A.var, 
-											B.var)
+			min.var.sol.test <- tryCatch({
+	    		min.var.sol.test <- NlcOptim::solnl(x0, CalculateVar, ConFun, 
+	    											A.var, B.var, 
+	    											maxIter = 400, 
+													maxnFun = 100*(2*m-1), 
+													tolX = 1e-6)
+			}, error = function(e){
+				cat("ERROR :", conditionMessage(e), "\n")
+				min.var.sol.test <- NULL
+			})
 
+			if (is.null(min.var.sol.test)) {
+				looping <- T
+			}
+		}
+		
 		if (min.var.sol.test$fn < var.min){
 			var.min <- min.var.sol.test$fn
 			min.var.sol <- min.var.sol.test
 			print(var.min)
 		}
 	}
-
-	
-	
 	
 	#--------------------------------------------------------------------------#
 	# Convert to nice formats and return results
@@ -173,17 +191,15 @@ DeconvolveSymmetricErrorPmf <- function(W, m = 10){
 	p.min.tp <- simple.min.tp$ProbWeights
 	theta.min.tp <- simple.min.tp$Support
 
-
-
 	# Plot for diagnostics
 	df.sol <- data.frame(p.sol, theta.sol)
 	df.min.tp <- data.frame(p.min.tp, theta.min.tp)
 	plot <- ggplot2::ggplot() + 
 			ggplot2::geom_point(data = df.min.tp, 
-			  					aes(theta.min.tp, p.min.tp), 
+			  					ggplot2::aes(theta.min.tp, p.min.tp), 
 			  					color = "magenta") + 
 			ggplot2::geom_point(data = df.sol, 
-			  					aes(theta.sol, p.sol), 
+			  					ggplot2::aes(theta.sol, p.sol), 
 			  					color = "blue")
 
 	return(list("plot" = plot, 
@@ -225,7 +241,7 @@ CalculateVar <- function(x){
 #' @export
 Constraints <- function(x, phi.W, weight, tp.max){
 	tp <- CalculateTp(x, phi.W, weight)
-	lambda <- 1
+	lambda <- 1.0
 	const1 <- tp - lambda*tp.max
 	return(list(ceq = NULL, c = const1))
 }
