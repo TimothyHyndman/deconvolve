@@ -1,4 +1,4 @@
-#' Compute the deconvolution kernel density estimator.
+#' Compute the deconvolution KDE (heteroscedastic errors)
 #' 
 #' Compute the deconvolution kernel density estimator when the errors are 
 #' heteroscedastic, as in Delaigle, A. and Meister, A. (2008). Density 
@@ -64,8 +64,6 @@
 #' Aurore Delaigle
 #' 
 #' @example man/examples/fDKDEheterosc_eg.R
-#' 
-#' @example man/examples/fDKDE_eg.R
 #' 
 #' @keywords heteroscedastic deconvolution kernel density estimator
 #' 

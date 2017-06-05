@@ -25,5 +25,4 @@
 #' 
 #' @keywords package
 #' 
-#' @example man/examples/deconvolve_eg_old.R
 NULL
