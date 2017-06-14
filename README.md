@@ -63,4 +63,4 @@ library(ggplot2)
 
 ## License
 
-This package is free and open source software, licensed under GPL-2.
+This package is free and open source software, licensed under GPL (>=2).

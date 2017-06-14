@@ -40,7 +40,8 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
     indice[which(W>Bbin[nbin])]=nbin;
     
     list2<-list(midbin, indice)
-    return (list2)}
+    return (list2)
+  }
   
   
   PI_deconvUknownth4<-function(W,errortype,varU,sigU){
@@ -170,7 +171,8 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
     indh=which.min(AMISE)
     hPI = hgrid[indh];
     
-    return (hPI)}
+    return (hPI)
+  }
   
   
   

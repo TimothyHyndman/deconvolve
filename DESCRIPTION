@@ -1,12 +1,11 @@
 Package: deconvolve
 Type: Package
-Title: Computing the deconvolution kernel density estimator and its
-        bandwidths in the heteroscedastic case
-Version: 2.0
+Title: Deconvolution Tools for Measurement Error Problems
+Version: 0.1
 Date: 2017-03-18
 Author: Aurore Delaigle and Tianying Wang
 Maintainer: Tianying Wang <tianying@stat.tamu.edu>
-Description: This package illustrates how to use the functions for computing the deconvolution kernel density estimator and its bandwidths in the heteroscedastic case.
+Description: This package provides tools for performing non-parametric deconvolution on measurement error problems.
 License: GPL-2
 NeedsCompilation: no
 Packaged: 2017-03-19 02:59:48 UTC; tianying

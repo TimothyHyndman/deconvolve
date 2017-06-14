@@ -1,9 +1,4 @@
-#' Computing the deconvolution kernel density estimator and its 
-#' bandwidths in the heteroscedastic case
-#'
-#' This package illustrates how to use the functions for computing the 
-#' deconvolution kernel density estimator and its bandwidths in the 
-#' heteroscedastic case.
+#' Deconvolution Tools for Measurement Error Problems
 #' 
 #' @docType package
 #' @name deconvolve

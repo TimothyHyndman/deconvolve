@@ -4,11 +4,11 @@
 #' 
 #' PUT DETAILS HERE
 #' 
-#' @example man/examples/fDKDE_eg.R
+#' @example man/examples/KnownError_eg.R
 #' 
 #' @export
 
-fdecUknown<-function(n,xx,W,h,errortype,sigU,phiU,rescale=0,phiK=phiK2,muK2=6,RK=1024/3003/pi,deltat = .0002,tt = seq(-1,1,deltat))
+DeconErrKnownPdf<-function(n,xx,W,h,errortype,sigU,phiU,rescale=0,phiK=phiK2,muK2=6,RK=1024/3003/pi,deltat = .0002,tt = seq(-1,1,deltat))
 
 #Author: Aurore Delaigle
 #This function computes the deconvolution kernel density estimator

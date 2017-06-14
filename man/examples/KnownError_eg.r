@@ -49,11 +49,11 @@ plot(xx,truedens,'l',col='red',xlab="",ylab="")
 hPI=PI_deconvUknownth4(n,W,errortype,sigU);
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y=fdecUknown(n,xx,W,hPI,errortype,sigU);
+y=DeconErrKnownPdf(n,xx,W,hPI,errortype,sigU);
 
 #DKDE estimator with rescaling: here xx must be equispaced and must cover the 
 #range where the estimated density is significantly non zero
-y2=fdecUknown(n,xx,W,hPI,errortype,sigU,rescale=1);
+y2=DeconErrKnownPdf(n,xx,W,hPI,errortype,sigU,rescale=1);
 
 lines(xx,y2,col="green",xlab="",ylab="")
 lines(xx,y,col='black')
@@ -64,7 +64,7 @@ lines(xx,y,col='black')
 hCV=CVdeconv(n,W,errortype,sigU)
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y3=fdecUknown(n,xx,W,hCV,errortype,sigU);
+y3=DeconErrKnownPdf(n,xx,W,hCV,errortype,sigU);
 
 lines(xx,y3,col='magenta')
 
@@ -107,11 +107,11 @@ hPI=PI_deconvUknownth4(n,W,errortype,sigU);
 
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y=fdecUknown(n,xx,W,hPI,errortype,sigU);
+y=DeconErrKnownPdf(n,xx,W,hPI,errortype,sigU);
 
 #DKDE estimator with rescaling: here xx must be equispaced and must cover the 
 #range where the estimated density is significantly non zero
-y2=fdecUknown(n,xx,W,hPI,errortype,sigU,rescale=1);
+y2=DeconErrKnownPdf(n,xx,W,hPI,errortype,sigU,rescale=1);
 
 lines(xx,y2,col="green",xlab="",ylab="")
 lines(xx,y,col='black')
@@ -122,7 +122,7 @@ lines(xx,y,col='black')
 hCV=CVdeconv(n,W,errortype,sigU)
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y3=fdecUknown(n,xx,W,hCV,errortype,sigU);
+y3=DeconErrKnownPdf(n,xx,W,hCV,errortype,sigU);
 
 lines(xx,y3,col='magenta')
 
