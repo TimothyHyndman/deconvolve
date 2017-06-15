@@ -61,8 +61,9 @@ DeconErrKnownPdf<-function(xx, W, h, errortype, sigU, phiU, rescale = FALSE,
 	#--------------------------------------------------------------------------#
 	# Check optional arguments
 	#--------------------------------------------------------------------------#
-	if(missing(errortype)&(missing(sigU))&missing(phiU))
+	if(missing(errortype) & (missing(sigU)) & missing(phiU)){
 		stop("You must define the error distribution")
+	}
 
 	if(missing(errortype) == F){
 		if(missing(sigU)){
@@ -70,14 +71,14 @@ DeconErrKnownPdf<-function(xx, W, h, errortype, sigU, phiU, rescale = FALSE,
 		}
 		if(errortype == 'Lap'){
 			phiU <- function(tt){
-				1/(1 + sigU^2 * tt^2 / 2)
+				1 / (1 + sigU^2 * tt^2 / 2)
 			}
 		} else if(errortype == 'norm'){
 			phiU <- function(tt){
 				exp(-sigU^2 * tt^2 / 2)
 			} 
 		} else {
-				stop("Error type not a valid option")
+			stop("Error type not a valid option")
 		}
 	}
 
@@ -115,7 +116,7 @@ DeconErrKnownPdf<-function(xx, W, h, errortype, sigU, phiU, rescale = FALSE,
 			   kronecker(matrix(1, 1, longx), imhatphiX)
 	fXdecUK <- apply(fXdecUK * kronecker(matrix(1, 1, longx), phiK(tt)), 2, sum) / 
 			   (2 * pi) * deltat / h
-	fXdecUK[which(fXdecUK<0)] <- 0
+	fXdecUK[which(fXdecUK < 0)] <- 0
 
 	if (rescale == 1){
 		dx <- xx[2] - xx[1]

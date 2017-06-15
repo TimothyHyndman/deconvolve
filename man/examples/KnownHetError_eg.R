@@ -53,11 +53,11 @@ varX=mean(W^2)-(mean(W))^2-sum(sigmaj^2)/n;
 hPI=PI_deconvUknownth4het(n,W,varX,errortype,sigmaj);
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y=fdecUknownhet(n,xx,W,hPI,errortype,sigmaj);
+y=DeconErrKnownHetPdf(xx,W,hPI,errortype,sigmaj);
 
 #DKDE estimator with rescaling: here xx must be equispaced and must cover the 
 #range where the estimated density is significantly non zero
-y2=fdecUknownhet(n,xx,W,hPI,errortype,sigmaj,rescale=1);
+y2=DeconErrKnownHetPdf(xx,W,hPI,errortype,sigmaj,rescale=1);
 
 #Plot the true density
 plot(xx,truedens,'l',col='red',xlab="",ylab="")
@@ -75,7 +75,7 @@ for(k in 1:n)
 }
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y3=fdecUknownhet(n,xx,W,hPI,phiUkvec=phiUkvec);
+y3=DeconErrKnownHetPdf(xx,W,hPI,phiUkvec=phiUkvec);
 lines(xx,y3,col='magenta',lty=2)
 
 
