@@ -1,129 +1,127 @@
-#' Compute the deconvolution KDE
+#' Deconvolution when the error distribution is known
 #' 
-#' Blahblahblah
+#' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
+#' data \eqn{W = X + U} when the distribution of \eqn{U} is known.
 #' 
 #' PUT DETAILS HERE
+#' 
+#' @param xx A vector of x values on which to compute the density.
+#' @param W A vector of the univariate contaminated data.
+#' @param h The bandwidth to use.
+#' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
+#' errors or "norm" for normal errors. If you use this way of defining the error 
+#' then you must also provide \code{sigU}.
+#' @param sigU The standard deviation of \eqn{U}.
+#' @param phiU A function giving the characteristic function of \eqn{U}. If you 
+#' define the errors this way then you should not provide \code{errortype} or 
+#' \code{sigU}.
+#' @param rescale If \code{TRUE}, estimator is rescaled so that it 
+#' integrates to 1. Rescaling requires xx to be a fine grid of equispaced x 
+#' values that covers the whole range of x-values where the estimated density is 
+#' significantly non zero.
+#' @param phiK A function giving the fourier transform of the kernel. 
+#' If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
+#' not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.
+#' @param muK2 The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.
+#' @param RK The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.
+#' @param tt A vector of evenly spaced t values on which to approximate the 
+#' integrals in the Fourier domain. If phiK is compactly supported, the first 
+#' and last elements of \code{tt} must be the lower and upper bound of the 
+#' support of phiK. If phiK is not compactly supported, the first and last 
+#' elements of \code{tt} must be large enough for your discretisation of the 
+#' integrals to be accurate.
+#' 
+#' @return A vector containing the deconvolution KDE evaluated at each point in 
+#' xx.
+#' 
+#' @section Warnings:
+#' 
+#' The kernel used must match the kernel used to compute the bandwidth (PI, CV 
+#' or other).
+#'
+#' The DKDE can also be computed using the Fast Fourier Transform, which is a 
+#' bit more complex (see Delaigle, A. and Gijbels, I. (2007). Frequent problems 
+#' in calculating integrals and optimizing objective functions: a case study in 
+#' density deconvolution. \emph{Statistics and Computing}, 17, 349 - 355).
+#' However if the grid of t-values is fine enough, the estimator can simply be 
+#' computed like here without having problems with oscillations.
+#' 
+#' @section Author:
+#' Aurore Delaigle
+#' 
+#' @section References:
 #' 
 #' @example man/examples/KnownError_eg.R
 #' 
 #' @export
 
-DeconErrKnownPdf<-function(n,xx,W,h,errortype,sigU,phiU,rescale=0,phiK=phiK2,muK2=6,RK=1024/3003/pi,deltat = .0002,tt = seq(-1,1,deltat))
+DeconErrKnownPdf<-function(xx, W, h, errortype, sigU, phiU, rescale = FALSE, 
+	phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
 
-#Author: Aurore Delaigle
-#This function computes the deconvolution kernel density estimator
+	#--------------------------------------------------------------------------#
+	# Check optional arguments
+	#--------------------------------------------------------------------------#
+	if(missing(errortype)&(missing(sigU))&missing(phiU))
+		stop("You must define the error distribution")
 
-#----------------------------
-#Required arguments:
-#----------------------------
-
-#n: sample size
-#xx: vector of x-values where to compute the deconvolution kernel density estimator
-#W: vector of univariate contaminated data
-#h bandwidth
-
-#Error distribution, which can be defined in two ways:
-
-#Option 1: provide error type and standard deviation of the errors
-#errortype: 'Lap' for Laplace errors and 'norm' for normal errors. If you use this way of defining the error then you also need to provide the value of sigU below.
-#sigU: standard deviation of the errors.
-
-#Option 2: define the characeristic function of the errors:
-#phiU:function that gives the characteristic function of the error
-
-
-#------------------------------------------------------------------------------------------------------------------------
-#Optional arguments 
-#------------------------------------------------------------------------------------------------------------------------
-
-#rescale: to rescale the estimator so that it integrates to 1 after the negative parts have been truncated to zero. Default: 0= do not rescale. If you want to rescale, set to 1.
-#Rescaling requires xx to be a fine grid of equispaced x-values that covers the whole range of x-values where the estimated density is significantly non zero.
-
-#-------------------------------------------------------------------------------------------------------------------------------------
-#Changing the kernel: (if you change one of the arguments below you must change them all as they need to correspond to the same kernel):
-#-------------------------------------------------------------------------------------------------------------------------------------
-#phiK: Fourier transfrom of the kernel. The default is (1-t^2)^3 on the interval [-1,1]
-#muK2: second moment of the kernel, i.e. \int x^2 K(x) dx
-#RK: integral of the square of the kernel, i.e. \int K^2(x) dx
-#tt: vector of discrete t values on which you approximate the integrals in the Fourier domain. 
-#	If phiK is compactly supported, the first and last elements of t must be the lower and upper bound of the support of phiK.
-#	If phiK is not compactly supported, the first and last elements of t must be larger enough for your discretisation of the intergals to be accurate
-#deltat: distance between two points of the t grid 
-
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#								WARNINGS:
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# The kernel K here must match the phiK used to compute the bandwidth (PI, CV or other)
-#
-# The DKDE can also be computed using the Fast Fourier Transform, which is a bit more complex. 
-# See Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating integrals and optimizing objective functions: a case study in density deconvolution.   Statistics and Computing,  17,  349 - 355
-# However if the grid of t-values is fine enough, the estimator can simply be computed like here without having problems with oscillations.
-#
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-{
-
-#Check optional arguments
-
-if(missing(errortype)&(missing(sigU))&missing(phiU))
-	stop("You must define the error distribution")
-
-if(missing(errortype)==F)
-{
-	if(errortype=='Lap')
-		{
-		if(missing(sigU))
+	if(missing(errortype) == F){
+		if(missing(sigU)){
 			stop("You must provide the standard deviation of the errors")
-
-		phiU=function(tt) {return(1/(1+sigU^2*tt^2/2))}
 		}
-
-	if(errortype=='norm')
-		{
-		if(missing(sigU))
-			stop("You must provide the standard deviation of the errors")
-		phiU=function(tt) {exp(-sigU^2*tt^2/2)}
+		if(errortype == 'Lap'){
+			phiU <- function(tt){
+				1/(1 + sigU^2 * tt^2 / 2)
+			}
+		} else if(errortype == 'norm'){
+			phiU <- function(tt){
+				exp(-sigU^2 * tt^2 / 2)
+			} 
+		} else {
+				stop("Error type not a valid option")
 		}
-}
+	}
 
+	if(missing(h)){
+		stop("You must provide the bandwidth")
+	}
 
-if(missing(h))
-	stop("You must provide the bandwidth")
+	#--------------------------------------------------------------------------#
+	# Compute DKDE
+	#--------------------------------------------------------------------------#
+	if(is.null(phiK)){
+		phiK <- phiK2
+	}
 
+	W <- as.vector(W)
+	n <- length(W)
+	deltat <- tt[2] - tt[1]
 
-W=as.vector(W)
+	# Make sure t is a vector in the right format
+	dim(tt) <- c(length(tt), 1);
 
-#make sure t is a vector in the right format
-dim(tt)=c(length(tt),1);
+	OO <- outerop(tt/h, t(W), "*")
+	phiUth <- phiU(tt/h)
 
+	# Estimate real and imaginary parts of empirical characteristic function of 
+	# W computed at tt/h, for each component of tt.
+	rehatphiX <- rowSums(cos(OO)) / phiUth / n
+	imhatphiX <- rowSums(sin(OO)) / phiUth / n
 
-OO=outerop(tt/h,t(W),"*")
-phiUth=phiU(tt/h)
+	xt <- outerop(tt / h, t(xx), "*")
+	longx <- length(xx)
 
+	# Compute the DKDE estimator
+	fXdecUK <- cos(xt) * kronecker(matrix(1, 1, longx), rehatphiX) + sin(xt) *
+			   kronecker(matrix(1, 1, longx), imhatphiX)
+	fXdecUK <- apply(fXdecUK * kronecker(matrix(1, 1, longx), phiK(tt)), 2, sum) / 
+			   (2 * pi) * deltat / h
+	fXdecUK[which(fXdecUK<0)] <- 0
 
-
-#Estimate real and imaginary parts of empirical characteristic function of W computed at tt/h, for each component of tt.
-rehatphiX=rowSums(cos(OO))/phiUth/n
-imhatphiX=rowSums(sin(OO))/phiUth/n
-
-xt=outerop(tt/h,t(xx),"*")
-longx=length(xx)
-
-#Compute the DKDE estimator
-fXdecUK=cos(xt)*kronecker(matrix(1,1,longx),rehatphiX)+sin(xt)*kronecker(matrix(1,1,longx),imhatphiX)
-fXdecUK=apply(fXdecUK*kronecker(matrix(1,1,longx),phiK(tt)),2,sum)/(2*pi)*deltat/h
-fXdecUK[which(fXdecUK<0)]=0
-
-if (rescale==1)
-	{
-	dx=xx[2]-xx[1]
-	fXdecUK=fXdecUK/sum(fXdecUK)/dx
+	if (rescale == 1){
+		dx <- xx[2] - xx[1]
+		fXdecUK <- fXdecUK / sum(fXdecUK) / dx
 	}
 
 
-return (fXdecUK)}
+	return (fXdecUK)
+}

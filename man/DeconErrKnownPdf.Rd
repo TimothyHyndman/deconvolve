@@ -2,23 +2,83 @@
 % Please edit documentation in R/DeconErrKnownPdf.r
 \name{DeconErrKnownPdf}
 \alias{DeconErrKnownPdf}
-\title{Compute the deconvolution KDE}
+\title{Deconvolution when the error distribution is known}
 \usage{
-DeconErrKnownPdf(n, xx, W, h, errortype, sigU, phiU, rescale = 0,
-  phiK = phiK2, muK2 = 6, RK = 1024/3003/pi, deltat = 2e-04,
-  tt = seq(-1, 1, deltat))
+DeconErrKnownPdf(xx, W, h, errortype, sigU, phiU, rescale = FALSE,
+  phiK = NULL, muK2 = 6, RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
+}
+\arguments{
+\item{xx}{A vector of x values on which to compute the density.}
+
+\item{W}{A vector of the univariate contaminated data.}
+
+\item{h}{The bandwidth to use.}
+
+\item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
+errors or "norm" for normal errors. If you use this way of defining the error 
+then you must also provide \code{sigU}.}
+
+\item{sigU}{The standard deviation of \eqn{U}.}
+
+\item{phiU}{A function giving the characteristic function of \eqn{U}. If you 
+define the errors this way then you should not provide \code{errortype} or 
+\code{sigU}.}
+
+\item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
+integrates to 1. Rescaling requires xx to be a fine grid of equispaced x 
+values that covers the whole range of x-values where the estimated density is 
+significantly non zero.}
+
+\item{phiK}{A function giving the fourier transform of the kernel. 
+If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
+not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.}
+
+\item{muK2}{The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.}
+
+\item{RK}{The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.}
+
+\item{tt}{A vector of evenly spaced t values on which to approximate the 
+integrals in the Fourier domain. If phiK is compactly supported, the first 
+and last elements of \code{tt} must be the lower and upper bound of the 
+support of phiK. If phiK is not compactly supported, the first and last 
+elements of \code{tt} must be large enough for your discretisation of the 
+integrals to be accurate.}
+}
+\value{
+A vector containing the deconvolution KDE evaluated at each point in 
+xx.
 }
 \description{
-Blahblahblah
+Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
+data \eqn{W = X + U} when the distribution of \eqn{U} is known.
 }
 \details{
 PUT DETAILS HERE
 }
-\examples{
-# Author: Aurore Delaigle
-# This code illustrates how to use the functions for computing the deconvolution 
-# kernel density estimator and its bandwidths
+\section{Warnings}{
 
+
+The kernel used must match the kernel used to compute the bandwidth (PI, CV 
+or other).
+
+The DKDE can also be computed using the Fast Fourier Transform, which is a 
+bit more complex (see Delaigle, A. and Gijbels, I. (2007). Frequent problems 
+in calculating integrals and optimizing objective functions: a case study in 
+density deconvolution. \emph{Statistics and Computing}, 17, 349 - 355).
+However if the grid of t-values is fine enough, the estimator can simply be 
+computed like here without having problems with oscillations.
+}
+
+\section{Author}{
+
+Aurore Delaigle
+}
+
+\section{References}{
+
+}
+
+\examples{
 #-----------------------------------------------------
 #Start by generating some data contaminated by noise:
 #-----------------------------------------------------
@@ -49,7 +109,6 @@ dx=xx[2]-xx[1];
 truedens=(1-pmix)*dnorm(xx,mu1,sig1)+pmix*dnorm(xx,mu2,sig2);
 
 
-
 #-------------------------------------
 #Example when the error is normal
 #-------------------------------------
@@ -66,11 +125,11 @@ plot(xx,truedens,'l',col='red',xlab="",ylab="")
 hPI=PI_deconvUknownth4(n,W,errortype,sigU);
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y=DeconErrKnownPdf(n,xx,W,hPI,errortype,sigU);
+y=DeconErrKnownPdf(xx,W,hPI,errortype,sigU);
 
 #DKDE estimator with rescaling: here xx must be equispaced and must cover the 
 #range where the estimated density is significantly non zero
-y2=DeconErrKnownPdf(n,xx,W,hPI,errortype,sigU,rescale=1);
+y2=DeconErrKnownPdf(xx,W,hPI,errortype,sigU,rescale=1);
 
 lines(xx,y2,col="green",xlab="",ylab="")
 lines(xx,y,col='black')
@@ -81,7 +140,7 @@ lines(xx,y,col='black')
 hCV=CVdeconv(n,W,errortype,sigU)
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y3=DeconErrKnownPdf(n,xx,W,hCV,errortype,sigU);
+y3=DeconErrKnownPdf(xx,W,hCV,errortype,sigU);
 
 lines(xx,y3,col='magenta')
 
@@ -124,11 +183,11 @@ hPI=PI_deconvUknownth4(n,W,errortype,sigU);
 
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y=DeconErrKnownPdf(n,xx,W,hPI,errortype,sigU);
+y=DeconErrKnownPdf(xx,W,hPI,errortype,sigU);
 
 #DKDE estimator with rescaling: here xx must be equispaced and must cover the 
 #range where the estimated density is significantly non zero
-y2=DeconErrKnownPdf(n,xx,W,hPI,errortype,sigU,rescale=1);
+y2=DeconErrKnownPdf(xx,W,hPI,errortype,sigU,rescale=1);
 
 lines(xx,y2,col="green",xlab="",ylab="")
 lines(xx,y,col='black')
@@ -139,7 +198,7 @@ lines(xx,y,col='black')
 hCV=CVdeconv(n,W,errortype,sigU)
 
 #DKDE estimator without rescaling (density does not integrate exactly to 1)
-y3=DeconErrKnownPdf(n,xx,W,hCV,errortype,sigU);
+y3=DeconErrKnownPdf(xx,W,hCV,errortype,sigU);
 
 lines(xx,y3,col='magenta')
 
