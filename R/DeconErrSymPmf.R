@@ -1,9 +1,9 @@
-#' Estimate Discrete Deconvolution of Data With Symmetric Error
+#' Deconvolution when the error distribution is symmetric
 #' 
-#' Estimates deconvolution of data \eqn{W = X + U}, where \eqn{U} is symmetric, 
-#' with a probability mass function.
+#' Estimates the distribution of \eqn{X} with a probability mass function from 
+#' data \eqn{W = X + U}, when the distribution of \eqn{U} is symmetric.
 #' 
-#' Details here
+#' PUT DETAILS HERE
 #' 
 #' @param W A vector of the contaminated data
 #' @param m The number of support points to use in finding the Pmf
@@ -17,6 +17,15 @@
 #' 					   point of support.}
 #' 	\item{phi.W}{The empirical distribution of W and the t values on which it is 
 #' 				 calculated}
+#' 
+#' @section Authors:
+#' Aurore Delaigle, Timothy Hyndman
+#' 
+#' @section References:
+#' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
+#' deconvolution when the error distribution is unknown. \emph{Journal of the 
+#' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
+#' 231-252.
 #' 
 #' @example man/examples/SymmetricError_eg.R
 #' 

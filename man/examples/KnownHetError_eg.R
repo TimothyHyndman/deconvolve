@@ -1,7 +1,3 @@
-# This code illustrates how to use the functions for computing the deconvolution 
-# kernel density estimator and its bandwidths in the case where the errors are 
-# heteroscedastic
-
 #-----------------------------------------------------
 #Start by generating some data contaminated by noise:
 #-----------------------------------------------------

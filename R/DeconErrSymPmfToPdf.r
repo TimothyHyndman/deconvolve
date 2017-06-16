@@ -1,9 +1,10 @@
 #' Create Probability Density Function from Probability Mass Function
 #' 
 #' Takes the output of DeconErrSymPmf along with the contaminated data, W, and
-#' uses a kernel estimator to find a probability density function for X.
+#' uses a kernel estimator to find an estimate for the probability density 
+#' function of X.
 #' 
-#' Details here
+#' PUT DETAILS HERE
 #' 
 #' @param X.pmf A list with parts "support" and "probweights"
 #' @param W A vector of the contaminated data
@@ -16,6 +17,15 @@
 #' \item{y}{The density \eqn{f_X(x)} evaluated at each x}
 #' 
 #' @example man/examples/SymmetricError_eg.R
+#' 
+#' @section Authors:
+#' Aurore Delaigle
+#' 
+#' @section References:
+#' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
+#' deconvolution when the error distribution is unknown. \emph{Journal of the 
+#' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
+#' 231-252.
 #' 
 #' @export
 

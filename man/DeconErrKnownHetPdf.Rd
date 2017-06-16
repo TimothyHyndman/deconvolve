@@ -4,7 +4,7 @@
 \alias{DeconErrKnownHetPdf}
 \title{Deconvolution when the errors are heteroscedastic with known distributions}
 \usage{
-DeconErrKnownHetPdf(xx, W, h, errortype, sigUj, phiUkvec, rescale = 0,
+DeconErrKnownHetPdf(xx, W, h, errortype, sigUj, phiUkvec, rescale = FALSE,
   phiK = NULL, muK2 = 6, RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
 }
 \arguments{
@@ -14,12 +14,13 @@ DeconErrKnownHetPdf(xx, W, h, errortype, sigUj, phiUkvec, rescale = 0,
 
 \item{h}{The bandwidth to use.}
 
-\item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
-errors or "norm" for normal errors. If you use this way of defining the 
-errors then you must also provide \code{sigUj}.}
+\item{errortype}{The distribution type of the \eqn{U_j}. Either "Lap" for 
+Laplace errors or "norm" for normal errors. If you use this way of defining 
+the errors then you must also provide \code{sigUj} but should not provide
+\code{phiUkvec}.}
 
-\item{sigUj}{A vector of length n which contains standard deviations of each 
-of the errors.}
+\item{sigUj}{A vector of length n which contains the standard deviations of 
+the errors.}
 
 \item{phiUkvec}{A vector of n functions that give the characteristic 
 functions of the errors. Produce this vector by c(func1,func2,...,funcn) 
@@ -47,45 +48,21 @@ elements of \code{tt} must be large enough for your discretisation of the
 integrals to be accurate.}
 }
 \value{
-The outcome is the deconvolution kernel density estimator when the 
-errors are heteroscedastic.
+A vector containing the deconvolution KDE evaluated at each point in 
+xx.
 }
 \description{
 Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-data \eqn{W = X + U_j} when the distributions of the \eqn{U_j} are known.
+data \eqn{W_j = X + U_j} when the distribution and standard deviations of the 
+\eqn{U_j} are known.
 }
 \details{
 PUT DETAILS HERE
 }
-\section{Warnings}{
-
-\enumerate{
-\item Rescaling requires xx to be a fine grid of equispaced x-values that 
-covers the whole range of x-values where the estimated density is 
-significantly non zero.
-\item Changing the kernel: if you change one of the arguments among phiK, 
-muK2, RK, deltat and tt, you must change them all as they need to correspond 
-to the same kernel.
-\item	If phiK is compactly supported, the first and last elements of t 
-must be the lower and upper bound of the support of phiK.
-\item	If phiK is not compactly supported, the first and last elements of t 
-must be larger enough for your discretisation of the intergals to be 
-accurate
-\item The kernel K here must match the phiK used to compute the bandwidth 
-(PI, CV or other)
-\item The DKDE can also be computed using the Fast Fourier Transform, which 
-	is a bit more complex. See Delaigle, A. and Gijbels, I. (2007). Frequent 
-	problems in calculating integrals and optimizing objective functions: a case 
-	study in density deconvolution. Statistics and Computing, 17, 349-355
-\item However if the grid of t-values is fine enough, the estimator can 
-	simply be computed like here without having problems with oscillations.
-}
-}
-
 \section{References}{
 
 Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
-error. Bernoulli, 14, 562-579
+error. \emph{Bernoulli}, 14, 2, 562-579.
 }
 
 \section{Author}{
@@ -93,11 +70,24 @@ error. Bernoulli, 14, 562-579
 Aurore Delaigle
 }
 
-\examples{
-# This code illustrates how to use the functions for computing the deconvolution 
-# kernel density estimator and its bandwidths in the case where the errors are 
-# heteroscedastic
+\section{Warnings}{
 
+\itemize{
+\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
+	all be calculated from the same kernel. If you change one of these, you must
+	also change the rest to match.
+\item The kernel used here must match the kernel used to compute the 
+	bandwidth.
+\item The DKDE can also be computed using the Fast Fourier Transform, which 
+	is a bit more complex. See Delaigle, A. and Gijbels, I. (2007). Frequent 
+	problems in calculating integrals and optimizing objective functions: a case 
+	study in density deconvolution. \emph{Statistics and Computing}, 17, 
+	349-355. However if the grid of t-values is fine enough, the estimator can 
+	simply be computed like here without having problems with oscillations.
+}
+}
+
+\examples{
 #-----------------------------------------------------
 #Start by generating some data contaminated by noise:
 #-----------------------------------------------------
@@ -189,8 +179,3 @@ legend(x="topright",legend=c( "true f","fdec, hPI", "fdec rescaled, hPI",
 	   "fdec hPI v2", "naive estimator, hNR"),
 	   col=c("red","black","green","magenta","cyan"),lty=c(1,1,1,2,1),cex=0.73)
 }
-\keyword{deconvolution}
-\keyword{density}
-\keyword{estimator}
-\keyword{heteroscedastic}
-\keyword{kernel}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/DeconErrSymPmf.R
 \name{DeconErrSymPmf}
 \alias{DeconErrSymPmf}
-\title{Estimate Discrete Deconvolution of Data With Symmetric Error}
+\title{Deconvolution when the error distribution is symmetric}
 \usage{
 DeconErrSymPmf(W, m = 10, n.iter.tp = 5, n.iter.var = 2,
   show.diagnostics = F)
@@ -27,12 +27,25 @@ A list with components:
 				 calculated}
 }
 \description{
-Estimates deconvolution of data \eqn{W = X + U}, where \eqn{U} is symmetric, 
-with a probability mass function.
+Estimates the distribution of \eqn{X} with a probability mass function from 
+data \eqn{W = X + U}, when the distribution of \eqn{U} is symmetric.
 }
 \details{
-Details here
+PUT DETAILS HERE
 }
+\section{Authors}{
+
+Aurore Delaigle, Timothy Hyndman
+}
+
+\section{References}{
+
+Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
+deconvolution when the error distribution is unknown. \emph{Journal of the 
+Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
+231-252.
+}
+
 \examples{
 # Generate Test Data
 W <- GenerateTestData(n = 500)

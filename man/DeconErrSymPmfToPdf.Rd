@@ -22,11 +22,25 @@ A list with components:
 }
 \description{
 Takes the output of DeconErrSymPmf along with the contaminated data, W, and
-uses a kernel estimator to find a probability density function for X.
+uses a kernel estimator to find an estimate for the probability density 
+function of X.
 }
 \details{
-Details here
+PUT DETAILS HERE
 }
+\section{Authors}{
+
+Aurore Delaigle
+}
+
+\section{References}{
+
+Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
+deconvolution when the error distribution is unknown. \emph{Journal of the 
+Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
+231-252.
+}
+
 \examples{
 # Generate Test Data
 W <- GenerateTestData(n = 500)

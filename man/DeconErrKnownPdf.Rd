@@ -16,7 +16,7 @@ DeconErrKnownPdf(xx, W, h, errortype, sigU, phiU, rescale = FALSE,
 
 \item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
 errors or "norm" for normal errors. If you use this way of defining the error 
-then you must also provide \code{sigU}.}
+then you must also provide \code{sigU} but should not provide \code{phiU}.}
 
 \item{sigU}{The standard deviation of \eqn{U}.}
 
@@ -57,16 +57,19 @@ PUT DETAILS HERE
 }
 \section{Warnings}{
 
-
-The kernel used must match the kernel used to compute the bandwidth (PI, CV 
-or other).
-
-The DKDE can also be computed using the Fast Fourier Transform, which is a 
-bit more complex (see Delaigle, A. and Gijbels, I. (2007). Frequent problems 
-in calculating integrals and optimizing objective functions: a case study in 
-density deconvolution. \emph{Statistics and Computing}, 17, 349 - 355).
-However if the grid of t-values is fine enough, the estimator can simply be 
-computed like here without having problems with oscillations.
+\itemize{
+\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
+	all be calculated from the same kernel. If you change one of these, you must
+	also change the rest to match.
+\item The kernel used here must match the kernel used to compute the 
+	bandwidth.
+\item The DKDE can also be computed using the Fast Fourier Transform, which 
+	is a bit more complex. See Delaigle, A. and Gijbels, I. (2007). Frequent 
+	problems in calculating integrals and optimizing objective functions: a case 
+	study in density deconvolution. \emph{Statistics and Computing}, 17, 
+	349-355. However if the grid of t-values is fine enough, the estimator can 
+	simply be computed like here without having problems with oscillations.
+}
 }
 
 \section{Author}{

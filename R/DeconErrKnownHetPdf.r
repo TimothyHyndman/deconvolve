@@ -1,62 +1,42 @@
 #' Deconvolution when the errors are heteroscedastic with known distributions
 #' 
 #' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-#' data \eqn{W = X + U_j} when the distributions of the \eqn{U_j} are known.
+#' data \eqn{W_j = X + U_j} when the distribution and standard deviations of the 
+#' \eqn{U_j} are known.
 #' 
 #' PUT DETAILS HERE
 #' 
 #' @inheritParams DeconErrKnownPdf
-#' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
-#' errors or "norm" for normal errors. If you use this way of defining the 
-#' errors then you must also provide \code{sigUj}.
-#' @param sigUj	A vector of length n which contains standard deviations of each 
-#' of the errors.
+#' @param errortype The distribution type of the \eqn{U_j}. Either "Lap" for 
+#' Laplace errors or "norm" for normal errors. If you use this way of defining 
+#' the errors then you must also provide \code{sigUj} but should not provide
+#' \code{phiUkvec}.
+#' @param sigUj	A vector of length n which contains the standard deviations of 
+#' the errors.
 #' @param phiUkvec A vector of n functions that give the characteristic 
 #' functions of the errors. Produce this vector by c(func1,func2,...,funcn) 
 #' where each funcj is a function of tt. If you define the errors this way then 
 #' you should not provide \code{errortype} or \code{sigUj}.
 #' 
-#' @section Warnings:
-#' \enumerate{
-#'	\item Rescaling requires xx to be a fine grid of equispaced x-values that 
-#'	covers the whole range of x-values where the estimated density is 
-#'	significantly non zero.
-#'	\item Changing the kernel: if you change one of the arguments among phiK, 
-#'	muK2, RK, deltat and tt, you must change them all as they need to correspond 
-#'	to the same kernel.
-#'	\item	If phiK is compactly supported, the first and last elements of t 
-#'	must be the lower and upper bound of the support of phiK.
-#'	\item	If phiK is not compactly supported, the first and last elements of t 
-#'	must be larger enough for your discretisation of the intergals to be 
-#'	accurate
-#'	\item The kernel K here must match the phiK used to compute the bandwidth 
-#'	(PI, CV or other)
-#'	\item The DKDE can also be computed using the Fast Fourier Transform, which 
-#' 	is a bit more complex. See Delaigle, A. and Gijbels, I. (2007). Frequent 
-#' 	problems in calculating integrals and optimizing objective functions: a case 
-#' 	study in density deconvolution. Statistics and Computing, 17, 349-355
-#'	\item However if the grid of t-values is fine enough, the estimator can 
-#' 	simply be computed like here without having problems with oscillations.
-#'	}
+#' @inheritSection DeconErrKnownPdf Warnings
 #' 
-#' @return The outcome is the deconvolution kernel density estimator when the 
-#' errors are heteroscedastic.
+#' @return A vector containing the deconvolution KDE evaluated at each point in 
+#' xx.
 #' 
 #' @section References:
 #' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
-#' error. Bernoulli, 14, 562-579
+#' error. \emph{Bernoulli}, 14, 2, 562-579.
 #' 
 #' @section Author:
 #' Aurore Delaigle
 #' 
 #' @example man/examples/KnownHetError_eg.R
 #' 
-#' @keywords heteroscedastic deconvolution kernel density estimator
-#' 
 #' @export
 
-DeconErrKnownHetPdf<-function(xx, W, h, errortype, sigUj, phiUkvec, rescale=0, 
-	phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
+DeconErrKnownHetPdf<-function(xx, W, h, errortype, sigUj, phiUkvec, 
+	rescale = FALSE, phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
+	tt = seq(-1, 1, 2e-04)){
 
 	#--------------------------------------------------------------------------#
 	# Check optional arguments
