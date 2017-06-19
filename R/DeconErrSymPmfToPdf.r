@@ -29,7 +29,8 @@
 #' 
 #' @export
 
-DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W){
+DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, 
+								xx = seq(min(W),max(W),length.out = 100)){
 
 	theta <- X.pmf$support
 	p <- X.pmf$probweights
@@ -75,8 +76,8 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W){
 	phi.X.re <- phi.W.PI$re / phi.U.PI
 	phi.X.im <- phi.W.PI$im / phi.U.PI
 
-	xx.length <- 100
-	xx <- seq(min(W), max(W), length.out = xx.length)
+	# xx.length <- 100
+	# xx <- seq(min(W), max(W), length.out = xx.length)
 	dx <- xx[2] - xx[1]
 	xt <- outerop(t/h.PIc, xx, "*")
 
