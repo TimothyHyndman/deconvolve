@@ -2,30 +2,34 @@
 
 CVdeconv<-function(n,W,errortype,sigU,phiU,phiK =phiK2,muK2=6,RK=1024/3003/pi,deltat = .0002,tt = seq(-1,1,deltat))
 
-#Authors: Aurore Delaigle
-#This function computes the cross-validation (CV) bandwidth for kernel deconvolution estimator as in
-#Stefanski, L., Carroll, R.J. (1990). Deconvoluting kernel density estimators. Statistics 2, 169–184.
-#Delaigle, A. and I. Gijbels (2004). Practical bandwidth selection in deconvolution kernel density estimation, Computational Statistics and Data Analysis, 45, 249-267
+# Authors: Aurore Delaigle
+# This function computes the cross-validation (CV) bandwidth for kernel 
+# deconvolution estimator as in Stefanski, L., Carroll, R.J. (1990). 
+# Deconvoluting kernel density estimators. Statistics 2, 169–184. Delaigle, A. 
+# and I. Gijbels (2004). Practical bandwidth selection in deconvolution kernel 
+# density estimation, Computational Statistics and Data Analysis, 45, 249-267
 
 #----------------------------
-#Required arguments:
+# Required arguments:
 #----------------------------
 
-#n: sample size
-#W: vector of univariate contaminated data
+# n: sample size
+# W: vector of univariate contaminated data
 
-#Error distribution, which can be defined in two ways:
+# Error distribution, which can be defined in two ways:
 
-#Option 1: provide error type and standard deviation of the errors
-#errortype: 'Lap' for Laplace errors and 'norm' for normal errors. If you use this way of defining the error then you also need to provide the value of sigU below.
-#sigU: standard deviation of the errors.
+# Option 1: provide error type and standard deviation of the errors
+# errortype: 'Lap' for Laplace errors and 'norm' for normal errors. If you use 
+# this way of defining the error then you also need to provide the value of 
+# sigU below.
+# sigU: standard deviation of the errors.
 
-#Option 2: define the characeristic function of the errors:
-#phiU:function that gives the characteristic function of the error
+# Option 2: define the characeristic function of the errors:
+# phiU:function that gives the characteristic function of the error
 
 
 #------------------------------------------------------------------------------------------------------------------------
-#Optional arguments (if you change one of them you must change all of them as they need to correspond to the same kernel):
+# Optional arguments (if you change one of them you must change all of them as they need to correspond to the same kernel):
 #------------------------------------------------------------------------------------------------------------------------
 
 

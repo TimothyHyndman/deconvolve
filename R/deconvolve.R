@@ -6,7 +6,6 @@
 #' 
 #' @section Problems:
 #' Currently doesn't take h into account for symmetric deconvolution
-#' Currently doesn't use phiK for symmetric deconvolution
 #' 
 #' @export
 
@@ -25,8 +24,15 @@ deconvolve <- function(W, xx, h, errortype = NULL, sigU = NULL, phiU = NULL,
 	}
 
 	# Calculate Bandwidth if not supplied --------------------------------------
-	# h <- bandwidth(W...)
+	if (decon_type == "known" & is.null(h)){
+		# # h <- bandwidth(W...)
+	}
 	
+	# Use default PhiK if not supplied -----------------------------------------
+	if(is.null(phiK)){
+		phiK <- phiK2
+	}
+
 	# Perform appropriate deconvolution ----------------------------------------
 	if (decon_type == "known"){
 		output <- DeconErrKnownPdf(xx, W, h, errortype, sigU, phiU, rescale, 
@@ -41,8 +47,7 @@ deconvolve <- function(W, xx, h, errortype = NULL, sigU = NULL, phiU = NULL,
 	if (decon_type == "symmetric") {
 		out <- DeconErrSymPmf(W)
 		phi.W <- out$phi.W
-		fX <- DeconErrSymPmfToPdf(out, W, phi.W, xx)
-		output <- fX$y
+		output <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt)
 	}
 
 	# Output PDF ---------------------------------------------------------------

@@ -4,7 +4,7 @@
 \alias{DeconErrSymPmfToPdf}
 \title{Create Probability Density Function from Probability Mass Function}
 \usage{
-DeconErrSymPmfToPdf(X.pmf, W, phi.W)
+DeconErrSymPmfToPdf(X.pmf, W, phi.W, xx, PhiK, muK2, t)
 }
 \arguments{
 \item{X.pmf}{A list with parts "support" and "probweights"}
@@ -14,11 +14,12 @@ DeconErrSymPmfToPdf(X.pmf, W, phi.W)
 \item{phi.W}{A list with parts "complex", "re", "im", "norm" and "t.values" 
 containing phi.W, Re(phi.W), Im(phi.W), Norm(phi.W) and the t values on which
 they were calculated respectively.}
+
+\item{xx}{A vector of x values on which to compute the density.}
 }
 \value{
-A list with components:
-\item{x}{The values on which \eqn{f_X} was calculated}
-\item{y}{The density \eqn{f_X(x)} evaluated at each x}
+A vector containing the density \eqn{f_X(x)} evaluated at each x in 
+\code{xx}
 }
 \description{
 Takes the output of DeconErrSymPmf along with the contaminated data, W, and

@@ -1,11 +1,13 @@
+#' @export
+
 hSIMEXUknown <- function(W,Y,errortype,sigU,n){
   
-  rlap=function(szC,n1,n2){
-    y=matrix(stats::runif(n1*n2,0,1),nrow=n1,ncol=n2,byrow=T);
-    reponse= szC*log(2*y);
-    reponse[which(y>0.5)]=-szC*log(2-2*y[which(y>0.5)]);
-    return(reponse)
-  }
+  # rlap=function(szC,n1,n2){
+  #   y=matrix(stats::runif(n1*n2,0,1),nrow=n1,ncol=n2,byrow=T);
+  #   reponse= szC*log(2*y);
+  #   reponse[which(y>0.5)]=-szC*log(2-2*y[which(y>0.5)]);
+  #   return(reponse)
+  # }
 
   BinData<-function(W,nbin){
     #Author: Aurore Delaigle
@@ -270,7 +272,6 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
   
   for (bb in 1:BB)
   {
-    
     #Generate SIMEX data Wstar
     if (errortype=="Lap")
     {Wstar=W+rlap(sigU,1,n);}
@@ -279,9 +280,9 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
     
     
     #For each h in the grid of h-candidates, compute the CV criterion for the data Wstar (this will automatically consider all rho candiates)
-    for (kh in 1:lh)
-    {h=gridh[kh];
-     CVrho[kh,]=CVrho[kh,]+NWDecridgeL1OCUknown(n,Wstar,Y,errortype,sigU,h,gridrho,midbin,indbin,nbin);
+    for (kh in 1:lh){
+      h=gridh[kh]
+      CVrho[kh,]=CVrho[kh,]+NWDecridgeL1OCUknown(n,Wstar,Y,errortype,sigU,h,gridrho,midbin,indbin,nbin);
     }
     
   }
@@ -305,8 +306,7 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
   CVhstar=0*gridh;
   
   for (bb in 1:BB)
-  {
-    
+  {    
     #Generate SIMEX data Wstar2
     if (errortype=="Lap")
     {Wstar=W+rlap(sigU,1,n);
@@ -321,9 +321,9 @@ hSIMEXUknown <- function(W,Y,errortype,sigU,n){
     midbin=unlist(BinData(Wstar,nbin)[1]);
     indbin=unlist(BinData(Wstar,nbin)[2]);
     #Compute CV for each h in the grid, using the ridge parameter rho found above
-    for (kh in 1:lh)
-    {h=gridh[kh];
-     CVhstar[kh]=CVhstar[kh]+NWDecridgeL1OCUknown(n,Wstar2,Y,errortype,sigU,h,rho,midbin,indbin,nbin);
+    for (kh in 1:lh){
+      h=gridh[kh];
+      CVhstar[kh]=CVhstar[kh]+NWDecridgeL1OCUknown(n,Wstar2,Y,errortype,sigU,h,rho,midbin,indbin,nbin);
     }
     
   }

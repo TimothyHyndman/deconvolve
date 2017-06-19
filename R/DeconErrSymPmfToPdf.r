@@ -11,10 +11,10 @@
 #' @param phi.W A list with parts "complex", "re", "im", "norm" and "t.values" 
 #' containing phi.W, Re(phi.W), Im(phi.W), Norm(phi.W) and the t values on which
 #' they were calculated respectively.
+#' @param xx A vector of x values on which to compute the density.
 #' 
-#' @return A list with components:
-#' \item{x}{The values on which \eqn{f_X} was calculated}
-#' \item{y}{The density \eqn{f_X(x)} evaluated at each x}
+#' @return A vector containing the density \eqn{f_X(x)} evaluated at each x in 
+#' \code{xx}
 #' 
 #' @example man/examples/SymmetricError_eg.R
 #' 
@@ -29,17 +29,15 @@
 #' 
 #' @export
 
-DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, 
-								xx = seq(min(W),max(W),length.out = 100)){
+DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t){
 
 	theta <- X.pmf$support
 	p <- X.pmf$probweights
+	dt <- t[2] - t[1]
 
 	# Estimate phi.X and phi.U
 	tt <- phi.W$t.values
-	# a <- phi.W
 	
-
 	#---------------------------------------------------------------------------
 	# Estimate var(U): approximate phi.U by poly of degree 2, and estimate varU 
 	# by -2 * second order coefficient
@@ -55,20 +53,13 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W,
 	t.vec <- 		  tt.BB[ phi.U.BB >= 0.95 ]
 	phi.U.t.vec <- phi.U.BB[ phi.U.BB >= 0.95 ]
 
-	pp <- stats::lm(phi.U.t.vec ~ poly(t.vec, 2, raw = T))
+	pp <- stats::lm(phi.U.t.vec ~ stats::poly(t.vec, 2, raw = T))
 	hat.var.U <- -2 * pp$coefficients[[3]]
 
 	# Find Plug-In Bandwidth
 	phi.X <- ComputePhiPmf(theta, p, tt)
 	phi.U <- phi.W$norm / Mod(phi.X)
-	h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt)
-
-	# Kernel stuff
-	dt <- 0.0002
-	t <- seq(-1,1, by = dt)
-	PhiK <- function(t){
-		(1 - t^2)^3
-	}
+	h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, PhiK, muK2, t)
 
 	phi.U.PI <- PhiUSpline(t/h.PIc, hat.var.U, phi.U, tt)
 	phi.W.PI <- ComputePhiEmp(W, t/h.PIc)
@@ -90,6 +81,5 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W,
 	fX[fX < 0] <- 0
 	fX <- fX / sum(fX) / dx
 
-	return(list("x" = xx, "y" = fX))
-
+	fX
 }

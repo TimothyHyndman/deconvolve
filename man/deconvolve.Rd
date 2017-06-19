@@ -16,8 +16,6 @@ Details
 }
 \section{Problems}{
 
-Currently doesn't take xx into account for symmetric deconvolution
 Currently doesn't take h into account for symmetric deconvolution
-Currently doesn't use phiK for symmetric deconvolution
 }
 
