@@ -9,10 +9,9 @@
 #' 
 #' @export
 
-deconvolve <- function(W, xx, h, errortype = NULL, sigU = NULL, phiU = NULL,
-					   rescale = FALSE, phiK = NULL, muK2 = 6, 
-					   RK = 1024 / 3003 / pi, 
-					   tt = seq(-1, 1, 2e-04)){
+deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, 
+					   h = NULL, rescale = FALSE, phiK = NULL, muK2 = 6, 
+					   RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
 
 	# Decide on type of deconvolution ------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
@@ -24,8 +23,14 @@ deconvolve <- function(W, xx, h, errortype = NULL, sigU = NULL, phiU = NULL,
 	}
 
 	# Calculate Bandwidth if not supplied --------------------------------------
-	if (decon_type == "known" & is.null(h)){
-		# # h <- bandwidth(W...)
+	if (is.null(h) & (decon_type == "symmetric") == FALSE) {
+		if (is.null(phiU)) {
+			h <- bandwidth(W, errortype, sigU, phiK = phiK, muK2 = muK2, 
+					   RK = RK, tt = tt)
+		} else {
+			h <- bandwidth(W, phiU = phiU, phiK = phiK, muK2 = muK2, 
+					   RK = RK, tt = tt)
+		}
 	}
 	
 	# Use default PhiK if not supplied -----------------------------------------

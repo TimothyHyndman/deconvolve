@@ -1,6 +1,7 @@
 #' @export
 
-CVdeconv<-function(n,W,errortype,sigU,phiU,phiK =phiK2,muK2=6,RK=1024/3003/pi,deltat = .0002,tt = seq(-1,1,deltat))
+CVdeconv<-function(n, W, errortype, sigU, phiU, phiK = phiK2, muK2 = 6, 
+				   RK = 1024 / 3003 / pi, deltat = .0002, tt = seq(-1,1,deltat))
 
 # Authors: Aurore Delaigle
 # This function computes the cross-validation (CV) bandwidth for kernel 
