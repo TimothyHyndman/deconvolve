@@ -14,11 +14,14 @@ bandwidth(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 errors or "norm" for normal errors. If you define the errors this way then 
 you must also provide \code{sigU} but should not provide \code{phiU}.}
 
-\item{sigU}{The standard deviation of \eqn{U}.}
+\item{sigU}{The standard deviations of \eqn{U}. A single value for
+homoscedastic errors and a vector having the same length as \code{W} for 
+heteroscedastic errors.}
 
-\item{phiU}{A function giving the characteristic function of \eqn{U}. If you 
-define the errors this way then you should not provide \code{errortype} or 
-\code{sigU}.}
+\item{phiU}{A function giving the characteristic function of \eqn{U}. A 
+single value for homoscedastic errors and a vector having the same length as 
+\code{W} for heteroscedastic errors. If you define the errors this way then 
+you should not provide \code{errortype} or \code{sigU}.}
 
 \item{varX}{An estimate of the variance of \eqn{X}. Only required for 
 heteroscedastic errors.}

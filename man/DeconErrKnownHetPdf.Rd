@@ -28,9 +28,9 @@ where each funcj is a function of tt. If you define the errors this way then
 you should not provide \code{errortype} or \code{sigUj}.}
 
 \item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
-integrates to 1. Rescaling requires xx to be a fine grid of equispaced x 
-values that covers the whole range of x-values where the estimated density is 
-significantly non zero.}
+integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
+\eqn{x} values that covers the whole range of \eqn{x}-values where the 
+estimated density is significantly non zero.}
 
 \item{phiK}{A function giving the fourier transform of the kernel. 
 If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 

@@ -25,9 +25,9 @@ not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.}
 \item{muK2}{The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.}
 
 \item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
-integrates to 1. Rescaling requires xx to be a fine grid of equispaced x 
-values that covers the whole range of x-values where the estimated density is 
-significantly non zero.}
+integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
+\eqn{x} values that covers the whole range of \eqn{x}-values where the 
+estimated density is significantly non zero.}
 }
 \value{
 A vector containing the deconvolution KDE evaluated at each point in 

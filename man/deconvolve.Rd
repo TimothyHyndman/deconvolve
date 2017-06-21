@@ -17,19 +17,22 @@ deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, bw = NULL,
 errors or "norm" for normal errors. If you define the errors this way then 
 you must also provide \code{sigU} but should not provide \code{phiU}.}
 
-\item{sigU}{The standard deviation of \eqn{U}.}
+\item{sigU}{The standard deviations of \eqn{U}. A single value for
+homoscedastic errors and a vector having the same length as \code{W} for 
+heteroscedastic errors.}
 
-\item{phiU}{A function giving the characteristic function of \eqn{U}. If you 
-define the errors this way then you should not provide \code{errortype} or 
-\code{sigU}.}
+\item{phiU}{A function giving the characteristic function of \eqn{U}. A 
+single value for homoscedastic errors and a vector having the same length as 
+\code{W} for heteroscedastic errors. If you define the errors this way then 
+you should not provide \code{errortype} or \code{sigU}.}
 
 \item{bw}{The bandwidth to use. If \code{NULL}, a bandwidth will be
 calculated using an appropriate plug-in estimator.}
 
 \item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
-integrates to 1. Rescaling requires xx to be a fine grid of equispaced x 
-values that covers the whole range of x-values where the estimated density is 
-significantly non zero.}
+integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
+\eqn{x} values that covers the whole range of \eqn{x}-values where the 
+estimated density is significantly non zero.}
 
 \item{phiK}{A function giving the fourier transform of the kernel. 
 If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
@@ -56,7 +59,25 @@ data \eqn{W = X + U} when the distribution of \eqn{U} is known,
 heteroscedastic, or symmetric.
 }
 \details{
-PUT DETAILS HERE
+The function \code{deconvolve} chooses from one of three different methods 
+depending on how the error distribution is defined.
+
+\strong{Symmetric Error:} If neither \code{errortype} and \code{sigU}, or 
+\code{phiU} are supplied then the error is assumed symmetric and the 
+deconvolution method is based on the method described in Delaigle and Hall 
+2016.
+
+\strong{Homoscedastic Error:} If the errors are defined by either a single 
+function \code{phiU}, or a single value \code{sigU} along with its 
+\code{errortype} then the method used is as described in [REFERENCE NEEDED!]
+
+\strong{Heteroscedastic Errors:} If the errors are defined by a either a 
+vector of functions \code{phiU}, or a vector \code{sigU} along with its 
+\code{errortype} then the method used is as described in Delaigle and 
+Meister 2008.
+
+Errors can be defined by either a distribution type along with the standard
+deviation(s), or by the characteric function(s) of the errors.
 }
 \section{Warnings}{
 
@@ -77,6 +98,13 @@ PUT DETAILS HERE
 
 \section{References}{
 
+Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
+error. \emph{Bernoulli}, 14, 2, 562-579.
+
+Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
+deconvolution when the error distribution is unknown. \emph{Journal of the 
+Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
+231-252.
 }
 
 \examples{
@@ -88,4 +116,7 @@ xx <- seq(min(W), max(W), length.out = 100)
 
 # Calculate the DKDE assuming the errors are symmetric
 yy <- deconvolve(W, xx)
+}
+\author{
+Aurore Delaigle, Timothy Hyndman, Tianying Wang
 }
