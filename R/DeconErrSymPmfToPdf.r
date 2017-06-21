@@ -29,11 +29,13 @@
 #' 
 #' @export
 
-DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t){
+DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t, 
+								rescale = FALSE, h = NULL){
 
 	theta <- X.pmf$support
 	p <- X.pmf$probweights
 	dt <- t[2] - t[1]
+	tt <- phi.W$t.values
 
 	# Estimate Var(U) ----------------------------------------------------------
 	tt.BB.length <- 200		# Use a finer grid than tt
@@ -42,12 +44,16 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t){
 	hat.var.U <- estimate_var_u(W, tt.BB, theta, p)
 
 	# Estimate PhiX and PhiU ---------------------------------------------------
-	tt <- phi.W$t.values
 	phi.X <- ComputePhiPmf(theta, p, tt)
 	phi.U <- phi.W$norm / Mod(phi.X)
 
 	# Find Plug-In Bandwidth ---------------------------------------------------
-	h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, PhiK, muK2, t)
+	if (is.null(h)) {
+		h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, PhiK, muK2, t)	
+	} else {
+		h.PIc <- h
+	}
+	
 
 	# --------------------------------------------------------------------------
 	phi.U.PI <- PhiUSpline(t/h.PIc, hat.var.U, phi.U, tt)
@@ -56,7 +62,6 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t){
 	phi.X.re <- phi.W.PI$re / phi.U.PI
 	phi.X.im <- phi.W.PI$im / phi.U.PI
 
-	dx <- xx[2] - xx[1]
 	xt <- outerop(t/h.PIc, xx, "*")
 
 	fX <- cos(xt) * matrix( rep(phi.X.re, length(xx)), ncol = length(xx)) + 
@@ -66,8 +71,12 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t){
 	(2 * pi) * dt / h.PIc
 
 	fX[fX < 0] <- 0
-	fX <- fX / sum(fX) / dx
 
+	if (rescale) {
+		dx <- xx[2] - xx[1]
+		fX <- fX / sum(fX) / dx	
+	}
+	
 	fX
 }
 

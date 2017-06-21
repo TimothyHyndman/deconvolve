@@ -4,9 +4,6 @@
 #' 
 #' Details
 #' 
-#' @section Problems:
-#' Currently doesn't take h into account for symmetric deconvolution
-#' 
 #' @export
 
 deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, 
@@ -52,7 +49,8 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 	if (decon_type == "symmetric") {
 		out <- DeconErrSymPmf(W)
 		phi.W <- out$phi.W
-		output <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt)
+		output <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt, 
+									  rescale, h)
 	}
 
 	# Output PDF ---------------------------------------------------------------

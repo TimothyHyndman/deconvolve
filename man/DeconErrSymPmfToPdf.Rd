@@ -4,7 +4,8 @@
 \alias{DeconErrSymPmfToPdf}
 \title{Create Probability Density Function from Probability Mass Function}
 \usage{
-DeconErrSymPmfToPdf(X.pmf, W, phi.W, xx, PhiK, muK2, t)
+DeconErrSymPmfToPdf(X.pmf, W, phi.W, xx, PhiK, muK2, t, rescale = FALSE,
+  h = NULL)
 }
 \arguments{
 \item{X.pmf}{A list with parts "support" and "probweights"}

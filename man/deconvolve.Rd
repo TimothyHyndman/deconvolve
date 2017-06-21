@@ -4,7 +4,7 @@
 \alias{deconvolve}
 \title{Deconvolution}
 \usage{
-deconvolve(W, xx, h, errortype = NULL, sigU = NULL, phiU = NULL,
+deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, h = NULL,
   rescale = FALSE, phiK = NULL, muK2 = 6, RK = 1024/3003/pi,
   tt = seq(-1, 1, 2e-04))
 }
@@ -14,8 +14,3 @@ Description
 \details{
 Details
 }
-\section{Problems}{
-
-Currently doesn't take h into account for symmetric deconvolution
-}
-

@@ -4,12 +4,17 @@
 \alias{bandwidth}
 \title{Bandwidth Selectors for Deconvolution Kernel Density Estimation}
 \usage{
-bandwidth(W, errortype, sigU, phiU, phiK = phiK2, muK2 = 6,
-  RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
+bandwidth(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
+  phiK = NULL, muK2 = 6, RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
 }
 \description{
 Description
 }
 \details{
-Details
+The function \code{bandwidth} chooses between three different algorithms
+to calculate a bandwidth depending on the inputs.
 }
+\section{Problems}{
+
+}
+
