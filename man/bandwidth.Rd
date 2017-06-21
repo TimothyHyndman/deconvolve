@@ -7,14 +7,64 @@
 bandwidth(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
   phiK = NULL, muK2 = 6, RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
 }
+\arguments{
+\item{W}{A vector of the univariate contaminated data.}
+
+\item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
+errors or "norm" for normal errors. If you define the errors this way then 
+you must also provide \code{sigU} but should not provide \code{phiU}.}
+
+\item{sigU}{The standard deviation of \eqn{U}.}
+
+\item{phiU}{A function giving the characteristic function of \eqn{U}. If you 
+define the errors this way then you should not provide \code{errortype} or 
+\code{sigU}.}
+
+\item{varX}{An estimate of the variance of \eqn{X}. Only required for 
+heteroscedastic errors.}
+
+\item{algorithm}{Either \code{"PI"} for plug-in estimator or \code{"CV"} for 
+cross-validation estimator. If \code{"CV"} then the errors must be 
+homoscedastic.}
+
+\item{phiK}{A function giving the fourier transform of the kernel. 
+If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
+not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.}
+
+\item{muK2}{The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.}
+
+\item{RK}{The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.}
+
+\item{tt}{A vector of evenly spaced t values on which to approximate the 
+integrals in the Fourier domain. If phiK is compactly supported, the first 
+and last elements of \code{tt} must be the lower and upper bound of the 
+support of phiK. If phiK is not compactly supported, the first and last 
+elements of \code{tt} must be large enough for your discretisation of the 
+integrals to be accurate.}
+}
+\value{
+The bandwidth estimator.
+}
 \description{
 Description
 }
 \details{
 The function \code{bandwidth} chooses between three different algorithms
-to calculate a bandwidth depending on the inputs.
+to calculate a bandwidth depending on the inputs. GIVE DETAILS OF ALL 3.
 }
-\section{Problems}{
+\section{Warnings}{
+
+\itemize{
+	\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
+	all be calculated from the same kernel. If you change one of these, you must
+	also change the rest to match.
+}
+}
+
+\section{References}{
 
 }
 
+\examples{
+# Put examples here
+}

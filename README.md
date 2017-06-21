@@ -37,13 +37,13 @@ library(ggplot2)
 #### Bandwidth Selection
 
 * CVdeconv
-* hSIMEXUknown
 * PI_deconvUknownth4
 * PI_deconvUKnownth4het
 
 #### Nonparametric Regression With Errors in Variables
 
 * NWDecUKnown
+* hSIMEXUknown (bandwidth)
 
 #### Other
 
@@ -60,6 +60,7 @@ library(ggplot2)
 * phiK2 (Default kernel characteristic function for when none is supplied)
 * PhiUSpline (used in Symmetric Error PmfToPdf)
 * PI_DeconvUEstTh4 (used in Symmetric Error PmfToPdf)
+* NWDecridgeL10CUknown (used in hSIMEXUknown I think?)
 
 ## License
 

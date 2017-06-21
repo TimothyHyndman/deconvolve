@@ -6,6 +6,7 @@
 #' 
 #' PUT DETAILS HERE
 #' 
+#' @inheritParams deconvolve
 #' @inheritParams DeconErrKnownPdf
 #' @param errortype The distribution type of the \eqn{U_j}. Either "Lap" for 
 #' Laplace errors or "norm" for normal errors. If you use this way of defining 
@@ -18,10 +19,9 @@
 #' where each funcj is a function of tt. If you define the errors this way then 
 #' you should not provide \code{errortype} or \code{sigUj}.
 #' 
-#' @inheritSection DeconErrKnownPdf Warnings
+#' @inheritSection deconvolve Warnings
 #' 
-#' @return A vector containing the deconvolution KDE evaluated at each point in 
-#' xx.
+#' @inherit deconvolve return
 #' 
 #' @section References:
 #' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 

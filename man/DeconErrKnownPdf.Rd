@@ -15,8 +15,8 @@ DeconErrKnownPdf(xx, W, h, errortype, sigU, phiU, rescale = FALSE,
 \item{h}{The bandwidth to use.}
 
 \item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
-errors or "norm" for normal errors. If you use this way of defining the error 
-then you must also provide \code{sigU} but should not provide \code{phiU}.}
+errors or "norm" for normal errors. If you define the errors this way then 
+you must also provide \code{sigU} but should not provide \code{phiU}.}
 
 \item{sigU}{The standard deviation of \eqn{U}.}
 
@@ -46,7 +46,7 @@ integrals to be accurate.}
 }
 \value{
 A vector containing the deconvolution KDE evaluated at each point in 
-xx.
+\code{xx}.
 }
 \description{
 Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
@@ -55,6 +55,15 @@ data \eqn{W = X + U} when the distribution of \eqn{U} is known.
 \details{
 PUT DETAILS HERE
 }
+\section{Author}{
+
+Aurore Delaigle
+}
+
+\section{References}{
+
+}
+
 \section{Warnings}{
 
 \itemize{
@@ -70,15 +79,6 @@ PUT DETAILS HERE
 	349-355. However if the grid of t-values is fine enough, the estimator can 
 	simply be computed like here without having problems with oscillations.
 }
-}
-
-\section{Author}{
-
-Aurore Delaigle
-}
-
-\section{References}{
-
 }
 
 \examples{

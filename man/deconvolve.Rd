@@ -2,15 +2,90 @@
 % Please edit documentation in R/deconvolve.R
 \name{deconvolve}
 \alias{deconvolve}
-\title{Deconvolution}
+\title{Deconvolution Kernel Density Estimator}
 \usage{
-deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, h = NULL,
+deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, bw = NULL,
   rescale = FALSE, phiK = NULL, muK2 = 6, RK = 1024/3003/pi,
   tt = seq(-1, 1, 2e-04))
 }
+\arguments{
+\item{W}{A vector of the univariate contaminated data.}
+
+\item{xx}{A vector of x values on which to compute the density.}
+
+\item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
+errors or "norm" for normal errors. If you define the errors this way then 
+you must also provide \code{sigU} but should not provide \code{phiU}.}
+
+\item{sigU}{The standard deviation of \eqn{U}.}
+
+\item{phiU}{A function giving the characteristic function of \eqn{U}. If you 
+define the errors this way then you should not provide \code{errortype} or 
+\code{sigU}.}
+
+\item{bw}{The bandwidth to use. If \code{NULL}, a bandwidth will be
+calculated using an appropriate plug-in estimator.}
+
+\item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
+integrates to 1. Rescaling requires xx to be a fine grid of equispaced x 
+values that covers the whole range of x-values where the estimated density is 
+significantly non zero.}
+
+\item{phiK}{A function giving the fourier transform of the kernel. 
+If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
+not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.}
+
+\item{muK2}{The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.}
+
+\item{RK}{The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.}
+
+\item{tt}{A vector of evenly spaced t values on which to approximate the 
+integrals in the Fourier domain. If phiK is compactly supported, the first 
+and last elements of \code{tt} must be the lower and upper bound of the 
+support of phiK. If phiK is not compactly supported, the first and last 
+elements of \code{tt} must be large enough for your discretisation of the 
+integrals to be accurate.}
+}
+\value{
+A vector containing the deconvolution KDE evaluated at each point in 
+\code{xx}.
+}
 \description{
-Description
+Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
+data \eqn{W = X + U} when the distribution of \eqn{U} is known,
+heteroscedastic, or symmetric.
 }
 \details{
-Details
+PUT DETAILS HERE
+}
+\section{Warnings}{
+
+\itemize{
+\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
+	all be calculated from the same kernel. If you change one of these, you must
+	also change the rest to match.
+\item The kernel used here must match the kernel used to compute the 
+	bandwidth.
+\item The DKDE can also be computed using the Fast Fourier Transform, which 
+	is a bit more complex. See Delaigle, A. and Gijbels, I. (2007). Frequent 
+	problems in calculating integrals and optimizing objective functions: a case 
+	study in density deconvolution. \emph{Statistics and Computing}, 17, 
+	349-355. However if the grid of t-values is fine enough, the estimator can 
+	simply be computed like here without having problems with oscillations.
+}
+}
+
+\section{References}{
+
+}
+
+\examples{
+# Generate some data
+W <- GenerateTestData()
+
+# Define a vector on which to calculate the density
+xx <- seq(min(W), max(W), length.out = 100)
+
+# Calculate the DKDE assuming the errors are symmetric
+yy <- deconvolve(W, xx)
 }

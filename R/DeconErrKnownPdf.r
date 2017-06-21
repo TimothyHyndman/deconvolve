@@ -5,49 +5,19 @@
 #' 
 #' PUT DETAILS HERE
 #' 
-#' @param xx A vector of x values on which to compute the density.
-#' @param W A vector of the univariate contaminated data.
+#' @inheritParams deconvolve
 #' @param h The bandwidth to use.
 #' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
-#' errors or "norm" for normal errors. If you use this way of defining the error 
-#' then you must also provide \code{sigU} but should not provide \code{phiU}.
+#' errors or "norm" for normal errors. If you define the errors this way then 
+#' you must also provide \code{sigU} but should not provide \code{phiU}.
 #' @param sigU The standard deviation of \eqn{U}.
 #' @param phiU A function giving the characteristic function of \eqn{U}. If you 
 #' define the errors this way then you should not provide \code{errortype} or 
 #' \code{sigU}.
-#' @param rescale If \code{TRUE}, estimator is rescaled so that it 
-#' integrates to 1. Rescaling requires xx to be a fine grid of equispaced x 
-#' values that covers the whole range of x-values where the estimated density is 
-#' significantly non zero.
-#' @param phiK A function giving the fourier transform of the kernel. 
-#' If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
-#' not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.
-#' @param muK2 The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.
-#' @param RK The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.
-#' @param tt A vector of evenly spaced t values on which to approximate the 
-#' integrals in the Fourier domain. If phiK is compactly supported, the first 
-#' and last elements of \code{tt} must be the lower and upper bound of the 
-#' support of phiK. If phiK is not compactly supported, the first and last 
-#' elements of \code{tt} must be large enough for your discretisation of the 
-#' integrals to be accurate.
 #' 
-#' @return A vector containing the deconvolution KDE evaluated at each point in 
-#' xx.
+#' @inherit deconvolve return
 #' 
-#' @section Warnings:
-#' \itemize{
-#'	\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
-#' 	all be calculated from the same kernel. If you change one of these, you must
-#' 	also change the rest to match.
-#'	\item The kernel used here must match the kernel used to compute the 
-#' 	bandwidth.
-#'	\item The DKDE can also be computed using the Fast Fourier Transform, which 
-#' 	is a bit more complex. See Delaigle, A. and Gijbels, I. (2007). Frequent 
-#' 	problems in calculating integrals and optimizing objective functions: a case 
-#' 	study in density deconvolution. \emph{Statistics and Computing}, 17, 
-#' 	349-355. However if the grid of t-values is fine enough, the estimator can 
-#' 	simply be computed like here without having problems with oscillations.
-#' }
+#' @inheritSection deconvolve Warnings
 #' 
 #' @section Author:
 #' Aurore Delaigle

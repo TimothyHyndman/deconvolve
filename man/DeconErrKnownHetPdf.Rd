@@ -49,7 +49,7 @@ integrals to be accurate.}
 }
 \value{
 A vector containing the deconvolution KDE evaluated at each point in 
-xx.
+\code{xx}.
 }
 \description{
 Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 

@@ -3,10 +3,27 @@
 #' Description
 #' 
 #' The function \code{bandwidth} chooses between three different algorithms
-#' to calculate a bandwidth depending on the inputs.
+#' to calculate a bandwidth depending on the inputs. GIVE DETAILS OF ALL 3.
 #' 
-#' @section Problems:
+#' @inheritParams deconvolve
+#' @param varX An estimate of the variance of \eqn{X}. Only required for 
+#' heteroscedastic errors.
+#' @param algorithm Either \code{"PI"} for plug-in estimator or \code{"CV"} for 
+#' cross-validation estimator. If \code{"CV"} then the errors must be 
+#' homoscedastic.
 #' 
+#' @return The bandwidth estimator.
+#' 
+#' @section Warnings:
+#' \itemize{
+#' 	\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
+#' 	all be calculated from the same kernel. If you change one of these, you must
+#' 	also change the rest to match.
+#' }
+#' 
+#' @section References:
+#' 
+#' @example man/examples/bandwidth_eg.R
 #' 
 #' @export
 
@@ -63,7 +80,7 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 				 errors.")
 		}
 		if (errors == "est") {
-			stop("You must supply error for algorithm 'CV'.")
+			stop("You must define the error distribution for algorithm 'CV'.")
 		}
 	}
 

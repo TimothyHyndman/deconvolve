@@ -4,23 +4,34 @@
 \alias{DeconErrSymPmfToPdf}
 \title{Create Probability Density Function from Probability Mass Function}
 \usage{
-DeconErrSymPmfToPdf(X.pmf, W, phi.W, xx, PhiK, muK2, t, rescale = FALSE,
+DeconErrSymPmfToPdf(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale = FALSE,
   h = NULL)
 }
 \arguments{
 \item{X.pmf}{A list with parts "support" and "probweights"}
 
-\item{W}{A vector of the contaminated data}
+\item{W}{A vector of the univariate contaminated data.}
 
 \item{phi.W}{A list with parts "complex", "re", "im", "norm" and "t.values" 
 containing phi.W, Re(phi.W), Im(phi.W), Norm(phi.W) and the t values on which
 they were calculated respectively.}
 
 \item{xx}{A vector of x values on which to compute the density.}
+
+\item{phiK}{A function giving the fourier transform of the kernel. 
+If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
+not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.}
+
+\item{muK2}{The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.}
+
+\item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
+integrates to 1. Rescaling requires xx to be a fine grid of equispaced x 
+values that covers the whole range of x-values where the estimated density is 
+significantly non zero.}
 }
 \value{
-A vector containing the density \eqn{f_X(x)} evaluated at each x in 
-\code{xx}
+A vector containing the deconvolution KDE evaluated at each point in 
+\code{xx}.
 }
 \description{
 Takes the output of DeconErrSymPmf along with the contaminated data, W, and

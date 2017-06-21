@@ -6,15 +6,13 @@
 #' 
 #' PUT DETAILS HERE
 #' 
+#' @inheritParams deconvolve
 #' @param X.pmf A list with parts "support" and "probweights"
-#' @param W A vector of the contaminated data
 #' @param phi.W A list with parts "complex", "re", "im", "norm" and "t.values" 
 #' containing phi.W, Re(phi.W), Im(phi.W), Norm(phi.W) and the t values on which
 #' they were calculated respectively.
-#' @param xx A vector of x values on which to compute the density.
 #' 
-#' @return A vector containing the density \eqn{f_X(x)} evaluated at each x in 
-#' \code{xx}
+#' @inherit deconvolve return
 #' 
 #' @example man/examples/SymmetricError_eg.R
 #' 
@@ -29,7 +27,7 @@
 #' 
 #' @export
 
-DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t, 
+DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, 
 								rescale = FALSE, h = NULL){
 
 	theta <- X.pmf$support
@@ -49,7 +47,7 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t,
 
 	# Find Plug-In Bandwidth ---------------------------------------------------
 	if (is.null(h)) {
-		h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, PhiK, muK2, t)	
+		h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)	
 	} else {
 		h.PIc <- h
 	}
@@ -67,7 +65,7 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, PhiK, muK2, t,
 	fX <- cos(xt) * matrix( rep(phi.X.re, length(xx)), ncol = length(xx)) + 
 	sin(xt) * matrix( rep(phi.X.im, length(xx)), ncol = length(xx))
 
-	fX <- colSums(fX * matrix( rep(PhiK(t), length(xx)), ncol = length(xx))) / 
+	fX <- colSums(fX * matrix( rep(phiK(t), length(xx)), ncol = length(xx))) / 
 	(2 * pi) * dt / h.PIc
 
 	fX[fX < 0] <- 0
@@ -89,9 +87,9 @@ estimate_var_u <- function(W, tt.BB, theta, p){
 	phi.X.BB <- ComputePhiPmf(theta, p, tt.BB)
 	phi.U.BB <- phi.W.BB$norm / Mod(phi.X.BB)
 
-	t.vec <- 		  tt.BB[ phi.U.BB >= 0.95 ]
-	phi.U.t.vec <- phi.U.BB[ phi.U.BB >= 0.95 ]
+	t_vec <- 		  tt.BB[ phi.U.BB >= 0.95 ]
+	phi.U.t_vec <- phi.U.BB[ phi.U.BB >= 0.95 ]
 
-	pp <- stats::lm(phi.U.t.vec ~ stats::poly(t.vec, 2, raw = T))
+	pp <- stats::lm(phi.U.t_vec ~ stats::poly(t_vec, 2, raw = T))
 	hat.var.U <- -2 * pp$coefficients[[3]]
 }
