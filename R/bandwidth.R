@@ -1,6 +1,7 @@
 #' Bandwidth Selectors for Deconvolution Kernel Density Estimation
 #' 
-#' Computes a bandwidth for use in deconvolution kernel density estimation.
+#' Computes a bandwidth for use in deconvolution kernel density estimation of 
+#' \eqn{X} from data \eqn{W = X + U}.
 #' 
 #' The function \code{bandwidth} chooses from one of three different methods 
 #' depending on how the error distribution is defined and which algorithm is
