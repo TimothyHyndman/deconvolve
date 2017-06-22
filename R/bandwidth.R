@@ -22,6 +22,8 @@
 #' }
 #' 
 #' @section References:
+#' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
+#' error. \emph{Bernoulli}, 14, 2, 562-579.
 #' 
 #' @example man/examples/bandwidth_eg.R
 #' 
@@ -68,7 +70,7 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 		stop("algorithm must be one of: 'PI', or 'CV'.")
 	}
 
-	if ((errors == "est") == FALSE) {
+	if (missing(errortype) == FALSE) {
 		if ((errortype == "norm" | errortype == "Lap") == FALSE) {
 			stop("errortype must be one of: 'norm', or 'Lap'.")
 		}
@@ -101,13 +103,27 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 	}
 
 	if (algorithm == "PI" & errors == "het") {
-		output <- PI_deconvUknownth4het(n, W, varX, errortype, sigU, phiU, phiK,
-										muK2, RK, deltat, tt)
+		if (missing(phiU)) {
+			output <- PI_deconvUknownth4het(n, W, varX, errortype, sigU, 
+											phiK = phiK, muK2 = muK2, RK = RK, 
+											deltat = deltat, tt = tt)
+		} else {
+			output <- PI_deconvUknownth4het(n, W, varX, phiUkvec = phiU, 
+											phiK = phiK, muK2 = muK2, RK = RK, 
+											deltat = deltat, tt = tt)
+		}
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		output <- PI_deconvUknownth4(n, W, errortype, sigU, phiU, phiK, muK2, 
-									 RK, deltat, tt)
+		if (missing(phiU)) {
+			output <- PI_deconvUknownth4(n, W, errortype, sigU, 
+											phiK = phiK, muK2 = muK2, RK = RK, 
+											deltat = deltat, tt = tt)
+		} else {
+			output <- PI_deconvUknownth4(n, W, phiU = phiU, 
+											phiK = phiK, muK2 = muK2, RK = RK, 
+											deltat = deltat, tt = tt)
+		}
 	}
 
 	output

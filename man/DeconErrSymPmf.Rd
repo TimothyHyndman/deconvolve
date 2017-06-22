@@ -56,8 +56,6 @@ out <- DeconErrSymPmf(W)
 phi.W <- out$phi.W
 
 # Convert to Probability Density
-fX <- DeconErrSymPmfToPdf(out, W, phi.W)
-
-# Plot results
-PlotPmfAndPdf(out, fX)
+xx <- seq(min(W), max(W), length.out = 100)
+fX <- DeconErrSymPmfToPdf(out, W, phi.W, xx)
 }

@@ -11,6 +11,14 @@
 #' @param phi.W A list with parts "complex", "re", "im", "norm" and "t.values" 
 #' containing phi.W, Re(phi.W), Im(phi.W), Norm(phi.W) and the t values on which
 #' they were calculated respectively.
+#' @param h The bandwidth to use. If \code{NULL}, a bandwidth will be calculated
+#' using an appropriate plug-in estimator.
+#' @param t A vector of evenly spaced t values on which to approximate the 
+#' integrals in the Fourier domain. If phiK is compactly supported, the first 
+#' and last elements of \code{tt} must be the lower and upper bound of the 
+#' support of phiK. If phiK is not compactly supported, the first and last 
+#' elements of \code{tt} must be large enough for your discretisation of the 
+#' integrals to be accurate.
 #' 
 #' @inherit deconvolve return
 #' 
@@ -27,13 +35,18 @@
 #' 
 #' @export
 
-DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, 
-								rescale = FALSE, h = NULL){
+DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK = NULL, muK2 = 6, 
+								t = seq(-1, 1, 2e-04), rescale = FALSE, 
+								h = NULL){
 
 	theta <- X.pmf$support
 	p <- X.pmf$probweights
 	dt <- t[2] - t[1]
 	tt <- phi.W$t.values
+	
+	if(is.null(phiK)){
+		phiK <- phiK2
+	}
 
 	# Estimate Var(U) ----------------------------------------------------------
 	tt.BB.length <- 200		# Use a finer grid than tt

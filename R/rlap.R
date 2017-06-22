@@ -1,5 +1,3 @@
-#' @export
-
 # Generate a random matrix of size n1 x n2 from a Laplace(sigLap). Note that the
 # variance of a Laplace(sigLap) is equal to 2 sigLap^2. Thus sigLap is NOT the
 # standard deviation.

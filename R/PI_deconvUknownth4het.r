@@ -84,11 +84,12 @@ if(missing(errortype)==F)
 
 
 #characteristic function of kth error 
-if(missing(errortype)&(missing(phiUkvec)==F))
-		phiUk=function(tt,k)  {phiUkvec[[k]](tt)}
+if (missing(errortype) & (missing(phiUkvec)==F)) {
+	phiUk <- function(tt,k) {
+		phiUkvec[[k]](tt)
+	}
+}
 
-
-	
 
 
 W=as.vector(W)

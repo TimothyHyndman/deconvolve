@@ -1,3 +1,5 @@
+#' @export
+
 NWDecUknown<-function(n,xx,W,Y,sigU,phiU,h,rho)
 
 #Author: Aurore Delaigle

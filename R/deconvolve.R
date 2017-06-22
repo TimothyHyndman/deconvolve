@@ -40,6 +40,8 @@
 #' you should not provide \code{errortype} or \code{sigU}.
 #' @param bw The bandwidth to use. If \code{NULL}, a bandwidth will be
 #' calculated using an appropriate plug-in estimator.
+#' @param varX An estimate of the variance of \eqn{X}. Only required when 
+#' \code{bw = NULL} and the errors are heteroscedastic.
 #' @param rescale If \code{TRUE}, estimator is rescaled so that it 
 #' integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
 #' \eqn{x} values that covers the whole range of \eqn{x}-values where the 
@@ -95,8 +97,8 @@
 #' @export
 
 deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, 
-					   bw = NULL, rescale = FALSE, phiK = NULL, muK2 = 6, 
-					   RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
+					   bw = NULL, varX = NULL, rescale = FALSE, phiK = NULL, 
+					   muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
 
 	# Decide on type of deconvolution ------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
@@ -110,11 +112,11 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 	# Calculate Bandwidth if not supplied --------------------------------------
 	if (is.null(bw) & (decon_type == "symmetric") == FALSE) {
 		if (is.null(phiU)) {
-			bw <- bandwidth(W, errortype, sigU, phiK = phiK, muK2 = muK2, 
-							RK = RK, tt = tt)
-		} else {
-			bw <- bandwidth(W, phiU = phiU, phiK = phiK, muK2 = muK2, 
-							RK = RK, tt = tt)
+			bw <- bandwidth(W, errortype, sigU, varX = varX, phiK = phiK, 
+							muK2 = muK2, RK = RK, tt = tt)
+		} else {			
+			bw <- bandwidth(W, phiU = phiU, varX = varX, phiK = phiK, 
+							muK2 = muK2, RK = RK, tt = tt)
 		}
 	}
 	
@@ -125,13 +127,27 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 
 	# Perform appropriate deconvolution ----------------------------------------
 	if (decon_type == "known"){
-		output <- DeconErrKnownPdf(xx, W, bw, errortype, sigU, phiU, rescale, 
-								   phiK, muK2, RK, tt)
+		if (is.null(phiU)) {
+			output <- DeconErrKnownPdf(xx, W, bw, errortype, sigU, 
+									   rescale = rescale, phiK = phiK, 
+									   muK2 = muK2, RK = RK, tt = tt)
+		} else {
+			output <- DeconErrKnownPdf(xx, W, bw, phiU = phiU,
+									   rescale = rescale, phiK = phiK, 
+									   muK2 = muK2, RK = RK, tt = tt)
+		}
 	}
 
 	if (decon_type == "heteroscedastic"){
-		output <- DeconErrKnownHetPdf(xx, W, bw, errortype, sigU, phiU, rescale, 
-									  phiK, muK2, RK, tt)
+		if (is.null(phiU)) {
+			output <- DeconErrKnownHetPdf(xx, W, bw, errortype, sigU, 
+										  rescale = rescale, phiK = phiK, 
+										  muK2 = muK2, RK = RK, tt = tt)
+		} else {
+			output <- DeconErrKnownHetPdf(xx, W, bw, phiUkvec = phiU,
+										  rescale = rescale, phiK = phiK, 
+										  muK2 = muK2, RK = RK, tt = tt)
+		}
 	}
 
 	if (decon_type == "symmetric") {

@@ -4,8 +4,8 @@
 \alias{DeconErrSymPmfToPdf}
 \title{Create Probability Density Function from Probability Mass Function}
 \usage{
-DeconErrSymPmfToPdf(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale = FALSE,
-  h = NULL)
+DeconErrSymPmfToPdf(X.pmf, W, phi.W, xx, phiK = NULL, muK2 = 6,
+  t = seq(-1, 1, 2e-04), rescale = FALSE, h = NULL)
 }
 \arguments{
 \item{X.pmf}{A list with parts "support" and "probweights"}
@@ -24,10 +24,20 @@ not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.}
 
 \item{muK2}{The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.}
 
+\item{t}{A vector of evenly spaced t values on which to approximate the 
+integrals in the Fourier domain. If phiK is compactly supported, the first 
+and last elements of \code{tt} must be the lower and upper bound of the 
+support of phiK. If phiK is not compactly supported, the first and last 
+elements of \code{tt} must be large enough for your discretisation of the 
+integrals to be accurate.}
+
 \item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
 integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
 \eqn{x} values that covers the whole range of \eqn{x}-values where the 
 estimated density is significantly non zero.}
+
+\item{h}{The bandwidth to use. If \code{NULL}, a bandwidth will be calculated
+using an appropriate plug-in estimator.}
 }
 \value{
 A vector containing the deconvolution KDE evaluated at each point in 
@@ -64,8 +74,6 @@ out <- DeconErrSymPmf(W)
 phi.W <- out$phi.W
 
 # Convert to Probability Density
-fX <- DeconErrSymPmfToPdf(out, W, phi.W)
-
-# Plot results
-PlotPmfAndPdf(out, fX)
+xx <- seq(min(W), max(W), length.out = 100)
+fX <- DeconErrSymPmfToPdf(out, W, phi.W, xx)
 }

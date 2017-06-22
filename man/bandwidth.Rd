@@ -66,6 +66,8 @@ to calculate a bandwidth depending on the inputs. GIVE DETAILS OF ALL 3.
 
 \section{References}{
 
+Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
+error. \emph{Bernoulli}, 14, 2, 562-579.
 }
 
 \examples{

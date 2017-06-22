@@ -1,5 +1,3 @@
-#' @export
-
 #OUTEROP calculate an outer operation on two vectors
 #   function y=outerop(A,B,OPERATOR)
 # 

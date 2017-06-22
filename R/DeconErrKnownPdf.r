@@ -1,32 +1,32 @@
-#' Deconvolution when the error distribution is known
-#' 
-#' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-#' data \eqn{W = X + U} when the distribution of \eqn{U} is known.
-#' 
-#' PUT DETAILS HERE
-#' 
-#' @inheritParams deconvolve
-#' @param h The bandwidth to use.
-#' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
-#' errors or "norm" for normal errors. If you define the errors this way then 
-#' you must also provide \code{sigU} but should not provide \code{phiU}.
-#' @param sigU The standard deviation of \eqn{U}.
-#' @param phiU A function giving the characteristic function of \eqn{U}. If you 
-#' define the errors this way then you should not provide \code{errortype} or 
-#' \code{sigU}.
-#' 
-#' @inherit deconvolve return
-#' 
-#' @inheritSection deconvolve Warnings
-#' 
-#' @section Author:
-#' Aurore Delaigle
-#' 
-#' @section References:
-#' 
-#' @example man/examples/KnownError_eg.R
-#' 
-#' @export
+# #' Deconvolution when the error distribution is known
+# #' 
+# #' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
+# #' data \eqn{W = X + U} when the distribution of \eqn{U} is known.
+# #' 
+# #' PUT DETAILS HERE
+# #' 
+# #' @inheritParams deconvolve
+# #' @param h The bandwidth to use.
+# #' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
+# #' errors or "norm" for normal errors. If you define the errors this way then 
+# #' you must also provide \code{sigU} but should not provide \code{phiU}.
+# #' @param sigU The standard deviation of \eqn{U}.
+# #' @param phiU A function giving the characteristic function of \eqn{U}. If you 
+# #' define the errors this way then you should not provide \code{errortype} or 
+# #' \code{sigU}.
+# #' 
+# #' @inherit deconvolve return
+# #' 
+# #' @inheritSection deconvolve Warnings
+# #' 
+# #' @section Author:
+# #' Aurore Delaigle
+# #' 
+# #' @section References:
+# #' 
+# #' @example man/examples/KnownError_eg.R
+# #' 
+# #' @export
 
 DeconErrKnownPdf<-function(xx, W, h, errortype, sigU, phiU, rescale = FALSE, 
 	phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
