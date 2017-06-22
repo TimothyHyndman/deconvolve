@@ -69,15 +69,17 @@ deconvolution method is based on the method described in Delaigle and Hall
 
 \strong{Homoscedastic Error:} If the errors are defined by either a single 
 function \code{phiU}, or a single value \code{sigU} along with its 
-\code{errortype} then the method used is as described in [REFERENCE NEEDED!]
+\code{errortype} then the method used is as described in Stefanski and
+Carroll 1990.
 
 \strong{Heteroscedastic Errors:} If the errors are defined by a either a 
 vector of functions \code{phiU}, or a vector \code{sigU} along with its 
 \code{errortype} then the method used is as described in Delaigle and 
 Meister 2008.
 
-Errors can be defined by either a distribution type along with the standard
-deviation(s), or by the characteric function(s) of the errors.
+Errors can be defined by either a distribution type (\code{errortype}) along 
+with the standard deviation(s) (\code{sigU}), or by the characteric 
+function(s) of the errors (\code{phiU}).
 }
 \section{Warnings}{
 
@@ -85,18 +87,19 @@ deviation(s), or by the characteric function(s) of the errors.
 \item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
 	all be calculated from the same kernel. If you change one of these, you must
 	also change the rest to match.
-\item The kernel used here must match the kernel used to compute the 
-	bandwidth.
+\item If you supply your own bandwidth, then you should ensure that the
+	kernel used here matches the one you used to calculate your bandwidth.
 \item The DKDE can also be computed using the Fast Fourier Transform, which 
-	is a bit more complex. See Delaigle, A. and Gijbels, I. (2007). Frequent 
-	problems in calculating integrals and optimizing objective functions: a case 
-	study in density deconvolution. \emph{Statistics and Computing}, 17, 
-	349-355. However if the grid of t-values is fine enough, the estimator can 
-	simply be computed like here without having problems with oscillations.
+	is a bit more complex. See Delaigle and Gijbels 2007. However if the grid of 
+	t-values is fine enough, the estimator can simply be computed like here 
+	without having problems with oscillations.
 }
 }
 
 \section{References}{
+
+Stefanski, L.A. and Carroll, R.J. (1990). Deconvolving kernel density
+estimators. \emph{Statistics}, 21, 2, 169-184.
 
 Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
 error. \emph{Bernoulli}, 14, 2, 562-579.
@@ -105,6 +108,10 @@ Delaigle, A. and Hall, P. (2016). Methodology for non-parametric
 deconvolution when the error distribution is unknown. \emph{Journal of the 
 Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
 231-252.
+
+Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating 
+integrals and optimizing objective functions: a case study in density 
+deconvolution. \emph{Statistics and Computing}, 17, 349-355.
 }
 
 \examples{

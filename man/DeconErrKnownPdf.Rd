@@ -70,14 +70,12 @@ Aurore Delaigle
 \item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
 	all be calculated from the same kernel. If you change one of these, you must
 	also change the rest to match.
-\item The kernel used here must match the kernel used to compute the 
-	bandwidth.
+\item If you supply your own bandwidth, then you should ensure that the
+	kernel used here matches the one you used to calculate your bandwidth.
 \item The DKDE can also be computed using the Fast Fourier Transform, which 
-	is a bit more complex. See Delaigle, A. and Gijbels, I. (2007). Frequent 
-	problems in calculating integrals and optimizing objective functions: a case 
-	study in density deconvolution. \emph{Statistics and Computing}, 17, 
-	349-355. However if the grid of t-values is fine enough, the estimator can 
-	simply be computed like here without having problems with oscillations.
+	is a bit more complex. See Delaigle and Gijbels 2007. However if the grid of 
+	t-values is fine enough, the estimator can simply be computed like here 
+	without having problems with oscillations.
 }
 }
 
