@@ -4,9 +4,10 @@ CVdeconv<-function(n, W, errortype, sigU, phiU, phiK = phiK2, muK2 = 6,
 # Authors: Aurore Delaigle
 # This function computes the cross-validation (CV) bandwidth for kernel 
 # deconvolution estimator as in Stefanski, L., Carroll, R.J. (1990). 
-# Deconvoluting kernel density estimators. Statistics 2, 169–184. Delaigle, A. 
-# and I. Gijbels (2004). Practical bandwidth selection in deconvolution kernel 
-# density estimation, Computational Statistics and Data Analysis, 45, 249-267
+# Deconvoluting kernel density estimators. Statistics 2, 169–184. 
+# Delaigle, A. and I. Gijbels (2004). Practical bandwidth selection in 
+# deconvolution kernel density estimation, Computational Statistics and Data 
+# Analysis, 45, 249-267
 
 #----------------------------
 # Required arguments:

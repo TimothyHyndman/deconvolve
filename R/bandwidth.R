@@ -1,9 +1,23 @@
 #' Bandwidth Selectors for Deconvolution Kernel Density Estimation
 #' 
-#' Description
+#' Computes a bandwidth for use in deconvolution kernel density estimation.
 #' 
-#' The function \code{bandwidth} chooses between three different algorithms
-#' to calculate a bandwidth depending on the inputs. GIVE DETAILS OF ALL 3.
+#' The function \code{bandwidth} chooses from one of three different methods 
+#' depending on how the error distribution is defined and which algorithm is
+#' selected.
+#' 
+#' \strong{PI for Homoscedastic Error:} If \code{algorithm = "PI"} and the errors 
+#' are defined by either a single function \code{phiU}, or a single value 
+#' \code{sigU} along with its \code{errortype}, then the method used is as
+#' described in Delaigle and Gijbels 2002, and Delaigle and Gijbels 2004.
+#' 
+#' \strong{PI for Heteroscedastic Error:} If \code{algorithm = "PI"} and the
+#' errors are defined by a either a vector of functions \code{phiU}, or a vector 
+#' \code{sigU} along with its \code{errortype} then the method used is as 
+#' described in Delaigle and Meister 2008.
+#' 
+#' \strong{CV:} If \code{algorithm = "CV"} then the method used is as described 
+#' in Stefanski and Carroll 1990, and Delaigle and Gijbels 2004.
 #' 
 #' @inheritParams deconvolve
 #' @param varX An estimate of the variance of \eqn{X}. Only required for 
@@ -24,6 +38,19 @@
 #' @section References:
 #' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
 #' error. \emph{Bernoulli}, 14, 2, 562-579.
+#' 
+#' Delaigle, A. and Gijbels, I. (2002). Estimation of integrated squared density 
+#' derivatives from a contaminated sample. \emph{Journal of the Royal 
+#' Statistical Society, B}, 64, 4, 869-886.
+#'
+#' Delaigle, A. and Gijbels, I. (2004). Practical bandwidth selection in 
+#' deconvolution kernel density estimation. \emph{Computational Statistics and 
+#' Data Analysis}, 45, 2, 249 - 267.
+#' 
+#' Stefanski, L. and Carroll, R.J. (1990). Deconvoluting kernel density 
+#' estimators. \emph{Statistics}, 21, 2, 169-184.
+#' 
+#' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #' 
 #' @example man/examples/bandwidth_eg.R
 #' 
