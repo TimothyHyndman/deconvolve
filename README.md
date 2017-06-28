@@ -1,11 +1,13 @@
 deconvolve
 =======================
 
-The R package *deconvolve* provides tools for performing non-parametric deconvolution on measurement error problems.
+The R package *deconvolve* provides tools for performing non-parametric 
+deconvolution on measurement error problems.
 
 ## Installation
 
-You can install the **development** version from [Github](https://github.com/timothyhyndman/deconvolve).
+You can install the **development** version from 
+[Github](https://github.com/timothyhyndman/deconvolve).
 
 ```s
 install.packages("devtools")
@@ -28,6 +30,7 @@ library(ggplot2)
 ### Exported
 
 #### Deconvolution
+The function deconvolve which is a wrapper for
 
 * fdecUknown
 * fdecUknownhet
@@ -35,6 +38,7 @@ library(ggplot2)
 * DeconErrSymPmfToPdf
 
 #### Bandwidth Selection
+The function bandwidth which is a wrapper for
 
 * CVdeconv
 * PI_deconvUknownth4
@@ -49,18 +53,19 @@ library(ggplot2)
 
 * GenerateTestData (convenience function for trying out tests)
 * Plot (all functions for quickly plotting results)
-* rlap (used in examples)
+
 
 ### Not Exported
 
 * ComputePhi (used in Symmetric Error)
-* deconvolve.R (documentation only)
+* rlap (used in hSIMEXUknown)
+* packagedocumentation.R (documentation only)
 * KernelWeight (used in Symmetric Error)
 * outerop (used in various functions - I'm not convinced it's necessary)
 * phiK2 (Default kernel characteristic function for when none is supplied)
 * PhiUSpline (used in Symmetric Error PmfToPdf)
 * PI_DeconvUEstTh4 (used in Symmetric Error PmfToPdf)
-* NWDecridgeL10CUknown (used in hSIMEXUknown I think?)
+* NWDecridgeL10CUknown (used in hSIMEXUknown)
 
 ## License
 
