@@ -58,8 +58,22 @@
 #' elements of \code{tt} must be large enough for your discretisation of the 
 #' integrals to be accurate.
 #' 
-#' @return A vector containing the deconvolution KDE evaluated at each point in 
-#' \code{xx}.
+#' @return An object of class "\code{deconvolve}".
+#' 
+#' The function \code{plot} produces a plot of the deconvolution KDE.
+#' 
+#' An object of class "\code{deconvolve}" is a list containing at least the
+#' elements:
+#' \item{W}{The original contaminated data}
+#' \item{x}{The values on which the deconvolution KDE is evaluated.}
+#' \item{pdf}{A vector containing the deconvolution KDE evaluated at each point 
+#' in \code{x}}
+#' 
+#' An object of class "\code{deconvolve}" may also contain the elements:
+#' \item{support}{The support of the pmf found when the errors are assumed
+#' symmetric}
+#' \item{probweights}{The probability masses of the pmf found when the errors
+#' are assumed symmetric}
 #' 
 #' @section Warnings:
 #' \itemize{
@@ -128,35 +142,42 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 	# Perform appropriate deconvolution ----------------------------------------
 	if (decon_type == "known"){
 		if (is.null(phiU)) {
-			output <- DeconErrKnownPdf(xx, W, bw, errortype, sigU, 
+			pdf <- DeconErrKnownPdf(xx, W, bw, errortype, sigU, 
 									   rescale = rescale, phiK = phiK, 
 									   muK2 = muK2, RK = RK, tt = tt)
 		} else {
-			output <- DeconErrKnownPdf(xx, W, bw, phiU = phiU,
+			pdf <- DeconErrKnownPdf(xx, W, bw, phiU = phiU,
 									   rescale = rescale, phiK = phiK, 
 									   muK2 = muK2, RK = RK, tt = tt)
 		}
+		output <- list("x" = xx, "pdf" = pdf, "W" = W)
 	}
 
 	if (decon_type == "heteroscedastic"){
 		if (is.null(phiU)) {
-			output <- DeconErrKnownHetPdf(xx, W, bw, errortype, sigU, 
+			pdf <- DeconErrKnownHetPdf(xx, W, bw, errortype, sigU, 
 										  rescale = rescale, phiK = phiK, 
 										  muK2 = muK2, RK = RK, tt = tt)
 		} else {
-			output <- DeconErrKnownHetPdf(xx, W, bw, phiUkvec = phiU,
+			pdf <- DeconErrKnownHetPdf(xx, W, bw, phiUkvec = phiU,
 										  rescale = rescale, phiK = phiK, 
 										  muK2 = muK2, RK = RK, tt = tt)
 		}
+		output <- list("x" = xx, "pdf" = pdf, "W" = W)
 	}
+
+	
 
 	if (decon_type == "symmetric") {
 		out <- DeconErrSymPmf(W)
 		phi.W <- out$phi.W
-		output <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt, 
+		pdf <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt, 
 									  rescale, bw)
+		output <- list("x" = xx, "pdf" = pdf, "support" = out$support, 
+					   "probweights" = out$probweights, "W" = W)
 	}
 
-	# Output PDF ---------------------------------------------------------------
+	# Output object of class "deconvolve" --------------------------------------
+	class(output) <- "deconvolve"
 	output
 }

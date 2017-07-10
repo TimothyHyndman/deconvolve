@@ -1,35 +1,34 @@
-#' Deconvolution when the error distribution is symmetric
-#' 
-#' Estimates the distribution of \eqn{X} with a probability mass function from 
-#' data \eqn{W = X + U}, when the distribution of \eqn{U} is symmetric.
-#' 
-#' PUT DETAILS HERE
-#' 
-#' @param W A vector of the contaminated data
-#' @param m The number of support points to use in finding the Pmf
-#' @param n.iter.tp The number of times to attempt minimization of T(p)
-#' @param n.iter.var The number of times to attempt minimization of the variance
-#' @param show.diagnostics Flag indicating whether to show diagnostics
-#' 
-#' @return A list with components:
-#' 	\item{support}{The support of the deconvolved distribution}
-#' 	\item{probweights}{The sizes of the probability mass at each respective 
-#' 					   point of support.}
-#' 	\item{phi.W}{The empirical distribution of W and the t values on which it is 
-#' 				 calculated}
-#' 
-#' @section Authors:
-#' Aurore Delaigle, Timothy Hyndman
-#' 
-#' @section References:
-#' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
-#' deconvolution when the error distribution is unknown. \emph{Journal of the 
-#' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
-#' 231-252.
-#' 
-#' @example man/examples/SymmetricError_eg.R
-#' 
-#' @export
+# ' Deconvolution when the error distribution is symmetric
+# ' 
+# ' Estimates the distribution of \eqn{X} with a probability mass function from 
+# ' data \eqn{W = X + U}, when the distribution of \eqn{U} is symmetric.
+# ' 
+# ' PUT DETAILS HERE
+# ' 
+# ' @param W A vector of the contaminated data
+# ' @param m The number of support points to use in finding the Pmf
+# ' @param n.iter.tp The number of times to attempt minimization of T(p)
+# ' @param n.iter.var The number of times to attempt minimization of the variance
+# ' @param show.diagnostics Flag indicating whether to show diagnostics
+# ' 
+# ' @return A list with components:
+# ' 	\item{support}{The support of the deconvolved distribution}
+# ' 	\item{probweights}{The sizes of the probability mass at each respective 
+# ' 					   point of support.}
+# ' 	\item{phi.W}{The empirical distribution of W and the t values on which it is 
+# ' 				 calculated}
+# ' 
+# ' @section Authors:
+# ' Aurore Delaigle, Timothy Hyndman
+# ' 
+# ' @section References:
+# ' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
+# ' deconvolution when the error distribution is unknown. \emph{Journal of the 
+# ' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
+# ' 231-252.
+# ' 
+# ' @example man/examples/SymmetricError_eg.R
+# ' 
 
 DeconErrSymPmf <- function(W, m = 10, n.iter.tp = 5, 
 										n.iter.var = 2, show.diagnostics = F){
