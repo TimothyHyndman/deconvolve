@@ -1,3 +1,5 @@
+#' @importFrom doRNG %dorng%
+#' @importFrom foreach %dopar%
 #' @export
 
 # Author: Aurore Delaigle
@@ -103,7 +105,6 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 
 	lh <- length(gridh)
 	lrho <- length(gridrho)
-	CVrho <- matrix(0, lh, lrho)
 
 
 
@@ -115,7 +116,8 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 	midbin <- unlist(BinData(W, nbin)[1])
 	indbin <- matrix(unlist(BinData(W, nbin)[2]), nrow = n)
 
-	for (bb in 1:BB) {
+	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dorng% {
+		CVrho <- matrix(0, lh, lrho)
 		# Generate SIMEX data Wstar
 		if (errortype == "Lap") {
 			Wstar <- W + rlap(sigU, 1, n)
@@ -128,9 +130,16 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 		# the data Wstar (this will automatically consider all rho candiates)
 		for (kh in 1:lh){
 			h <- gridh[kh]
-			CVrho[kh, ] <- CVrho[kh, ] + NWDecridgeL1OCUknown(n, Wstar, Y, 
-				errortype, sigU, h, gridrho, midbin, indbin, nbin)
+			CVrho[kh, ] <- NWDecridgeL1OCUknown(n, Wstar, Y,
+						   errortype, sigU, h, gridrho, midbin, indbin, nbin)
 		}
+		CVrho
+	}
+
+	CVrho <- matrix(0, lh, lrho)
+	for (i in 1:BB)
+	{
+		CVrho = CVrho + outcome_SIMEX1[[i]]
 	}
 
 
@@ -149,10 +158,10 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 	# Step 2: Keep rho fixed and find h SIMEX 
 	#----------------------------------------
 
-	CVhstar <- 0 * gridh
 
-	for (bb in 1:BB){    
-	# Generate SIMEX data Wstar2
+	outcome_SIMEX2 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dorng% {
+		CVhstar_tmp <- 0 * gridh
+		# Generate SIMEX data Wstar2
 		if (errortype == "Lap"){
 			Wstar <- W + rlap(sigU, 1, n)
 			Wstar2 <- Wstar + rlap(sigU, 1, n)
@@ -169,12 +178,16 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 		# above
 		for (kh in 1:lh){
 			h <- gridh[kh]
-			CVhstar[kh] <- CVhstar[kh] + NWDecridgeL1OCUknown(n, Wstar2, Y, 
-				errortype, sigU, h, rho, midbin, indbin, nbin)
+			CVhstar_tmp[kh] <- NWDecridgeL1OCUknown(n, Wstar2, Y,
+							   errortype, sigU, h, rho, midbin, indbin, nbin)
 		}
+		CVhstar_tmp
 	}
 
-
+	CVhstar <- 0 * gridh
+	for (i in 1:BB){
+		CVhstar <- CVhstar + outcome_SIMEX2[[i]]
+	}
 	indh <- which.min(CVhstar)
 
 
@@ -222,6 +235,6 @@ BinData <- function(W, nbin){
 	indice[which(W > Bbin[nbin])] = nbin
 
 	list2 <- list(midbin, indice)
-	
+
 	list2
 }
