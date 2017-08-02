@@ -22,10 +22,11 @@
 # sigU: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter. 
 
-hSIMEXUknown <- function(W, Y, errortype, sigU, no_cores = 3){
+hSIMEXUknown <- function(W, Y, errortype, sigU){
 	
-	cl <- parallel::makeCluster(no_cores) # create a cluster with 2 cores
-	doParallel::registerDoParallel(cl) # register the cluster
+	no_cores = parallel::detectCores()
+	cl <- parallel::makeCluster(max(no_cores - 1, 1))
+	doParallel::registerDoParallel(cl)
 
 	W <- as.vector(W)
 	n <- length(W)
