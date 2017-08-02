@@ -1,6 +1,25 @@
+#' Generate convolved data for use in deconvolve examples
+#' 
+#' A convenience function for the package `deconvolve' that generates 
+#' contaminated data of the form \eqn{W = X + U} which can be used to test 
+#' the function \code{deconvolve}.
+#' 
+#' @param n The size of the generated data
+#' @param sig_X The standard deviation of X
+#' @param sig_U The standard deviation(s) of U. For heteroscedastic errors,
+#' supply \code{sig_U} as a length n vector.
+#' @param dist_type One of \code{'chi'} or \code{'mix'}. The distribution type
+#' of X.
+#' @param error_type One of \code{'norm'} or \code{'Lap'}. The distribution type
+#' of U.
+#' 
+#' @return Returns W as a length n vector.
+#' 
+#' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
+#' 
 #' @export
 
-GenerateTestData <- function(n = 500, sig_X = 1, sig_U = 0.2, dist_type = "chi", 
+GenerateTestData <- function(n, sig_X = 1, sig_U = 0.2, dist_type = "chi", 
 							 error_type = "norm"){
 	
 	# Sample true data ---------------------------------------------------------
@@ -46,6 +65,19 @@ GenerateTestData <- function(n = 500, sig_X = 1, sig_U = 0.2, dist_type = "chi",
 			U <- numeric(n)
 			for (i in 1:n) {
 				U[i] <- stats::rnorm(1, 0, sig_U[i])
+			}
+		}
+	}
+
+	if (error_type == "Lap") {
+		if (length(sig_U) == 1) {
+			sigLap <- sig_U / sqrt(2)
+			U <- rlap(sigLap, 1, n)
+		} else {
+			sigLap <- sig_U / sqrt(2)
+			U <- numeric(n)
+			for (i in 1:n) {
+				U[i] <- rlap(sigLap[i], 1, 1)
 			}
 		}
 	}
