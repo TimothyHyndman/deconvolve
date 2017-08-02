@@ -14,5 +14,5 @@ Imports:
 	stats,
 	NlcOptim,
 	ggplot2,
-	doRNG,
-	foreach
+	foreach,
+	doParallel

@@ -1,4 +1,3 @@
-#' @importFrom doRNG %dorng%
 #' @importFrom foreach %dopar%
 #' @export
 
@@ -23,8 +22,11 @@
 # sigU: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter. 
 
-hSIMEXUknown <- function(W, Y, errortype, sigU){
-  
+hSIMEXUknown <- function(W, Y, errortype, sigU, no_cores = 3){
+	
+	cl <- parallel::makeCluster(no_cores) # create a cluster with 2 cores
+	doParallel::registerDoParallel(cl) # register the cluster
+
 	W <- as.vector(W)
 	n <- length(W)
 
@@ -116,7 +118,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 	midbin <- unlist(BinData(W, nbin)[1])
 	indbin <- matrix(unlist(BinData(W, nbin)[2]), nrow = n)
 
-	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dorng% {
+	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
 		CVrho <- matrix(0, lh, lrho)
 		# Generate SIMEX data Wstar
 		if (errortype == "Lap") {
@@ -159,7 +161,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 	#----------------------------------------
 
 
-	outcome_SIMEX2 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dorng% {
+	outcome_SIMEX2 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
 		CVhstar_tmp <- 0 * gridh
 		# Generate SIMEX data Wstar2
 		if (errortype == "Lap"){
@@ -183,6 +185,8 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 		}
 		CVhstar_tmp
 	}
+
+	parallel::stopCluster(cl)
 
 	CVhstar <- 0 * gridh
 	for (i in 1:BB){
