@@ -4,8 +4,9 @@
 \alias{bandwidth}
 \title{Bandwidth Selectors for Deconvolution Kernel Density Estimation}
 \usage{
-bandwidth(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
-  phiK = NULL, muK2 = 6, RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
+bandwidth(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
+  algorithm = "PI", phiK = NULL, muK2 = 6, RK = 1024/3003/pi,
+  tt = seq(-1, 1, 2e-04))
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -22,6 +23,9 @@ heteroscedastic errors.}
 single value for homoscedastic errors and a vector having the same length as 
 \code{W} for heteroscedastic errors. If you define the errors this way then 
 you should not provide \code{errortype} or \code{sigU}.}
+
+\item{Y}{A vector of the univariate dependant data. Only required for 'SIMEX'
+algorithm.}
 
 \item{varX}{An estimate of the variance of \eqn{X}. Only required for 
 heteroscedastic errors.}
@@ -46,14 +50,17 @@ elements of \code{tt} must be large enough for your discretisation of the
 integrals to be accurate.}
 }
 \value{
-The bandwidth estimator.
+The bandwidth estimator. If using 'SIMEX' algorithm then returns a
+list containing the bandwidth 'h' and ridge parameter 'rho'.
 }
 \description{
 Computes a bandwidth for use in deconvolution kernel density estimation of 
-\eqn{X} from data \eqn{W = X + U}.
+\eqn{X} from data \eqn{W = X + U}. If 'SIMEX' algorithm used, computes a 
+bandwidth for use in deconvolution regression of data \eqn{(W, Y)}  where
+\eqn{Y = g(X) + V} and \eqn{W = X + U}.
 }
 \details{
-The function \code{bandwidth} chooses from one of three different methods 
+The function \code{bandwidth} chooses from one of four different methods 
 depending on how the error distribution is defined and which algorithm is
 selected.
 
@@ -69,6 +76,9 @@ described in Delaigle and Meister 2008.
 
 \strong{CV:} If \code{algorithm = "CV"} then the method used is as described 
 in Stefanski and Carroll 1990, and Delaigle and Gijbels 2004.
+
+\strong{SIMEX:} If \code{algorithm = "SIMEX"} then the method used is as 
+described in Delaigle and Hall 2008.
 }
 \section{Warnings}{
 
@@ -94,6 +104,10 @@ Data Analysis}, 45, 2, 249 - 267.
 
 Stefanski, L. and Carroll, R.J. (1990). Deconvoluting kernel density 
 estimators. \emph{Statistics}, 21, 2, 169-184.
+
+Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice 
+in errors-in-variables problems. \emph{Journal of the American Statistical 
+Association}, 103, 481, 280-287
 }
 
 \examples{
@@ -115,6 +129,16 @@ W <- GenerateTestData(n, sigX, sigU_vec, dist_type = "mix", error_type = "norm")
 varX <- mean(W^2) - (mean(W))^2 - sum(sigU_vec^2) / n
 
 bw <- bandwidth(W, errortype = "norm", sigU = sigU_vec, varX = varX)
+
+# SIMEX bandwidth --------------------------------------------------------------
+n <- 200
+sigX <- 1
+sigU <- 0.2
+data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", 
+						 create_Y = TRUE)
+output <- bandwidth(data$W, errortype = "norm", sigU = sigU, Y = data$Y, 
+					algorithm = "SIMEX")
+bw <- output$h
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

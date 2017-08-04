@@ -1,9 +1,11 @@
 #' Bandwidth Selectors for Deconvolution Kernel Density Estimation
 #' 
 #' Computes a bandwidth for use in deconvolution kernel density estimation of 
-#' \eqn{X} from data \eqn{W = X + U}.
+#' \eqn{X} from data \eqn{W = X + U}. If 'SIMEX' algorithm used, computes a 
+#' bandwidth for use in deconvolution regression of data \eqn{(W, Y)}  where
+#' \eqn{Y = g(X) + V} and \eqn{W = X + U}.
 #' 
-#' The function \code{bandwidth} chooses from one of three different methods 
+#' The function \code{bandwidth} chooses from one of four different methods 
 #' depending on how the error distribution is defined and which algorithm is
 #' selected.
 #' 
@@ -20,14 +22,20 @@
 #' \strong{CV:} If \code{algorithm = "CV"} then the method used is as described 
 #' in Stefanski and Carroll 1990, and Delaigle and Gijbels 2004.
 #' 
+#' \strong{SIMEX:} If \code{algorithm = "SIMEX"} then the method used is as 
+#' described in Delaigle and Hall 2008.
+#' 
 #' @inheritParams deconvolve
 #' @param varX An estimate of the variance of \eqn{X}. Only required for 
 #' heteroscedastic errors.
 #' @param algorithm Either \code{"PI"} for plug-in estimator or \code{"CV"} for 
 #' cross-validation estimator. If \code{"CV"} then the errors must be 
 #' homoscedastic.
+#' @param Y A vector of the univariate dependant data. Only required for 'SIMEX'
+#' algorithm.
 #' 
-#' @return The bandwidth estimator.
+#' @return The bandwidth estimator. If using 'SIMEX' algorithm then returns a
+#' list containing the bandwidth 'h' and ridge parameter 'rho'.
 #' 
 #' @section Warnings:
 #' \itemize{
@@ -51,15 +59,19 @@
 #' Stefanski, L. and Carroll, R.J. (1990). Deconvoluting kernel density 
 #' estimators. \emph{Statistics}, 21, 2, 169-184.
 #' 
+#' Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice 
+#' in errors-in-variables problems. \emph{Journal of the American Statistical 
+#' Association}, 103, 481, 280-287 
+#' 
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #' 
 #' @example man/examples/bandwidth_eg.R
 #' 
 #' @export
 
-bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI", 
-					  phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
-					  tt = seq(-1, 1, 2e-04)){
+bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL, 
+					  algorithm = "PI", phiK = NULL, muK2 = 6, 
+					  RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
 	
 	n <- length(W)
 	deltat <- tt[2] - tt[1]
@@ -71,12 +83,13 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 	# Determine Error Type Provided --------------------------------------------
 
 	if (missing(phiU) & missing(sigU)) {
-		errors <- "est"
+		stop("You must define the error distribution")
 	} else if (missing(phiU)) {
 		if (length(sigU) > 1){
 			errors <- "het"
 			if ((length(sigU) == length(W)) == FALSE) {
-				stop("sigU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
+				stop("sigU must be either length 1 for homoscedastic errors or 
+					 have the same length as W for heteroscedastic errors.")
 			}
 		} else {
 			errors <- "hom"
@@ -85,7 +98,8 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 		if (length(phiU) > 1){
 			errors <- "het"
 			if ((length(phiU) == length(W)) == FALSE) {
-				stop("phiU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
+				stop("phiU must be either length 1 for homoscedastic errors or 
+					 have the same length as W for heteroscedastic errors.")
 			}
 		} else {
 			errors <- "hom"
@@ -94,8 +108,8 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 
 	# Check inputs -------------------------------------------------------------
 
-	if ((algorithm == "CV" | algorithm == "PI") == FALSE) {
-		stop("algorithm must be one of: 'PI', or 'CV'.")
+	if ((algorithm == "CV" | algorithm == "PI" | algorithm == "SIMEX") == FALSE) {
+		stop("algorithm must be one of: 'PI', 'CV', or 'SIMEX'.")
 	}
 
 	if (missing(errortype) == FALSE) {
@@ -109,13 +123,24 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 			stop("Algorithm type 'CV' can only be used with homoscedastic 
 				 errors.")
 		}
-		if (errors == "est") {
-			stop("You must define the error distribution for algorithm 'CV'.")
-		}
 	}
 
 	if (is.null(varX) & errors == "het") {
 		stop("You must supply an estimate for the variance of X when the errors are heteroscedastic.")
+	}
+
+	if (algorithm == "SIMEX") {
+		if (is.null(Y)) {
+			stop("You must supply Y to use SIMEX.")
+		}
+		if (errors == "het") {
+			stop("Algorithm type 'SIMEX' can only be used with homoscedastic 
+				 errors.")
+		}
+		if (missing(sigU)) {
+			stop("Algorithm 'SIMEX' currently doesn't work with errors supplied
+				 using phiU")
+		}
 	}
 
 	# Perform appropriate bandwidth calculation --------------------------------
@@ -123,11 +148,6 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 	if (algorithm == "CV"){
 		output <- CVdeconv(n, W, errortype, sigU, phiU, phiK, muK2, RK, deltat, 
 						   tt)
-	}
-
-	if (algorithm == "PI" & errors == "est") {
-		stop("You must define the error distribution")
-		# output <- PI_DeconvUEstTh4(W, phiU, hatvarU, phiK, muK2, tt)
 	}
 
 	if (algorithm == "PI" & errors == "het") {
@@ -152,6 +172,10 @@ bandwidth <- function(W, errortype, sigU, phiU, varX = NULL, algorithm = "PI",
 											phiK = phiK, muK2 = muK2, RK = RK, 
 											deltat = deltat, tt = tt)
 		}
+	}
+
+	if (algorithm == "SIMEX") {
+		output <- hSIMEXUknown(W, Y, errortype, sigU)
 	}
 
 	output

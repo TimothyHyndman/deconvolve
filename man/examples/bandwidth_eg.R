@@ -16,3 +16,13 @@ W <- GenerateTestData(n, sigX, sigU_vec, dist_type = "mix", error_type = "norm")
 varX <- mean(W^2) - (mean(W))^2 - sum(sigU_vec^2) / n
 
 bw <- bandwidth(W, errortype = "norm", sigU = sigU_vec, varX = varX)
+
+# SIMEX bandwidth --------------------------------------------------------------
+n <- 200
+sigX <- 1
+sigU <- 0.2
+data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", 
+						 create_Y = TRUE)
+output <- bandwidth(data$W, errortype = "norm", sigU = sigU, Y = data$Y, 
+					algorithm = "SIMEX")
+bw <- output$h

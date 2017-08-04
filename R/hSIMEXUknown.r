@@ -76,11 +76,10 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 
 	# Number of SIMEX samples
 	BB <- 20
-	# BB <- 1 	#For testing to make it faster
 
 	# Define a grid where to search for the SIMEX bandwidth. By default we take 
 	# [h/2,2h], where h=PI bandwidth for density estimation.
-	# Increase the gird if too small
+	# Increase the grid if too small
 	hPIfX <- PI_deconvUknownth4(n, W, errortype, sigU)
 	a <- hPIfX / 2
 	b <- 2 * hPIfX

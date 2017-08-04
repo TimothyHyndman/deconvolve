@@ -12,15 +12,18 @@
 #' of X.
 #' @param error_type One of \code{'norm'} or \code{'Lap'}. The distribution type
 #' of U.
+#' @param create_Y If true, \code{GenerateTestData} also returns a vector of Y 
+#' values for use in regression problems.
 #' 
-#' @return Returns W as a length n vector.
+#' @return Returns W as a length n vector. If \code{create_Y} is true, returns a 
+#' list with elements 'W' and 'Y'.
 #' 
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #' 
 #' @export
 
 GenerateTestData <- function(n, sig_X = 1, sig_U = 0.2, dist_type = "chi", 
-							 error_type = "norm"){
+							 error_type = "norm", create_Y = FALSE){
 	
 	# Sample true data ---------------------------------------------------------
 	if (dist_type == "chi"){
@@ -85,5 +88,12 @@ GenerateTestData <- function(n, sig_X = 1, sig_U = 0.2, dist_type = "chi",
 	# Combine samples ----------------------------------------------------------
 	W <- X + U
 
-	W
+	if (create_Y) {
+		Y <- 2*X
+		output <- list("W" = W, "Y" = Y)
+	} else {
+		output <- W
+	}
+	
+	output
 }
