@@ -1,37 +1,58 @@
 # S3 method for plot
 #' @export
-plot.deconvolve <- function(decon_obj){
+plot.deconvolve <- function(x, ...){
 	
 	final_plot <- ggplot2::ggplot()
-
-	if ("pdf" %in% names(decon_obj)) {
-		x <- decon_obj$x
-		y <- decon_obj$pdf
-		df_pdf <- data.frame(x,y)
-		plot_pdf <- ggplot2::geom_path(data = df_pdf, ggplot2::aes(x,y), 
-								   color = "blue", size = 1)
+	text_col = "darkslategrey"
+	dens_col = "black"
+	# Plot distribution --------------------------------------------------------
+	if ("pdf" %in% names(x)) {
+		xvec <- x$x
+		yvec <- x$pdf
+		df_pdf <- data.frame(xvec,yvec)
+		plot_pdf <- ggplot2::geom_path(data = df_pdf, ggplot2::aes(xvec,yvec), 
+								   color = dens_col, size = 1)
 		final_plot <- final_plot + plot_pdf
 	}
 
-	if ("probweights" %in% names(decon_obj)) {
-		p <- decon_obj$probweights
-		theta <- decon_obj$support
+	if ("probweights" %in% names(x)) {
+		p <- x$probweights
+		theta <- x$support
 		df_pmf_sol <- data.frame(p, theta)
 		plot_pmf_sol <- ggplot2::geom_point(data = df_pmf_sol, 
 											ggplot2::aes(theta, p), 
-											color = "blue")
+											color = dens_col)
 		final_plot <- final_plot + plot_pmf_sol
 	}
 
-	if ("probweights_mintp" %in% names(decon_obj)) {
-		p_mintp <- decon_obj$probweights_mintp
-		theta_mintp <- decon_obj$support_mintp
+	if ("probweights_mintp" %in% names(x)) {
+		p_mintp <- x$probweights_mintp
+		theta_mintp <- x$support_mintp
 		df_mintp <- data.frame(p_mintp, theta_mintp)
 		plot_pmf_mintp <- ggplot2::geom_point(data = df_mintp, 
 			  							ggplot2::aes(theta_mintp, p_mintp), 
 			  							color = "magenta")
 		final_plot <- final_plot + plot_pmf_mintp
 	}
+
+	# Add title ----------------------------------------------------------------
+	if ("pdf" %in% names(x)){
+		title <- 'Deconvolved Density'
+	} else {
+		title <- 'Deconvolved Distribution'
+	}
+	final_plot <- final_plot + ggplot2::ggtitle(title) + 
+				  ggplot2::theme(plot.title = element_text(size=20, face="bold",
+				  				 hjust = 0.5, color = text_col))
+	
+	# X and Y labels
+	final_plot <- final_plot + ggplot2::labs(x = "x", y = "f(x)") + 
+				  ggplot2::theme(
+				  	axis.title.x = element_text(color = text_col, vjust=-0.35), 
+				  	axis.title.y = element_text(color = text_col, vjust=0.35))
+
+	# Add legend ---------------------------------------------------------------
+	
 
 	final_plot
 }

@@ -1,21 +1,16 @@
 # S3 print method for objects of class deconvolve
 #' @export
 
-print.deconvolve <- function(decon_obj){
-	cat("Object of class ", class(decon_obj), ".\n \n", sep = "")
-	print(unclass(decon_obj))
+print.deconvolve <- function(x, ...){
+	cat("Object of class ", class(x), ".\n \n", sep = "")
 
-	# obj_names <- names(decon_obj)
-
-	# for (name in obj_names){
-	# 	cat('$', name, '\n', sep = "")
-
-	# 	if (length(yy[[name]]) > 6){
-	# 		cat(head(decon_obj[[name]]), '...', '\n')
-	# 	} else {
-	# 		print(decon_obj[[name]])
-	# 	}
-		
-	# 	cat('\n')
-	# }
+	if (is.null(x$pdf)){
+		cat("$support \n")
+		print(x$support)
+		cat("$probweights \n")
+		print(x$probweights)
+	} else {
+		cat("$pdf \n")
+		print(x$pdf)
+	}
 }
