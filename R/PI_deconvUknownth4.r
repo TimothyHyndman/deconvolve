@@ -1,4 +1,4 @@
-PI_deconvUknownth4<-function(n, W, errortype, sigU, phiU, phiK = phiK2, 
+PI_deconvUknownth4<-function(n, W, phiU, phiK = phiK2, 
 							 muK2 = 6, RK = 1024 / 3003 / pi, deltat = .0002, 
 							 tt = seq(-1, 1, deltat)){
 
@@ -69,34 +69,6 @@ PI_deconvUknownth4<-function(n, W, errortype, sigU, phiU, phiK = phiK2,
 # unreasonable (CV fluctuates widely). You can take the first minimum that looks 
 # reasonable.
 #-------------------------------------------------------------------------------
-
-
-# Check optional arguments
-
-if(missing(errortype)&(missing(sigU))&missing(phiU))
-	stop("You must define the error distribution")
-
-
-if(missing(errortype)==F)
-{
-	if(errortype=='Lap')
-		{
-		if(missing(sigU))
-			stop("You must provide the standard deviation of the errors")
-
-		phiU=function(tt) {return(1/(1+sigU^2*tt^2/2))}
-		}
-
-	if(errortype=='norm')
-		{
-		if(missing(sigU))
-			stop("You must provide the standard deviation of the errors")
-		phiU=function(tt) {exp(-sigU^2*tt^2/2)}
-		}
-}
-
-
-
 
 
 # --------------------------------------------------------

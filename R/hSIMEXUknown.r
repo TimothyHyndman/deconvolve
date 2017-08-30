@@ -42,13 +42,11 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 		phiU <- function(t) {
 			1 / (1 + sigU^2 * t^2)
 		}
-		varU <- 2 * sigU^2
 	}
 	if (errortype == "norm") {
 		phiU <- function(t) {
 			exp(-sigU^2 * t^2 / 2)
 		}
-		varU <- sigU^2
 	}
 
 	# phiK: Fourier transform of the kernel K. You can change this if you wish 
@@ -58,12 +56,15 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 	phiK <- function(t) {
 		(1 - t^2)^3
 	}
+	muK2 = 6 
+	RK = 1024 / 3003 / pi
+
 
 
 	# Range of t-values (must correspond to the domain of phiK)
-	dt <- .0002
-	t <- seq(-1, 1, dt)
-	dim(t) <- c(length(t), 1)
+	deltat <- .0002
+	tt <- seq(-1, 1, deltat)
+	dim(tt) <- c(length(tt), 1)
 
 
 
@@ -80,7 +81,8 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 	# Define a grid where to search for the SIMEX bandwidth. By default we take 
 	# [h/2,2h], where h=PI bandwidth for density estimation.
 	# Increase the grid if too small
-	hPIfX <- PI_deconvUknownth4(n, W, errortype, sigU)
+	hPIfX <- PI_deconvUknownth4(n, W, phiU = phiU, phiK = phiK, muK2 = muK2, 
+								RK = RK, deltat = deltat, tt = tt)
 	a <- hPIfX / 2
 	b <- 2 * hPIfX
 	gridh <- seq(a, b, (b - a) / 20)

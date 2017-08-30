@@ -1,4 +1,5 @@
-PI_deconvUknownth4het<-function(n,W,varX,errortype,sigUj,phiUkvec,phiK=phiK2,muK2=6,RK=1024/3003/pi,deltat = .0002,tt = seq(-1,1,deltat))
+PI_deconvUknownth4het<-function(n,W,varX,phiUkvec,phiK=phiK2,muK2=6,RK=1024/3003/pi,
+	deltat = .0002,tt = seq(-1,1,deltat)){
 
 #Author: Aurore Delaigle
 #compute 2-stage plug-in bandwidth for heteroscedastic kerndel deconvolution estimator as in:
@@ -53,43 +54,10 @@ PI_deconvUknownth4het<-function(n,W,varX,errortype,sigUj,phiUkvec,phiK=phiK2,muK
 
 
 
-
-{
-
-
-#Check optional arguments
-
-if(missing(errortype)&(missing(sigUj))&missing(phiUkvec))
-	stop("You must define the error distributions")
-
-
-if(missing(errortype)==F)
-{
-	if(errortype=='Lap')
-		{
-		if(missing(sigUj))
-			stop("You must provide the standard deviations of the errors")
-
-		phiUk=function(tt,k) {return(1/(1+sigUj[k]^2*tt^2/2))}
-		}
-
-	if(errortype=='norm')
-		{
-		if(missing(sigUj))
-			stop("You must provide the standard deviations of the errors")
-		phiUk=function(tt,k) {exp(-sigUj[k]^2*tt^2/2)}
-		}
+# Convert vector of functions to single function -------------------------------
+phiUk <- function(tt,k) {
+	phiUkvec[[k]](tt)
 }
-
-
-
-#characteristic function of kth error 
-if (missing(errortype) & (missing(phiUkvec)==F)) {
-	phiUk <- function(tt,k) {
-		phiUkvec[[k]](tt)
-	}
-}
-
 
 
 W=as.vector(W)

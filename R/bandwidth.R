@@ -80,11 +80,33 @@ bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
 		phiK <- phiK2
 	}
 
+	# Check inputs 1 -----------------------------------------------------------
+
+	if (missing(errortype) & missing(sigU) & missing(phiU)) {
+		stop("You must define the error distribution.")
+	}
+
+	if (missing(phiU)) {
+		if (missing(errortype)) {
+			stop("You must supply the error type.")
+		}
+
+		if(missing(sigU)) {
+				stop("You must provide the standard deviation of the errors.")
+		}
+
+		if ((errortype == "norm" | errortype == "Lap") == FALSE) {
+			stop("errortype must be one of: 'norm', or 'Lap'.")
+		}
+	}
+
+	if ((algorithm == "CV" | algorithm == "PI" | algorithm == "SIMEX") == FALSE) {
+		stop("algorithm must be one of: 'PI', 'CV', or 'SIMEX'.")
+	}
+
 	# Determine Error Type Provided --------------------------------------------
 
-	if (missing(phiU) & missing(sigU)) {
-		stop("You must define the error distribution")
-	} else if (missing(phiU)) {
+	if (missing(phiU)) {
 		if (length(sigU) > 1){
 			errors <- "het"
 			if ((length(sigU) == length(W)) == FALSE) {
@@ -106,18 +128,8 @@ bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
 		}
 	}
 
-	# Check inputs -------------------------------------------------------------
+	# Check inputs 2 -----------------------------------------------------------
 
-	if ((algorithm == "CV" | algorithm == "PI" | algorithm == "SIMEX") == FALSE) {
-		stop("algorithm must be one of: 'PI', 'CV', or 'SIMEX'.")
-	}
-
-	if (missing(errortype) == FALSE) {
-		if ((errortype == "norm" | errortype == "Lap") == FALSE) {
-			stop("errortype must be one of: 'norm', or 'Lap'.")
-		}
-	}
-	
 	if (algorithm == "CV") {
 		if (errors == "het") {
 			stop("Algorithm type 'CV' can only be used with homoscedastic 
@@ -143,6 +155,42 @@ bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
 		}
 	}
 
+	# Convert errortype to phiU ------------------------------------------------
+
+	if(missing(phiU)) {
+		if(errortype == 'Lap' & errors == "hom") {
+			phiU <- function(tt) {
+				1 / (1 + sigU^2 * tt^2 / 2)
+			}
+		}
+
+		if(errortype == 'norm' & errors == "hom") {
+			phiU <- function(tt) {
+				exp(-sigU^2 * tt^2 / 2)
+			}
+		}
+
+		if(errortype == 'Lap' & errors == "het") {
+			phiU <- c()
+			for (sigUk in sigU){
+				phiUk <- function(tt) {
+					1 / (1 + sigUk^2 * tt^2 / 2)
+				}
+				phiU <- c(phiU, phiUk)
+			}
+		}
+
+		if(errortype == 'norm' & errors == "het") {
+			phiU <- c()
+			for (sigUk in sigU){
+				phiUk <- function(tt) {
+					exp(-sigUk^2 * tt^2 / 2)
+				}
+				phiU <- c(phiU, phiUk)
+			}
+		}
+	}
+
 	# Perform appropriate bandwidth calculation --------------------------------
 
 	if (algorithm == "CV"){
@@ -151,27 +199,12 @@ bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
 	}
 
 	if (algorithm == "PI" & errors == "het") {
-		if (missing(phiU)) {
-			output <- PI_deconvUknownth4het(n, W, varX, errortype, sigU, 
-											phiK = phiK, muK2 = muK2, RK = RK, 
-											deltat = deltat, tt = tt)
-		} else {
-			output <- PI_deconvUknownth4het(n, W, varX, phiUkvec = phiU, 
-											phiK = phiK, muK2 = muK2, RK = RK, 
-											deltat = deltat, tt = tt)
-		}
+		output <- PI_deconvUknownth4het(n, W, varX, phiU, phiK, muK2, RK, 
+										deltat, tt)
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		if (missing(phiU)) {
-			output <- PI_deconvUknownth4(n, W, errortype, sigU, 
-											phiK = phiK, muK2 = muK2, RK = RK, 
-											deltat = deltat, tt = tt)
-		} else {
-			output <- PI_deconvUknownth4(n, W, phiU = phiU, 
-											phiK = phiK, muK2 = muK2, RK = RK, 
-											deltat = deltat, tt = tt)
-		}
+		output <- PI_deconvUknownth4(n, W, phiU, phiK, muK2, RK, deltat, tt)
 	}
 
 	if (algorithm == "SIMEX") {
