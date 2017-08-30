@@ -34,43 +34,13 @@
 # #' 
 # #' @export
 
-DeconErrKnownHetPdf<-function(xx, W, h, errortype, sigUj, phiUkvec, 
+DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec, 
 	rescale = FALSE, phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
 	tt = seq(-1, 1, 2e-04)){
 
-	#--------------------------------------------------------------------------#
-	# Check optional arguments
-	#--------------------------------------------------------------------------#
-	if(missing(errortype) & missing(phiUkvec)){
-		stop("You must define the error distributions")
-	}
-
-	if(missing(errortype) == F){
-		if(missing(sigUj)){
-			stop("You must provide the standard deviations of the errors")
-		}
-		if(errortype == 'Lap'){
-			phiUk <- function(tt, k){
-				1 / (1 + sigUj[k]^2 * tt^2 / 2)
-			}
-		} else if(errortype == 'norm'){
-			phiUk <- function(tt, k){
-				exp(-sigUj[k]^2 * tt^2 / 2)
-			}
-		} else {
-			stop("Error type not a valid option")
-		}
-	}
-
-	# Characteristic function of kth error 
-	if(missing(errortype) & (missing(phiUkvec) == F)){
-		phiUk <- function(tt, k){
-			phiUkvec[[k]](tt)
-		}
-	}
-
-	if(missing(h)){
-		stop("You must provide the bandwidth")
+	# Convert vector of functions to single function ---------------------------
+	phiUk <- function(tt,k) {
+		phiUkvec[[k]](tt)
 	}
 
 	#--------------------------------------------------------------------------#

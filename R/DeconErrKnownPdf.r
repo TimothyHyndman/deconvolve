@@ -28,36 +28,8 @@
 # #' 
 # #' @export
 
-DeconErrKnownPdf<-function(xx, W, h, errortype, sigU, phiU, rescale = FALSE, 
+DeconErrKnownPdf<-function(xx, W, h, phiU, rescale = FALSE, 
 	phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
-
-	#--------------------------------------------------------------------------#
-	# Check optional arguments
-	#--------------------------------------------------------------------------#
-	if(missing(errortype) & (missing(sigU)) & missing(phiU)){
-		stop("You must define the error distribution")
-	}
-
-	if(missing(errortype) == F){
-		if(missing(sigU)){
-			stop("You must provide the standard deviation of the errors")
-		}
-		if(errortype == 'Lap'){
-			phiU <- function(tt){
-				1 / (1 + sigU^2 * tt^2 / 2)
-			}
-		} else if(errortype == 'norm'){
-			phiU <- function(tt){
-				exp(-sigU^2 * tt^2 / 2)
-			} 
-		} else {
-			stop("Error type not a valid option")
-		}
-	}
-
-	if(missing(h)){
-		stop("You must provide the bandwidth")
-	}
 
 	#--------------------------------------------------------------------------#
 	# Compute DKDE
