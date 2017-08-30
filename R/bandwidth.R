@@ -208,7 +208,7 @@ bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
 	}
 
 	if (algorithm == "SIMEX") {
-		output <- hSIMEXUknown(W, Y, errortype, sigU)
+		output <- hSIMEXUknown(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt)
 	}
 
 	output

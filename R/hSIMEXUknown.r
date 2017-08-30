@@ -22,7 +22,7 @@
 # sigU: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter. 
 
-hSIMEXUknown <- function(W, Y, errortype, sigU){
+hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt){
 	
 	no_cores = parallel::detectCores()
 	cl <- parallel::makeCluster(max(no_cores - 1, 1))
@@ -48,26 +48,6 @@ hSIMEXUknown <- function(W, Y, errortype, sigU){
 			exp(-sigU^2 * t^2 / 2)
 		}
 	}
-
-	# phiK: Fourier transform of the kernel K. You can change this if you wish 
-	# to use another kernel but make sure 
-	# you change the range of t-values, which should correspond to the support 
-	# of phiK
-	phiK <- function(t) {
-		(1 - t^2)^3
-	}
-	muK2 = 6 
-	RK = 1024 / 3003 / pi
-
-
-
-	# Range of t-values (must correspond to the domain of phiK)
-	deltat <- .0002
-	tt <- seq(-1, 1, deltat)
-	dim(tt) <- c(length(tt), 1)
-
-
-
 
 	dim(W) <- c(1, n)
 	dim(Y) <- c(1, n)
