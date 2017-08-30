@@ -42,14 +42,14 @@ plot.deconvolve <- function(x, ...){
 		title <- 'Deconvolved Distribution'
 	}
 	final_plot <- final_plot + ggplot2::ggtitle(title) + 
-				  ggplot2::theme(plot.title = element_text(size=20, face="bold",
+				  ggplot2::theme(plot.title = ggplot2::element_text(size=20, face="bold",
 				  				 hjust = 0.5, color = text_col))
 	
 	# X and Y labels
 	final_plot <- final_plot + ggplot2::labs(x = "x", y = "f(x)") + 
 				  ggplot2::theme(
-				  	axis.title.x = element_text(color = text_col, vjust=-0.35), 
-				  	axis.title.y = element_text(color = text_col, vjust=0.35))
+				  	axis.title.x = ggplot2::element_text(color = text_col, vjust=-0.35), 
+				  	axis.title.y = ggplot2::element_text(color = text_col, vjust=0.35))
 
 	# Add legend ---------------------------------------------------------------
 	
