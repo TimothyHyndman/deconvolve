@@ -24,7 +24,7 @@ sigU <- 0.2
 data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", 
 						 create_Y = TRUE)
 output <- bandwidth(data$W, errortype = "norm", sigU = sigU, Y = data$Y, 
-					algorithm = "SIMEX")
+					algorithm = "SIMEX", n_cores = 2)
 bw <- output$h
 
 # PI bandwidth with heteroscedastic errors supplied using phiU -----------------

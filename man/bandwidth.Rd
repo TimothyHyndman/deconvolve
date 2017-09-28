@@ -5,8 +5,8 @@
 \title{Bandwidth Selectors for Deconvolution Kernel Density Estimation}
 \usage{
 bandwidth(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
-  algorithm = "PI", phiK = NULL, muK2 = 6, RK = 1024/3003/pi,
-  tt = seq(-1, 1, 2e-04))
+  algorithm = "PI", n_cores = NULL, phiK = NULL, muK2 = 6,
+  RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -33,6 +33,9 @@ heteroscedastic errors.}
 \item{algorithm}{Either \code{"PI"} for plug-in estimator or \code{"CV"} for 
 cross-validation estimator. If \code{"CV"} then the errors must be 
 homoscedastic.}
+
+\item{n_cores}{Number of cores to use when using SIMEX algorithm. If 
+\code{NULL}, the number of cores to use will be automatically detected.}
 
 \item{phiK}{A function giving the fourier transform of the kernel. 
 If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
@@ -137,7 +140,7 @@ sigU <- 0.2
 data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", 
 						 create_Y = TRUE)
 output <- bandwidth(data$W, errortype = "norm", sigU = sigU, Y = data$Y, 
-					algorithm = "SIMEX")
+					algorithm = "SIMEX", n_cores = 2)
 bw <- output$h
 
 # PI bandwidth with heteroscedastic errors supplied using phiU -----------------

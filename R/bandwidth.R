@@ -33,6 +33,8 @@
 #' homoscedastic.
 #' @param Y A vector of the univariate dependant data. Only required for 'SIMEX'
 #' algorithm.
+#' @param n_cores Number of cores to use when using SIMEX algorithm. If 
+#' \code{NULL}, the number of cores to use will be automatically detected.
 #' 
 #' @return The bandwidth estimator. If using 'SIMEX' algorithm then returns a
 #' list containing the bandwidth 'h' and ridge parameter 'rho'.
@@ -70,7 +72,7 @@
 #' @export
 
 bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL, 
-					  algorithm = "PI", phiK = NULL, muK2 = 6, 
+					  algorithm = "PI", n_cores = NULL, phiK = NULL, muK2 = 6, 
 					  RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
 	
 	n <- length(W)
@@ -208,7 +210,8 @@ bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
 	}
 
 	if (algorithm == "SIMEX") {
-		output <- hSIMEXUknown(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt)
+		output <- hSIMEXUknown(W, Y, errortype, sigU, phiK, muK2, RK, deltat, 
+							   tt, n_cores)
 	}
 
 	output
