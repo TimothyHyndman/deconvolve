@@ -46,6 +46,9 @@
 #' integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
 #' \eqn{x} values that covers the whole range of \eqn{x}-values where the 
 #' estimated density is significantly non zero.
+#' @param pmf If \code{TRUE}, returns a probability mass function instead of a 
+#' density as the estimator. This is quicker than estimating a density. To use
+#' this option, the errors must not be provided.
 #' @param phiK A function giving the fourier transform of the kernel. 
 #' If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
 #' not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.
@@ -62,14 +65,12 @@
 #' 
 #' The function \code{plot} produces a plot of the deconvolution KDE.
 #' 
-#' An object of class "\code{deconvolve}" is a list containing at least the
-#' elements:
+#' An object of class "\code{deconvolve}" is a list containing at least some of
+#' the elements:
 #' \item{W}{The original contaminated data}
 #' \item{x}{The values on which the deconvolution KDE is evaluated.}
 #' \item{pdf}{A vector containing the deconvolution KDE evaluated at each point 
 #' in \code{x}}
-#' 
-#' An object of class "\code{deconvolve}" may also contain the elements:
 #' \item{support}{The support of the pmf found when the errors are assumed
 #' symmetric}
 #' \item{probweights}{The probability masses of the pmf found when the errors
@@ -111,8 +112,9 @@
 #' @export
 
 deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, 
-					   bw = NULL, varX = NULL, rescale = FALSE, phiK = NULL, 
-					   muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
+					   bw = NULL, varX = NULL, rescale = FALSE, pmf = FALSE, 
+					   phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
+					   tt = seq(-1, 1, 2e-04)){
 
 	if(is.null(phiK)){
 		phiK <- phiK2
@@ -144,38 +146,45 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 		}
 	}
 
+	# Check inputs -------------------------------------------------------------
+	if (pmf & !(decon_type == "symmetric")){
+		stop("Option pmf cannot be used when the error is provided.")
+	}
+
 	# Convert errortype to phiU ------------------------------------------------
 
-	if(is.null(phiU)) {
-		if(errortype == 'Lap' & decon_type == "known") {
-			phiU <- function(tt) {
-				1 / (1 + sigU^2 * tt^2 / 2)
-			}
-		}
-
-		if(errortype == 'norm' & decon_type == "known") {
-			phiU <- function(tt) {
-				exp(-sigU^2 * tt^2 / 2)
-			}
-		}
-
-		if(errortype == 'Lap' & decon_type == "heteroscedastic") {
-			phiU <- c()
-			for (sigUk in sigU){
-				phiUk <- function(tt) {
-					1 / (1 + sigUk^2 * tt^2 / 2)
+	if (!(decon_type == "symmetric")){
+		if(is.null(phiU)) {
+			if(errortype == 'Lap' & decon_type == "known") {
+				phiU <- function(tt) {
+					1 / (1 + sigU^2 * tt^2 / 2)
 				}
-				phiU <- c(phiU, phiUk)
 			}
-		}
 
-		if(errortype == 'norm' & decon_type == "heteroscedastic") {
-			phiU <- c()
-			for (sigUk in sigU){
-				phiUk <- function(tt) {
-					exp(-sigUk^2 * tt^2 / 2)
+			if(errortype == 'norm' & decon_type == "known") {
+				phiU <- function(tt) {
+					exp(-sigU^2 * tt^2 / 2)
 				}
-				phiU <- c(phiU, phiUk)
+			}
+
+			if(errortype == 'Lap' & decon_type == "heteroscedastic") {
+				phiU <- c()
+				for (sigUk in sigU){
+					phiUk <- function(tt) {
+						1 / (1 + sigUk^2 * tt^2 / 2)
+					}
+					phiU <- c(phiU, phiUk)
+				}
+			}
+
+			if(errortype == 'norm' & decon_type == "heteroscedastic") {
+				phiU <- c()
+				for (sigUk in sigU){
+					phiUk <- function(tt) {
+						exp(-sigUk^2 * tt^2 / 2)
+					}
+					phiU <- c(phiU, phiUk)
+				}
 			}
 		}
 	}
@@ -193,11 +202,17 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 
 	if (decon_type == "symmetric") {
 		out <- DeconErrSymPmf(W)
-		phi.W <- out$phi.W
-		pdf <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt, 
-									  rescale, bw)
-		output <- list("x" = xx, "pdf" = pdf, "support" = out$support, 
-					   "probweights" = out$probweights, "W" = W)
+		if (!pmf) {
+			phi.W <- out$phi.W
+			pdf <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt, 
+										  rescale, bw)
+			output <- list("x" = xx, "pdf" = pdf, "support" = out$support, 
+						   "probweights" = out$probweights, "W" = W)
+		} else {
+			output <- list("support" = out$support,
+						   "probweights" = out$probweights,
+						   "W" = W)
+		}
 	}
 
 	# Output object of class "deconvolve" --------------------------------------

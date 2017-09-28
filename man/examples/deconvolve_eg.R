@@ -7,6 +7,11 @@ d <- deconvolve(W, xx)
 plot(d)
 print(d)
 
+# Symmetric Errors only returning PMF ------------------------------------------
+d <- deconvolve(W, xx, pmf = TRUE)
+plot(d)
+print(d)
+
 # Homoscedastic Errors ---------------------------------------------------------
 n <- 200
 sigX <- 1

@@ -5,7 +5,7 @@
 \title{Deconvolution Kernel Density Estimator}
 \usage{
 deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, bw = NULL,
-  varX = NULL, rescale = FALSE, phiK = NULL, muK2 = 6,
+  varX = NULL, rescale = FALSE, pmf = FALSE, phiK = NULL, muK2 = 6,
   RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
 }
 \arguments{
@@ -37,6 +37,10 @@ integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced
 \eqn{x} values that covers the whole range of \eqn{x}-values where the 
 estimated density is significantly non zero.}
 
+\item{pmf}{If \code{TRUE}, returns a probability mass function instead of a 
+density as the estimator. This is quicker than estimating a density. To use
+this option, the errors must not be provided.}
+
 \item{phiK}{A function giving the fourier transform of the kernel. 
 If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
 not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.}
@@ -57,14 +61,12 @@ An object of class "\code{deconvolve}".
 
 The function \code{plot} produces a plot of the deconvolution KDE.
 
-An object of class "\code{deconvolve}" is a list containing at least the
-elements:
+An object of class "\code{deconvolve}" is a list containing at least some of
+the elements:
 \item{W}{The original contaminated data}
 \item{x}{The values on which the deconvolution KDE is evaluated.}
 \item{pdf}{A vector containing the deconvolution KDE evaluated at each point 
 in \code{x}}
-
-An object of class "\code{deconvolve}" may also contain the elements:
 \item{support}{The support of the pmf found when the errors are assumed
 symmetric}
 \item{probweights}{The probability masses of the pmf found when the errors
@@ -138,6 +140,11 @@ W <- GenerateTestData(n, dist_type = "chi", error_type = "norm")
 xx <- seq(min(W), max(W), length.out = 100)
 
 d <- deconvolve(W, xx)
+plot(d)
+print(d)
+
+# Symmetric Errors only returning PMF ------------------------------------------
+d <- deconvolve(W, xx, pmf = TRUE)
 plot(d)
 print(d)
 
