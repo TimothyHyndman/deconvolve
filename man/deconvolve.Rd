@@ -11,7 +11,8 @@ deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, bw = NULL,
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
 
-\item{xx}{A vector of x values on which to compute the density.}
+\item{xx}{A vector of x values on which to compute the density. This can be
+missing if \code{pmf = TRUE}.}
 
 \item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
 errors or "norm" for normal errors. If you define the errors this way then 
@@ -144,7 +145,7 @@ plot(d)
 print(d)
 
 # Symmetric Errors only returning PMF ------------------------------------------
-d <- deconvolve(W, xx, pmf = TRUE)
+d <- deconvolve(W, pmf = TRUE)
 plot(d)
 print(d)
 

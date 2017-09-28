@@ -27,7 +27,8 @@
 #' function(s) of the errors (\code{phiU}). 
 #' 
 #' @param W A vector of the univariate contaminated data.
-#' @param xx A vector of x values on which to compute the density.
+#' @param xx A vector of x values on which to compute the density. This can be
+#' missing if \code{pmf = TRUE}.
 #' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
 #' errors or "norm" for normal errors. If you define the errors this way then 
 #' you must also provide \code{sigU} but should not provide \code{phiU}.

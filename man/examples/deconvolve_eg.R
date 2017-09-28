@@ -8,7 +8,7 @@ plot(d)
 print(d)
 
 # Symmetric Errors only returning PMF ------------------------------------------
-d <- deconvolve(W, xx, pmf = TRUE)
+d <- deconvolve(W, pmf = TRUE)
 plot(d)
 print(d)
 
