@@ -1,6 +1,5 @@
 #' @importFrom foreach %dopar%
-#' @export
-
+#' 
 # Author: Aurore Delaigle
 # Computes bandwidth h and ridge parameter rho using a version of the SIMEX 
 # method of
