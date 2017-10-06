@@ -143,6 +143,10 @@ bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
 		stop("You must supply an estimate for the variance of X when the errors are heteroscedastic.")
 	}
 
+	if (missing(sigU) & (errors == "hom" & algorithm == "PI")) {
+		stop("You must supply sigU to use the PI algorithm when the errors are homoscedastic.")
+	}
+
 	if (algorithm == "SIMEX") {
 		if (is.null(Y)) {
 			stop("You must supply Y to use SIMEX.")
@@ -206,7 +210,7 @@ bandwidth <- function(W, errortype, sigU, phiU, Y = NULL, varX = NULL,
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		output <- PI_deconvUknownth4(n, W, phiU, phiK, muK2, RK, deltat, tt)
+		output <- PI_deconvUknownth4(n, W, sigU, phiU, phiK, muK2, RK, deltat, tt)
 	}
 
 	if (algorithm == "SIMEX") {
