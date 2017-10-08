@@ -21,8 +21,6 @@
 # sigU: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter.
 
-###test
-
 hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 						 no_cores){
 
