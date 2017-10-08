@@ -1,29 +1,31 @@
 #' @importFrom foreach %dopar%
-#' 
+#'
 # Author: Aurore Delaigle
-# Computes bandwidth h and ridge parameter rho using a version of the SIMEX 
+# Computes bandwidth h and ridge parameter rho using a version of the SIMEX
 # method of
-# Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice 
-# in errors-in-variables problems. JASA, 103, 280-287 
-# 
-# WARNING: these are not the codes used in the original paper. This is a 
+# Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
+# in errors-in-variables problems. JASA, 103, 280-287
+#
+# WARNING: these are not the codes used in the original paper. This is a
 # simplified version of those codes.
-# 
-# Use the function NWDecUknown to compute the regression estimator with this rho 
+#
+# Use the function NWDecUknown to compute the regression estimator with this rho
 # and this h
 
 # W: vector of contaminated data W_1,...,W_n
 # Y: vector of data Y_1,...,Y_n
 # h: bandwidth
-# 
-# errortype: 'Lap' for Laplace errors and 'norm' for normal errors. For other 
-# error distributions, simply redefine phiU below 
+#
+# errortype: 'Lap' for Laplace errors and 'norm' for normal errors. For other
+# error distributions, simply redefine phiU below
 # sigU: parameter of Laplace or normal errors used only to define phiU.
-# rho: ridge parameter. 
+# rho: ridge parameter.
 
-hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt, 
+###test
+
+hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 						 no_cores){
-	
+
 	if (is.null(no_cores)){
 		no_cores = parallel::detectCores()
 		no_cores = max(no_cores - 1, 1)
@@ -39,7 +41,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	# --------------------------------------------------------
 
 	# Default values of phiU(t)=characteristic function of the errors
-	# If you want to consider another error type, simply replace phiU by the 
+	# If you want to consider another error type, simply replace phiU by the
 	# characteristic function of your error type
 	if (errortype == "Lap") {
 		phiU <- function(t) {
@@ -56,29 +58,29 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	dim(Y) <- c(1, n)
 
 	# number of bins used to compute CV in each SIMEX world
-	nbin <- min(100, n)	
+	nbin <- min(100, n)
 
 	# Number of SIMEX samples
 	BB <- 20
 
-	# Define a grid where to search for the SIMEX bandwidth. By default we take 
+	# Define a grid where to search for the SIMEX bandwidth. By default we take
 	# [h/2,2h], where h=PI bandwidth for density estimation.
 	# Increase the grid if too small
-	hPIfX <- PI_deconvUknownth4(n, W, phiU = phiU, phiK = phiK, muK2 = muK2, 
+	hPIfX <- PI_deconvUknownth4(n, W, phiU = phiU, phiK = phiK, muK2 = muK2,
 								RK = RK, deltat = deltat, tt = tt)
 	a <- hPIfX / 2
 	b <- 2 * hPIfX
 	gridh <- seq(a, b, (b - a) / 20)
 
 
-	# Define a defaul grid where to search for rho. 
-	# Recall that rho prevents the denominator of the NW estimator from being 
-	# too small. In the SIMEX world, the denominator estimates the contaminated 
+	# Define a defaul grid where to search for rho.
+	# Recall that rho prevents the denominator of the NW estimator from being
+	# too small. In the SIMEX world, the denominator estimates the contaminated
 	# density f_W
 	# This is what motivates the default grid for rho used here.
 
-	# Estimator of fW(q_{0.05}) and fW(q_{0.95}) using standard (error-free) KDE 
-	# and normal reference bandwidth, where q_{alpha} denotes the alpha 
+	# Estimator of fW(q_{0.05}) and fW(q_{0.95}) using standard (error-free) KDE
+	# and normal reference bandwidth, where q_{alpha} denotes the alpha
 	# empirical quantile of the W_i's.
 	W <- as.vector(W)
 	hW <- 1.06 * sqrt(stats::var(W)) * n^(-1 / 5)
@@ -113,7 +115,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 			Wstar <- W + stats::rnorm(n, 0, sigU)
 		}
 
-		# For each h in the grid of h-candidates, compute the CV criterion for 
+		# For each h in the grid of h-candidates, compute the CV criterion for
 		# the data Wstar (this will automatically consider all rho candiates)
 		for (kh in 1:lh){
 			h <- gridh[kh]
@@ -142,7 +144,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 
 
 	#----------------------------------------
-	# Step 2: Keep rho fixed and find h SIMEX 
+	# Step 2: Keep rho fixed and find h SIMEX
 	#----------------------------------------
 
 
@@ -161,7 +163,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 		# Bin the Wstar data to speed up the computations
 		midbin <- unlist(BinData(Wstar, nbin)[1])
 		indbin <- unlist(BinData(Wstar, nbin)[2])
-		# Compute CV for each h in the grid, using the ridge parameter rho found 
+		# Compute CV for each h in the grid, using the ridge parameter rho found
 		# above
 		for (kh in 1:lh){
 			h <- gridh[kh]
