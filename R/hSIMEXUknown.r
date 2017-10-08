@@ -38,9 +38,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	# Preliminary calculations and initialisation of functions
 	# --------------------------------------------------------
 
-	# Default values of phiU(t)=characteristic function of the errors
-	# If you want to consider another error type, simply replace phiU by the
-	# characteristic function of your error type
+	# error can only be normal or laplace
 	if (errortype == "Lap") {
 		phiU <- function(t) {
 			1 / (1 + sigU^2 * t^2)
