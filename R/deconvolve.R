@@ -61,6 +61,8 @@
 #' support of phiK. If phiK is not compactly supported, the first and last 
 #' elements of \code{tt} must be large enough for your discretisation of the 
 #' integrals to be accurate.
+#' @param m The number of point masses to use to estimate the distribution of 
+#' \eqn{X} when the error is not supplied.
 #' 
 #' @return An object of class "\code{deconvolve}".
 #' 
@@ -115,7 +117,7 @@
 deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, 
 					   bw = NULL, varX = NULL, rescale = FALSE, pmf = FALSE, 
 					   phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
-					   tt = seq(-1, 1, 2e-04)){
+					   tt = seq(-1, 1, 2e-04), m = 20){
 
 	if(is.null(phiK)){
 		phiK <- phiK2
@@ -202,7 +204,7 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 	}
 
 	if (decon_type == "symmetric") {
-		out <- DeconErrSymPmf(W)
+		out <- DeconErrSymPmf(W, m)
 		if (!pmf) {
 			phi.W <- out$phi.W
 			pdf <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt, 

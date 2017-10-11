@@ -30,7 +30,7 @@
 # ' @example man/examples/SymmetricError_eg.R
 # ' 
 
-DeconErrSymPmf <- function(W, m = 10, n.iter.tp = 5, 
+DeconErrSymPmf <- function(W, m, n.iter.tp = 5, 
 										n.iter.var = 2, show.diagnostics = F){
 
 	Diagnostic <- function(message){

@@ -6,7 +6,7 @@
 \usage{
 deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, bw = NULL,
   varX = NULL, rescale = FALSE, pmf = FALSE, phiK = NULL, muK2 = 6,
-  RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
+  RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04), m = 20)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -56,6 +56,9 @@ and last elements of \code{tt} must be the lower and upper bound of the
 support of phiK. If phiK is not compactly supported, the first and last 
 elements of \code{tt} must be large enough for your discretisation of the 
 integrals to be accurate.}
+
+\item{m}{The number of point masses to use to estimate the distribution of 
+\eqn{X} when the error is not supplied.}
 }
 \value{
 An object of class "\code{deconvolve}".
