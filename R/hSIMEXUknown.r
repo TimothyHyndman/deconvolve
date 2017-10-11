@@ -62,7 +62,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	# Define a grid where to search for the SIMEX bandwidth. By default we take
 	# [h/2,2h], where h=PI bandwidth for density estimation.
 	# Increase the grid if too small
-	hPIfX <- PI_deconvUknownth4(n, W, phiU = phiU, phiK = phiK, muK2 = muK2,
+	hPIfX <- PI_deconvUknownth4(n, W, sigU, phiU = phiU, phiK = phiK, muK2 = muK2,
 								RK = RK, deltat = deltat, tt = tt)
 	a <- hPIfX / 2
 	b <- 2 * hPIfX
