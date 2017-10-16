@@ -63,7 +63,6 @@ reg_deconvolve <- function(xx, W, Y, sigU, h, rho) {
         }
     }
 
-
     # phiK: Fourier transform of the kernel K. You can change this if you wish
     # to use another kernel but make sure
     # you change the range of t-values,  which should correspond to the support
@@ -80,7 +79,10 @@ reg_deconvolve <- function(xx, W, Y, sigU, h, rho) {
     longt <- length(t)
     dim(t) <- c(length(t), 1)
 
-
+    # if h is not specified, calculate h using hSIMEXknown
+    if (is.null(h)){
+        h = bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX")
+    }
 
     # Compute the empirical characteristic function of W (times n) at t/h:
     # \hat\phi_W(t/h)
