@@ -81,7 +81,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	W <- as.vector(W)
 	hW <- 1.06 * sqrt(stats::var(W)) * n^(-1 / 5)
 	ab <- stats::quantile(W, probs = c(0.05, 0.95))
-	xout <- outerop(ab, W, "-")
+	xout <- outer(ab, W, "-")
 	fWEF <- c(0, 0)
 	fWEF[1] <- mean(stats::dnorm(xout[1, ], 0, hW))
 	fWEF[2] <- mean(stats::dnorm(xout[2, ], 0, hW))

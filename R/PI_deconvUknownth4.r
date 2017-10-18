@@ -140,7 +140,7 @@ if(indh3==length(hgrid))
 h3 = hgrid[indh3]
 
 # Estimate empirical characteristic function of W at t/h3
-OO=outerop(tt/h3,t(W),"*")
+OO=outer(tt/h3,t(W))
 rehatphiW=apply(cos(OO),1,sum)/n
 imhatphiW=apply(sin(OO),1,sum)/n
 rm(OO)
@@ -174,7 +174,7 @@ if(indh2==length(hgrid))
 h2 = hgrid[indh2]
 
 # Estimate empirical characteristic function of W at t/h2
-OO=outerop(tt/h2,t(W),"*")
+OO=outer(tt/h2,t(W))
 rehatphiW=apply(cos(OO),1,sum)/n
 imhatphiW=apply(sin(OO),1,sum)/n
 rm(OO)

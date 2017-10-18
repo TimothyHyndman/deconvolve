@@ -84,7 +84,7 @@ reg_deconvolve <- function(xx, W, Y, sigU, h, rho) {
 
     # Compute the empirical characteristic function of W (times n) at t/h:
     # \hat\phi_W(t/h)
-    OO <- t(outerop(t/h, t(W), "*"))
+    OO <- t(outer(t/h, t(W)))
     csO <- cos(OO)
     snO <- sin(OO)
     rm(OO)
@@ -107,7 +107,7 @@ reg_deconvolve <- function(xx, W, Y, sigU, h, rho) {
     # (2*pi*h)^(-1) \int e^{-itx/h} \hat\phi_W(t/h) \phi_K(t)/\phi_U(t/h) dt
 
 
-    xt <- outerop(t / h, t(xx), "*")
+    xt <- outer(t / h, t(xx))
     cxt <- cos(xt)
     sxt <- sin(xt)
     rm(xt)

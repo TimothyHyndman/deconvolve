@@ -72,7 +72,7 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK = NULL, muK2 = 6,
 	phi.X.re <- phi.W.PI$re / phi.U.PI
 	phi.X.im <- phi.W.PI$im / phi.U.PI
 
-	xt <- outerop(t/h.PIc, xx, "*")
+	xt <- outer(t/h.PIc, xx)
 
 	fX <- cos(xt) * matrix( rep(phi.X.re, length(xx)), ncol = length(xx)) + 
 	sin(xt) * matrix( rep(phi.X.im, length(xx)), ncol = length(xx))

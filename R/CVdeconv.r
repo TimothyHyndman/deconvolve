@@ -117,7 +117,7 @@ phiKt=phiK(tt);
 
 longh=length(hgrid);
 CVcrit=rep(0,longh);
-OO=outerop(tt,t(W),"*");
+OO = outer(tt, t(W))
 
 
 #Compute CV criterion for all values of h on the grid of h values

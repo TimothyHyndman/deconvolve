@@ -45,7 +45,7 @@ DeconErrKnownPdf<-function(xx, W, h, phiU, rescale = FALSE,
 	# Make sure t is a vector in the right format
 	dim(tt) <- c(length(tt), 1);
 
-	OO <- outerop(tt/h, t(W), "*")
+	OO <- outer(tt/h, t(W))
 	phiUth <- phiU(tt/h)
 
 	# Estimate real and imaginary parts of empirical characteristic function of 
@@ -53,7 +53,7 @@ DeconErrKnownPdf<-function(xx, W, h, phiU, rescale = FALSE,
 	rehatphiX <- rowSums(cos(OO)) / phiUth / n
 	imhatphiX <- rowSums(sin(OO)) / phiUth / n
 
-	xt <- outerop(tt / h, t(xx), "*")
+	xt <- outer(tt / h, t(xx))
 	longx <- length(xx)
 
 	# Compute the DKDE estimator
