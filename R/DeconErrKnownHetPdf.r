@@ -55,14 +55,11 @@ DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec,
 	n <- length(W)
 	deltat <- tt[2] - tt[1]
 
-	# Make sure t is a vector in the right format
-	dim(tt) <- c(length(tt), 1)
-
 	# Default values of phiU(t)=characteristic function of the errors
 	# If you want to consider another error type, simply replace phiU by the 
 	# characteristic function of your error type
 
-	OO <- outer(tt / h, t(W))
+	OO <- outer(tt / h, W)
 
 	# Compute phiU_k(-t/h) for each k -- since phiU_k is symmetric, this is the 
 	# same as phiU_k(t/h)
@@ -82,7 +79,7 @@ DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec,
 	imhatphiX <- apply(sin(OO) * matphiU, 1, sum) / phiUsqth
 
 	# Matrix of size length(tt) x length(xx)
-	xt <- outer(tt / h, t(xx))
+	xt <- outer(tt / h, xx)
 	longx <- length(xx)
 
 	# Compute the DKDE estimator

@@ -62,13 +62,6 @@ phiUk <- function(tt,k) {
 
 W=as.vector(W)
 
-#make sure t is a vector in the right format
-dim(tt)=c(length(tt),1)
-
-
-
-
-
 #grid of h values where to search for a solution: you can change the default grid if no solution is found in this grid.
 maxh=(max(W)-min(W))/10
 
@@ -84,8 +77,6 @@ dim(hgrid)=c(1,lh)
 #Estimator of the standard deviation of X
 stdevx = max(sqrt(varX),1/n)
 
-
-
 #Quantities that will be needed several times in the computations below
 toverh=tt%*%(1/hgrid)
 
@@ -99,9 +90,6 @@ for (k in 1:n)
 	matphiU=phiUk(toverh,k)
 	phiUsq=phiUsq+matphiU^2
 	}
-
-
-
 
 # --------------------------------------------
 # Estimate theta4 by normal reference method     
@@ -131,7 +119,7 @@ h3 = hgrid[indh3]
 
 #Estimate empirical characteristic function of W at t/h3
 
-OO=outer(tt/h3,t(W))
+OO <- outer(tt / h3, W)
 
 # Compute phiU(-t/h) -- since phiU is symmetric, this is the same as phiU(t/h)
 matphiU=OO
@@ -172,7 +160,7 @@ if(indh2==length(hgrid))
 h2 = hgrid[indh2]
 
 #Estimate empirical characteristic function of X at t/h2
-OO=outer(tt/h2,t(W))
+OO <- outer(tt / h2, W)
 # Compute phiU(-t/h) -- since phiU is symmetric, this is the same as phiU(t/h)
 matphiU=OO
 for (k in 1:n)
