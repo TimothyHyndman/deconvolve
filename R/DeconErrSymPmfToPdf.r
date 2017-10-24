@@ -1,39 +1,3 @@
-# ' Create Probability Density Function from Probability Mass Function
-# ' 
-# ' Takes the output of DeconErrSymPmf along with the contaminated data, W, and
-# ' uses a kernel estimator to find an estimate for the probability density 
-# ' function of X.
-# ' 
-# ' PUT DETAILS HERE
-# ' 
-# ' @inheritParams deconvolve
-# ' @param X.pmf A list with parts "support" and "probweights"
-# ' @param phi.W A list with parts "complex", "re", "im", "norm" and "t.values" 
-# ' containing phi.W, Re(phi.W), Im(phi.W), Norm(phi.W) and the t values on which
-# ' they were calculated respectively.
-# ' @param h The bandwidth to use. If \code{NULL}, a bandwidth will be calculated
-# ' using an appropriate plug-in estimator.
-# ' @param t A vector of evenly spaced t values on which to approximate the 
-# ' integrals in the Fourier domain. If phiK is compactly supported, the first 
-# ' and last elements of \code{tt} must be the lower and upper bound of the 
-# ' support of phiK. If phiK is not compactly supported, the first and last 
-# ' elements of \code{tt} must be large enough for your discretisation of the 
-# ' integrals to be accurate.
-# ' 
-# ' @inherit deconvolve return
-# ' 
-# ' @example man/examples/SymmetricError_eg.R
-# ' 
-# ' @section Authors:
-# ' Aurore Delaigle
-# ' 
-# ' @section References:
-# ' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
-# ' deconvolution when the error distribution is unknown. \emph{Journal of the 
-# ' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
-# ' 231-252.
-# ' 
-
 DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK = NULL, muK2 = 6, 
 								t = seq(-1, 1, 2e-04), rescale = FALSE, 
 								h = NULL){

@@ -1,39 +1,3 @@
-# #' Deconvolution when the errors are heteroscedastic with known distributions
-# #' 
-# #' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-# #' data \eqn{W_j = X + U_j} when the distribution and standard deviations of the 
-# #' \eqn{U_j} are known.
-# #' 
-# #' PUT DETAILS HERE
-# #' 
-# #' @inheritParams deconvolve
-# #' @inheritParams DeconErrKnownPdf
-# #' @param errortype The distribution type of the \eqn{U_j}. Either "Lap" for 
-# #' Laplace errors or "norm" for normal errors. If you use this way of defining 
-# #' the errors then you must also provide \code{sigUj} but should not provide
-# #' \code{phiUkvec}.
-# #' @param sigUj	A vector of length n which contains the standard deviations of 
-# #' the errors.
-# #' @param phiUkvec A vector of n functions that give the characteristic 
-# #' functions of the errors. Produce this vector by c(func1,func2,...,funcn) 
-# #' where each funcj is a function of tt. If you define the errors this way then 
-# #' you should not provide \code{errortype} or \code{sigUj}.
-# #' 
-# #' @inheritSection deconvolve Warnings
-# #' 
-# #' @inherit deconvolve return
-# #' 
-# #' @section References:
-# #' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
-# #' error. \emph{Bernoulli}, 14, 2, 562-579.
-# #' 
-# #' @section Author:
-# #' Aurore Delaigle
-# #' 
-# #' @example man/examples/KnownHetError_eg.R
-# #' 
-# #' @export
-
 DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec, 
 	rescale = FALSE, phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
 	tt = seq(-1, 1, 2e-04)){
