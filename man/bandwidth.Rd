@@ -5,8 +5,8 @@
 \title{Bandwidth Selectors for Deconvolution Kernel Density Estimation}
 \usage{
 bandwidth(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
-  varX = NULL, algorithm = "PI", n_cores = NULL, phiK = NULL,
-  muK2 = 6, RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
+  algorithm = "PI", n_cores = NULL, phiK = NULL, muK2 = 6,
+  RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -22,13 +22,10 @@ heteroscedastic errors.}
 \item{phiU}{A function giving the characteristic function of \eqn{U}. A 
 single value for homoscedastic errors and a vector having the same length as 
 \code{W} for heteroscedastic errors. If you define the errors this way then 
-you should not provide \code{errortype} or \code{sigU}.}
+you should not provide \code{errortype}.}
 
 \item{Y}{A vector of the univariate dependant data. Only required for 'SIMEX'
 algorithm.}
-
-\item{varX}{An estimate of the variance of \eqn{X}. Only required for 
-heteroscedastic errors.}
 
 \item{algorithm}{Either \code{"PI"} for plug-in estimator or \code{"CV"} for 
 cross-validation estimator. If \code{"CV"} then the errors must be 
@@ -138,10 +135,8 @@ n <- 200
 sigX <- 1
 sigU_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 W <- GenerateTestData(n, sigX, sigU_vec, dist_type = "mix", error_type = "norm")
-# Estimate the variance of X
-varX <- mean(W^2) - (mean(W))^2 - sum(sigU_vec^2) / n
 
-bw <- bandwidth(W, errortype = "norm", sigU = sigU_vec, varX = varX)
+bw <- bandwidth(W, errortype = "norm", sigU = sigU_vec)
 
 # SIMEX bandwidth --------------------------------------------------------------
 n <- 200
@@ -167,10 +162,7 @@ for (sigUk in sigU_vec){
 
 W <- GenerateTestData(n, sigX, sigU_vec, dist_type = "mix", error_type = "norm")
 
-# Estimate the variance of X
-varX <- mean(W^2) - (mean(W))^2 - sum(sigU_vec^2) / n
-
-bw <- bandwidth(W, phiU = phiU, varX = varX)
+bw <- bandwidth(W, sigU = sigU_vec, phiU = phiU)
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

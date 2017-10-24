@@ -31,8 +31,6 @@
 #' described in Delaigle and Hall 2008.
 #' 
 #' @inheritParams deconvolve
-#' @param varX An estimate of the variance of \eqn{X}. Only required for 
-#' heteroscedastic errors.
 #' @param algorithm Either \code{"PI"} for plug-in estimator or \code{"CV"} for 
 #' cross-validation estimator. If \code{"CV"} then the errors must be 
 #' homoscedastic.
@@ -40,6 +38,9 @@
 #' algorithm.
 #' @param n_cores Number of cores to use when using SIMEX algorithm. If 
 #' \code{NULL}, the number of cores to use will be automatically detected.
+#' @param sigU The standard deviations of \eqn{U}. A single value for
+#' homoscedastic errors and a vector having the same length as \code{W} for 
+#' heteroscedastic errors.
 #' 
 #' @return The bandwidth estimator. If using 'SIMEX' algorithm then returns a
 #' list containing the bandwidth 'h' and ridge parameter 'rho'.
@@ -82,9 +83,8 @@
 #' @export
 
 bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL, 
-					  varX = NULL, algorithm = "PI", n_cores = NULL, 
-					  phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
-					  tt = seq(-1, 1, 2e-04)){
+					  algorithm = "PI", n_cores = NULL, phiK = NULL, muK2 = 6, 
+					  RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
 	
 	n <- length(W)
 	deltat <- tt[2] - tt[1]
@@ -95,7 +95,7 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
-		errors <- "est"
+		errors <- "sym"
 	} else if (length(sigU) > 1  | length(phiU) > 1){
 		errors <- "het"
 	} else {
@@ -106,15 +106,17 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 	if (errors == "het") {
 		if (is.null(phiU)) {
 			if ((length(sigU) == length(W)) == FALSE) {
-				stop("sigU must be either length 1 for homoscedastic errors or 
-					 have the same length as W for heteroscedastic errors.")
+				stop("sigU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
 			}
 		} else {
 			if ((length(phiU) == length(W)) == FALSE) {
-				stop("phiU must be either length 1 for homoscedastic errors or 
-					 have the same length as W for heteroscedastic errors.")
+				stop("phiU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
 			}
 		}
+	}
+
+	if ((errors == "het" | errors == "hom")  & is.null(sigU)) {
+		stop("You must provide sigU along with the errors.")
 	}
 
 	if (is.null(errortype) == FALSE) {
@@ -134,13 +136,9 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 		}
 	}
 
-	# if ((errors == "est") & (!(algorithm == "PI"))) {
+	# if ((errors == "sym") & (!(algorithm == "PI"))) {
 	# 	stop("You must use the PI algorithm if the errors are not supplied.")
 	# }
-
-	if (is.null(varX) & errors == "het") {
-		stop("You must supply an estimate for the variance of X when the errors are heteroscedastic.")
-	}
 
 	if (missing(sigU) & (errors == "hom" & algorithm == "PI")) {
 		stop("You must supply sigU to use the PI algorithm when the errors are homoscedastic.")
@@ -160,46 +158,22 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 		}
 	}
 
-	# if (errors == "est" & is.null(sigU)) {
+	# if (errors == "sym" & is.null(sigU)) {
 	# 	stop("You must provide an estimate for sigU when the errors are estimated.")
 	# }
 
 	# Convert errortype to phiU ------------------------------------------------
 
 	if (!(errors == 'est')) {
-		if(missing(phiU)) {
-			if(errortype == 'Lap' & errors == "hom") {
-				phiU <- function(tt) {
-					1 / (1 + sigU^2 * tt^2 / 2)
-				}
-			}
-
-			if(errortype == 'norm' & errors == "hom") {
-				phiU <- function(tt) {
-					exp(-sigU^2 * tt^2 / 2)
-				}
-			}
-
-			if(errortype == 'Lap' & errors == "het") {
-				phiU <- c()
-				for (sigUk in sigU){
-					phiUk <- function(tt) {
-						1 / (1 + sigUk^2 * tt^2 / 2)
-					}
-					phiU <- c(phiU, phiUk)
-				}
-			}
-
-			if(errortype == 'norm' & errors == "het") {
-				phiU <- c()
-				for (sigUk in sigU){
-					phiUk <- function(tt) {
-						exp(-sigUk^2 * tt^2 / 2)
-					}
-					phiU <- c(phiU, phiUk)
-				}
-			}
+		if(is.null(phiU)) {
+			phiU <- create_phiU(errors, errortype, sigU)
 		}
+	}
+
+	# Calculate varX if in het case --------------------------------------------
+	if (errors == "het"){
+		n <- length(W)
+		varX <- mean(W^2) - (mean(W))^2 - sum(sigU^2) / n
 	}
 
 	# Perform appropriate bandwidth calculation --------------------------------
@@ -218,7 +192,7 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 		output <- PI_deconvUknownth4(n, W, sigU, phiU, phiK, muK2, RK, deltat, tt)
 	}
 
-	if (algorithm == "PI" & errors == "est") {
+	if (algorithm == "PI" & errors == "sym") {
 		d <- DeconErrSymPmf(W, 10)
 		theta <- d$support
 		p <- d$probweights

@@ -73,13 +73,13 @@ NWDecUknown <- function(n, xx, W, Y, sigU, phiU, h, rho) {
 	dt <- .0002
 	t <- seq(-1, 1, dt)
 	longt <- length(t)
-	dim(t) <- c(length(t), 1)
+	# dim(t) <- c(length(t), 1)
 
 
 
 	# Compute the empirical characteristic function of W (times n) at t/h: 
 	# \hat\phi_W(t/h)
-	OO <- t(outerop(t/h, t(W), "*"))
+	OO <- t(outer(t/h, t(W)))
 	csO <- cos(OO)
 	snO <- sin(OO)
 	rm(OO)
@@ -102,7 +102,7 @@ NWDecUknown <- function(n, xx, W, Y, sigU, phiU, h, rho) {
 	# (2*pi*h)^(-1) \int e^{-itx/h} \hat\phi_W(t/h) \phi_K(t)/\phi_U(t/h) dt
 
 
-	xt <- outerop(t / h, t(xx), "*")
+	xt <- outer(t / h, t(xx))
 	cxt <- cos(xt)
 	sxt <- sin(xt)
 	rm(xt)

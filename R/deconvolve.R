@@ -7,10 +7,9 @@
 #' The function \code{deconvolve} chooses from one of three different methods 
 #' depending on how the error distribution is defined.
 #' 
-#' \strong{Symmetric Error:} If neither \code{errortype} and \code{sigU}, or 
-#' \code{phiU} are supplied then the error is assumed symmetric and the 
-#' deconvolution method is based on the method described in Delaigle and Hall 
-#' 2016.
+#' \strong{Symmetric Error:} If neither \code{errortype} or \code{phiU} are 
+#' supplied then the error is assumed symmetric and the deconvolution method is 
+#' based on the method described in Delaigle and Hall 2016.
 #' 
 #' \strong{Homoscedastic Error:} If the errors are defined by either a single 
 #' function \code{phiU}, or a single value \code{sigU} along with its 
@@ -34,15 +33,14 @@
 #' you must also provide \code{sigU} but should not provide \code{phiU}.
 #' @param sigU The standard deviations of \eqn{U}. A single value for
 #' homoscedastic errors and a vector having the same length as \code{W} for 
-#' heteroscedastic errors.
+#' heteroscedastic errors. This does not need to be provided if you define your
+#' error using phiU and provide \code{bw}.
 #' @param phiU A function giving the characteristic function of \eqn{U}. A 
 #' single value for homoscedastic errors and a vector having the same length as 
 #' \code{W} for heteroscedastic errors. If you define the errors this way then 
-#' you should not provide \code{errortype} or \code{sigU}.
+#' you should not provide \code{errortype}.
 #' @param bw The bandwidth to use. If \code{NULL}, a bandwidth will be
 #' calculated using an appropriate plug-in estimator.
-#' @param varX An estimate of the variance of \eqn{X}. Only required when 
-#' \code{bw = NULL} and the errors are heteroscedastic.
 #' @param rescale If \code{TRUE}, estimator is rescaled so that it 
 #' integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
 #' \eqn{x} values that covers the whole range of \eqn{x}-values where the 
@@ -115,21 +113,38 @@
 #' @export
 
 deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, 
-					   bw = NULL, varX = NULL, rescale = FALSE, pmf = FALSE, 
-					   phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
-					   tt = seq(-1, 1, 2e-04), m = 20){
+					   bw = NULL, rescale = FALSE, pmf = FALSE, phiK = NULL, 
+					   muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04), 
+					   m = 20){
 
 	if(is.null(phiK)){
 		phiK <- phiK2
 	}
 
-	# Decide on type of deconvolution ------------------------------------------
+	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
-		decon_type <- "symmetric"
-	} else if (length(sigU) > 1  | length(phiU) > 1){
-		decon_type <- "heteroscedastic"
+		errors <- "sym"
+	} else if ((length(sigU) > 1) | length(phiU) > 1){
+		errors <- "het"
 	} else {
-		decon_type <- "known"
+		errors <- "hom"
+	}
+
+	# Check inputs -------------------------------------------------------------
+	if (errors == "het") {
+		if (is.null(phiU)) {
+			if ((length(sigU) == length(W)) == FALSE) {
+				stop("sigU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
+			}
+		} else {
+			if ((length(phiU) == length(W)) == FALSE) {
+				stop("phiU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
+			}
+		}
+	}
+
+	if (!is.null(errortype) & is.null(sigU)) {
+		stop("You must provide sigU along with errortype.")
 	}
 
 	if (is.null(errortype) == FALSE) {
@@ -138,72 +153,39 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 		}
 	}
 
-	# Calculate Bandwidth if not supplied --------------------------------------
-	if (is.null(bw) & (decon_type == "symmetric") == FALSE) {
-		if (is.null(phiU)) {
-			bw <- bandwidth(W, errortype, sigU, varX = varX, phiK = phiK, 
-							muK2 = muK2, RK = RK, tt = tt)
-		} else {			
-			bw <- bandwidth(W, phiU = phiU, varX = varX, phiK = phiK, 
-							muK2 = muK2, RK = RK, tt = tt)
-		}
+	if (!is.null(phiU) & is.null(bw) & is.null(sigU)){
+		stop("You must provide sigU along with phiU if you do not provide bw.")
 	}
 
-	# Check inputs -------------------------------------------------------------
-	if (pmf & !(decon_type == "symmetric")){
+	if (pmf & !(errors == "sym")){
 		stop("Option pmf cannot be used when the error is provided.")
 	}
 
+	# Calculate Bandwidth if not supplied --------------------------------------
+	if (is.null(bw) & !(errors == "sym")) {
+			bw <- bandwidth(W, errortype, sigU, phiU, phiK = phiK, muK2 = muK2, 
+							RK = RK, tt = tt)
+	}
+
 	# Convert errortype to phiU ------------------------------------------------
-
-	if (!(decon_type == "symmetric")){
+	if (!(errors == "sym")){
 		if(is.null(phiU)) {
-			if(errortype == 'Lap' & decon_type == "known") {
-				phiU <- function(tt) {
-					1 / (1 + sigU^2 * tt^2 / 2)
-				}
-			}
-
-			if(errortype == 'norm' & decon_type == "known") {
-				phiU <- function(tt) {
-					exp(-sigU^2 * tt^2 / 2)
-				}
-			}
-
-			if(errortype == 'Lap' & decon_type == "heteroscedastic") {
-				phiU <- c()
-				for (sigUk in sigU){
-					phiUk <- function(tt) {
-						1 / (1 + sigUk^2 * tt^2 / 2)
-					}
-					phiU <- c(phiU, phiUk)
-				}
-			}
-
-			if(errortype == 'norm' & decon_type == "heteroscedastic") {
-				phiU <- c()
-				for (sigUk in sigU){
-					phiUk <- function(tt) {
-						exp(-sigUk^2 * tt^2 / 2)
-					}
-					phiU <- c(phiU, phiUk)
-				}
-			}
+			phiU <- create_phiU(errors, errortype, sigU)
 		}
 	}
 
 	# Perform appropriate deconvolution ----------------------------------------
-	if (decon_type == "known"){
+	if (errors == "hom"){
 		pdf <- DeconErrKnownPdf(xx, W, bw, phiU, rescale, phiK, muK2, RK, tt)
 		output <- list("x" = xx, "pdf" = pdf, "W" = W)
 	}
 
-	if (decon_type == "heteroscedastic"){
+	if (errors == "het"){
 		pdf <- DeconErrKnownHetPdf(xx, W, bw, phiU, rescale, phiK, muK2, RK, tt)
 		output <- list("x" = xx, "pdf" = pdf, "W" = W)
 	}
 
-	if (decon_type == "symmetric") {
+	if (errors == "sym") {
 		out <- DeconErrSymPmf(W, m)
 		if (!pmf) {
 			phi.W <- out$phi.W
