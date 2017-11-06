@@ -1,17 +1,17 @@
-#' @export
-# Author: Aurore Delaigle
-# Compute the measurement error version of the Nadaraya-Watson regression
-# estimator
-# Goal: estimate m where Y=m(X)+epsilon,  and we observe data on (W, Y),  where
-# W=X+U.
-# See Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With
-# Errors in Variables,  The Annals of Statistics,  21,  19001925
+#' Compute the measurement error version of the Nadaraya-Watson regression
+#' estimator
+#'
+#' Goal: estimate m where Y=m(X)+epsilon,  and we observe data on (W, Y),  where
+#' W=X+U.
+#' See Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With
+#' Errors in Variables,  The Annals of Statistics,  21,  1900-1925
 
 #' @param xx vector of x-values where to compute the regression estimator
 #' @param W vector of contaminated data W_1, ..., W_n
 #' @param Y vector of data Y_1, ..., Y_n
 #' @param h bandwidth
-#' @param rho ridge parameter. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice in errors-in-variables problems.  JASA,  103,  280-287.
+#' @param rho ridge parameter. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice
+#' in errors-in-variables problems.  JASA,  103,  280-287.
 #' @param errortype 'Lap' for Laplace errors and 'norm' for normal errors.
 #' @param sigU parameter of Laplace or normal errors used only to define characteristic function of the error.
 #'
@@ -38,8 +38,10 @@
 #' problems.  \emph{JASA},  103,  280-287.
 #'
 #' @example man/examples/reg_deconvolve_eg.R
+#'
+#' @export
 
-reg_deconvolve <- function(xx, W, Y, sigU, h, rho) {
+reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL) {
 
     # --------------------------------------------------------
     # Preliminary calculations and initialisation of functions
