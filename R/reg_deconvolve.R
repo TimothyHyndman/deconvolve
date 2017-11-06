@@ -7,19 +7,28 @@
 # See Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With
 # Errors in Variables,  The Annals of Statistics,  21,  19001925
 
-# xx: vector of x-values where to compute the regression estimator
-# W: vector of contaminated data W_1, ..., W_n
-# Y: vector of data Y_1, ..., Y_n
-# h: bandwidth
-#
-#
-# errortype: 'Lap' for Laplace errors and 'norm' for normal errors. For other
-# error distributions,  simply redefine phiU below
-# sigU: parameter of Laplace or normal errors used only to define phiU.
-#
-# rho: ridge parameter. See
-# Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice
-# in errors-in-variables problems.  JASA,  103,  280-287
+#' @param xx vector of x-values where to compute the regression estimator
+#' @param W vector of contaminated data W_1, ..., W_n
+#' @param Y vector of data Y_1, ..., Y_n
+#' @param h bandwidth
+#' @param rho ridge parameter. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice in errors-in-variables problems.  JASA,  103,  280-287.
+#' @param errortype 'Lap' for Laplace errors and 'norm' for normal errors. For other error distributions,  simply redefine phiU below
+#' @param sigU parameter of Laplace or normal errors used only to define phiU.
+#'
+#' @return Regression estimator.
+#'
+#' @section Warnings:
+#' h and rho need to be consistent. They need to be both specified or unspecified.
+#'
+#' @section References:
+#' Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors in Variables,  \emph{The
+#' Annals of Statistics}.  21,  1900-1925.
+#'
+#' Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice in errors-in-variables
+#' problems.  \emph{JASA},  103,  280-287.
+#'
+#' @example man/examples/reg_deconvolve_eg.R
+
 
 
 
@@ -81,9 +90,14 @@ reg_deconvolve <- function(xx, W, Y, sigU, h, rho) {
 
     # if h is not specified, calculate h using hSIMEXknown
     if (is.null(h)){
-        h = bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX")
+        if (is.null(rho)){
+        outcome_tmp = bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX")
+        h = outcome_tmp[[1]]
+        rho = outcome_tmp[[2]]
+        }else{
+            stop("rho and h need to be consistent!")
+        }
     }
-
     # Compute the empirical characteristic function of W (times n) at t/h:
     # \hat\phi_W(t/h)
     OO <- t(outer(t/h, t(W)))
