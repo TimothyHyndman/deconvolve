@@ -18,7 +18,17 @@
 #' @return Regression estimator.
 #'
 #' @section Warnings:
-#' h and rho need to be consistent. They need to be both specified or unspecified.
+#' \itemize{
+#' \item h and rho need to be consistent. They need to be both specified or unspecified.
+#' \item The range of t-values -1 and 1 correspond to the support of phiK.
+#' \item If the grid of t-values is fine enough,  the estimator can simply be
+#' computed like here without having problems with oscillations.
+#' \item The phiK here is also used to compute the bandwidth.
+#' \item The estimator can also be computed using the Fast Fourier Transform,  which
+#' is faster,  but more complex.
+#' \item See Delaigle,  A. and Gijbels,  I. (2007). Frequent problems in calculating
+#' integrals and optimizing objective functions: a case study in density
+#' deconvolution.   Statistics and Computing,   17,   349 - 355.}
 #'
 #' @section References:
 #' Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors in Variables,  \emph{The
@@ -36,7 +46,7 @@
 # 								WARNINGS:
 #  -----------------------------------------------------------------------------
 #
-# The range of t-values -1 and 1 correspond to the support of phiK.
+#
 # If you change phiK and take a kernel for which phiK is not supported on
 # [-1, 1] you have to change -1 and 1 accordingly.
 #
