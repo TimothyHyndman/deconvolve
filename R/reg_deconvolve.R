@@ -39,30 +39,6 @@
 #'
 #' @example man/examples/reg_deconvolve_eg.R
 
-
-
-
-#  -----------------------------------------------------------------------------
-# 								WARNINGS:
-#  -----------------------------------------------------------------------------
-#
-#
-# If you change phiK and take a kernel for which phiK is not supported on
-# [-1, 1] you have to change -1 and 1 accordingly.
-#
-# The phiK here must match the phiK used to compute the bandwidth (SIMEX or
-# other).
-#
-# The estimator can also be computed using the Fast Fourier Transform,  which
-# is faster,  but more complex.
-# See Delaigle,  A. and Gijbels,  I. (2007). Frequent problems in calculating
-# integrals and optimizing objective functions: a case study in density
-# deconvolution.   Statistics and Computing,   17,   349 - 355
-# However if the grid of t-values is fine enough,  the estimator can simply be
-# computed like here without having problems with oscillations.
-#
-#  -----------------------------------------------------------------------------
-
 reg_deconvolve <- function(xx, W, Y, sigU, h, rho) {
 
     # --------------------------------------------------------
