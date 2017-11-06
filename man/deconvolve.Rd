@@ -5,8 +5,7 @@
 \title{Deconvolution Kernel Density Estimator}
 \usage{
 deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, bw = NULL,
-  rescale = FALSE, pmf = FALSE, phiK = NULL, muK2 = 6,
-  RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04), m = 20)
+  rescale = FALSE, pmf = FALSE, kernel_type = "default", m = 20)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -40,20 +39,8 @@ estimated density is significantly non zero.}
 density as the estimator. This is quicker than estimating a density. To use
 this option, the errors must not be provided.}
 
-\item{phiK}{A function giving the fourier transform of the kernel. 
-If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
-not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.}
-
-\item{muK2}{The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.}
-
-\item{RK}{The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.}
-
-\item{tt}{A vector of evenly spaced t values on which to approximate the 
-integrals in the Fourier domain. If phiK is compactly supported, the first 
-and last elements of \code{tt} must be the lower and upper bound of the 
-support of phiK. If phiK is not compactly supported, the first and last 
-elements of \code{tt} must be large enough for your discretisation of the 
-integrals to be accurate.}
+\item{kernel_type}{The deconvolution kernel to use. The default kernel has
+characteristic function \eqn{(1-t^2)^3}.}
 
 \item{m}{The number of point masses to use to estimate the distribution of 
 \eqn{X} when the error is not supplied.}
