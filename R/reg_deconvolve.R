@@ -12,8 +12,8 @@
 #' @param Y vector of data Y_1, ..., Y_n
 #' @param h bandwidth
 #' @param rho ridge parameter. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice in errors-in-variables problems.  JASA,  103,  280-287.
-#' @param errortype 'Lap' for Laplace errors and 'norm' for normal errors. For other error distributions,  simply redefine phiU below
-#' @param sigU parameter of Laplace or normal errors used only to define phiU.
+#' @param errortype 'Lap' for Laplace errors and 'norm' for normal errors.
+#' @param sigU parameter of Laplace or normal errors used only to define characteristic function of the error.
 #'
 #' @return Regression estimator.
 #'
@@ -131,6 +131,6 @@ reg_deconvolve <- function(xx, W, Y, sigU, h, rho) {
     # Finally obtain the regression estimator
     y <- Num / dd
 
-    as.vector(y)
+    return(as.vector(y))
 }
 
