@@ -1,5 +1,6 @@
 CVdeconv<-function(n, W, errortype, sigU, phiU, phiK = phiK2, muK2 = 6, 
-				   RK = 1024 / 3003 / pi, deltat = .0002, tt = seq(-1,1,deltat))
+				   RK = 1024 / 3003 / pi, deltat = .0002, 
+				   tt = seq(-1,1,deltat)){
 
 # Authors: Aurore Delaigle
 # This function computes the cross-validation (CV) bandwidth for kernel 
@@ -53,33 +54,6 @@ CVdeconv<-function(n, W, errortype, sigU, phiU, phiK = phiK2, muK2 = 6,
 #Often if you plot CV you will see that the first few solutions seem unreasonable (CV fluctuates widely). You can take the first minimum that looks reasonable.
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-{
-
-#Check optional arguments
-
-if(missing(errortype)&(missing(sigU))&missing(phiU))
-	stop("You must define the error distribution")
-
-
-if(missing(errortype)==F)
-{
-	if(errortype=='Lap')
-		{
-		if(missing(sigU))
-			stop("You must provide the standard deviation of the errors")
-
-		phiU=function(tt) {return(1/(1+sigU^2*tt^2/2))}
-		}
-
-	if(errortype=='norm')
-		{
-		if(missing(sigU))
-			stop("You must provide the standard deviation of the errors")
-		phiU=function(tt) {exp(-sigU^2*tt^2/2)}
-		}
-}
-
-
 
 # --------------------------------------------------------
 # Preliminary calculations and initialisation of functions
@@ -117,7 +91,7 @@ phiKt=phiK(tt);
 
 longh=length(hgrid);
 CVcrit=rep(0,longh);
-OO=outerop(tt,t(W),"*");
+OO = outer(tt, t(W))
 
 
 #Compute CV criterion for all values of h on the grid of h values

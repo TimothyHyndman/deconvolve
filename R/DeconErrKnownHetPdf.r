@@ -1,39 +1,3 @@
-# #' Deconvolution when the errors are heteroscedastic with known distributions
-# #' 
-# #' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-# #' data \eqn{W_j = X + U_j} when the distribution and standard deviations of the 
-# #' \eqn{U_j} are known.
-# #' 
-# #' PUT DETAILS HERE
-# #' 
-# #' @inheritParams deconvolve
-# #' @inheritParams DeconErrKnownPdf
-# #' @param errortype The distribution type of the \eqn{U_j}. Either "Lap" for 
-# #' Laplace errors or "norm" for normal errors. If you use this way of defining 
-# #' the errors then you must also provide \code{sigUj} but should not provide
-# #' \code{phiUkvec}.
-# #' @param sigUj	A vector of length n which contains the standard deviations of 
-# #' the errors.
-# #' @param phiUkvec A vector of n functions that give the characteristic 
-# #' functions of the errors. Produce this vector by c(func1,func2,...,funcn) 
-# #' where each funcj is a function of tt. If you define the errors this way then 
-# #' you should not provide \code{errortype} or \code{sigUj}.
-# #' 
-# #' @inheritSection deconvolve Warnings
-# #' 
-# #' @inherit deconvolve return
-# #' 
-# #' @section References:
-# #' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
-# #' error. \emph{Bernoulli}, 14, 2, 562-579.
-# #' 
-# #' @section Author:
-# #' Aurore Delaigle
-# #' 
-# #' @example man/examples/KnownHetError_eg.R
-# #' 
-# #' @export
-
 DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec, 
 	rescale = FALSE, phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
 	tt = seq(-1, 1, 2e-04)){
@@ -55,14 +19,11 @@ DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec,
 	n <- length(W)
 	deltat <- tt[2] - tt[1]
 
-	# Make sure t is a vector in the right format
-	dim(tt) <- c(length(tt), 1)
-
 	# Default values of phiU(t)=characteristic function of the errors
 	# If you want to consider another error type, simply replace phiU by the 
 	# characteristic function of your error type
 
-	OO <- outerop(tt / h, t(W), "*")
+	OO <- outer(tt / h, W)
 
 	# Compute phiU_k(-t/h) for each k -- since phiU_k is symmetric, this is the 
 	# same as phiU_k(t/h)
@@ -82,7 +43,7 @@ DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec,
 	imhatphiX <- apply(sin(OO) * matphiU, 1, sum) / phiUsqth
 
 	# Matrix of size length(tt) x length(xx)
-	xt <- outerop(tt / h, t(xx), "*")
+	xt <- outer(tt / h, xx)
 	longx <- length(xx)
 
 	# Compute the DKDE estimator

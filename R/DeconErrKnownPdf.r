@@ -1,33 +1,3 @@
-# #' Deconvolution when the error distribution is known
-# #' 
-# #' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-# #' data \eqn{W = X + U} when the distribution of \eqn{U} is known.
-# #' 
-# #' PUT DETAILS HERE
-# #' 
-# #' @inheritParams deconvolve
-# #' @param h The bandwidth to use.
-# #' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
-# #' errors or "norm" for normal errors. If you define the errors this way then 
-# #' you must also provide \code{sigU} but should not provide \code{phiU}.
-# #' @param sigU The standard deviation of \eqn{U}.
-# #' @param phiU A function giving the characteristic function of \eqn{U}. If you 
-# #' define the errors this way then you should not provide \code{errortype} or 
-# #' \code{sigU}.
-# #' 
-# #' @inherit deconvolve return
-# #' 
-# #' @inheritSection deconvolve Warnings
-# #' 
-# #' @section Author:
-# #' Aurore Delaigle
-# #' 
-# #' @section References:
-# #' 
-# #' @example man/examples/KnownError_eg.R
-# #' 
-# #' @export
-
 DeconErrKnownPdf<-function(xx, W, h, phiU, rescale = FALSE, 
 	phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
 
@@ -42,10 +12,7 @@ DeconErrKnownPdf<-function(xx, W, h, phiU, rescale = FALSE,
 	n <- length(W)
 	deltat <- tt[2] - tt[1]
 
-	# Make sure t is a vector in the right format
-	dim(tt) <- c(length(tt), 1);
-
-	OO <- outerop(tt/h, t(W), "*")
+	OO <- outer(tt/h, W)
 	phiUth <- phiU(tt/h)
 
 	# Estimate real and imaginary parts of empirical characteristic function of 
@@ -53,7 +20,7 @@ DeconErrKnownPdf<-function(xx, W, h, phiU, rescale = FALSE,
 	rehatphiX <- rowSums(cos(OO)) / phiUth / n
 	imhatphiX <- rowSums(sin(OO)) / phiUth / n
 
-	xt <- outerop(tt / h, t(xx), "*")
+	xt <- outer(tt / h, xx)
 	longx <- length(xx)
 
 	# Compute the DKDE estimator

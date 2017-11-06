@@ -5,8 +5,8 @@
 \title{Deconvolution Kernel Density Estimator}
 \usage{
 deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, bw = NULL,
-  varX = NULL, rescale = FALSE, pmf = FALSE, phiK = NULL, muK2 = 6,
-  RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04))
+  rescale = FALSE, pmf = FALSE, phiK = NULL, muK2 = 6,
+  RK = 1024/3003/pi, tt = seq(-1, 1, 2e-04), m = 20)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -20,18 +20,16 @@ you must also provide \code{sigU} but should not provide \code{phiU}.}
 
 \item{sigU}{The standard deviations of \eqn{U}. A single value for
 homoscedastic errors and a vector having the same length as \code{W} for 
-heteroscedastic errors.}
+heteroscedastic errors. This does not need to be provided if you define your
+error using phiU and provide \code{bw}.}
 
 \item{phiU}{A function giving the characteristic function of \eqn{U}. A 
 single value for homoscedastic errors and a vector having the same length as 
 \code{W} for heteroscedastic errors. If you define the errors this way then 
-you should not provide \code{errortype} or \code{sigU}.}
+you should not provide \code{errortype}.}
 
 \item{bw}{The bandwidth to use. If \code{NULL}, a bandwidth will be
 calculated using an appropriate plug-in estimator.}
-
-\item{varX}{An estimate of the variance of \eqn{X}. Only required when 
-\code{bw = NULL} and the errors are heteroscedastic.}
 
 \item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
 integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
@@ -56,6 +54,9 @@ and last elements of \code{tt} must be the lower and upper bound of the
 support of phiK. If phiK is not compactly supported, the first and last 
 elements of \code{tt} must be large enough for your discretisation of the 
 integrals to be accurate.}
+
+\item{m}{The number of point masses to use to estimate the distribution of 
+\eqn{X} when the error is not supplied.}
 }
 \value{
 An object of class "\code{deconvolve}".
@@ -82,10 +83,9 @@ heteroscedastic, or symmetric.
 The function \code{deconvolve} chooses from one of three different methods 
 depending on how the error distribution is defined.
 
-\strong{Symmetric Error:} If neither \code{errortype} and \code{sigU}, or 
-\code{phiU} are supplied then the error is assumed symmetric and the 
-deconvolution method is based on the method described in Delaigle and Hall 
-2016.
+\strong{Symmetric Error:} If neither \code{errortype} or \code{phiU} are 
+supplied then the error is assumed symmetric and the deconvolution method is 
+based on the method described in Delaigle and Hall 2016.
 
 \strong{Homoscedastic Error:} If the errors are defined by either a single 
 function \code{phiU}, or a single value \code{sigU} along with its 
@@ -164,10 +164,8 @@ sigX <- 1
 sigU_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 W <- GenerateTestData(n, sigX, sigU_vec, dist_type = "mix", error_type = "norm")
 xx <- seq(min(W), max(W), length.out = 100)
-# Estimate the variance of X
-varX <- mean(W^2) - (mean(W))^2 - sum(sigU_vec^2) / n
 
-yy <- deconvolve(W, xx, errortype = "norm", sigU = sigU_vec, varX = varX)
+yy <- deconvolve(W, xx, errortype = "norm", sigU = sigU_vec)
 
 # Heteroscedastic Errors provided using a vector of phiUs ----------------------
 n <- 200
@@ -175,8 +173,7 @@ sigX <- 1
 sigU <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 W <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm")
 xx <- seq(min(W), max(W), length.out = 100)
-# Estimate the variance of X
-varX <- mean(W^2) - (mean(W))^2 - sum(sigU^2) / n
+
 # Calculate the characteristic functions of the errors
 phiU_vec=c()
 phiU <- function(k) {
@@ -191,7 +188,7 @@ for(k in 1:n) {
 	phiU_vec <- c(phiU_vec, phiU(k))
 }
 
-yy <- deconvolve(W, xx, phiU = phiU_vec, varX = varX)
+yy <- deconvolve(W, xx, sigU = sigU, phiU = phiU_vec)
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

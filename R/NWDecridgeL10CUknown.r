@@ -92,7 +92,7 @@ NWDecridgeL1OCUknown <- function(n, W, Y, errortype, sigU, h, rhogrid, midbin,
 
 	rhogrid <- rhogrid * (2 * pi * h * n) / dt
 	hW <- 1.06 * sqrt(stats::var(W)) * n^(-1 / 5)
-	xout <- outerop(W, W, "-")
+	xout <- outer(W, W, "-")
 
 	fWEF <- stats::dnorm(xout, 0, hW) %*% (numeric(n) + 1/n)
 

@@ -62,7 +62,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	# Define a grid where to search for the SIMEX bandwidth. By default we take
 	# [h/2,2h], where h=PI bandwidth for density estimation.
 	# Increase the grid if too small
-	hPIfX <- PI_deconvUknownth4(n, W, phiU = phiU, phiK = phiK, muK2 = muK2,
+	hPIfX <- PI_deconvUknownth4(n, W, sigU, phiU = phiU, phiK = phiK, muK2 = muK2,
 								RK = RK, deltat = deltat, tt = tt)
 	a <- hPIfX / 2
 	b <- 2 * hPIfX
@@ -81,7 +81,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	W <- as.vector(W)
 	hW <- 1.06 * sqrt(stats::var(W)) * n^(-1 / 5)
 	ab <- stats::quantile(W, probs = c(0.05, 0.95))
-	xout <- outerop(ab, W, "-")
+	xout <- outer(ab, W, "-")
 	fWEF <- c(0, 0)
 	fWEF[1] <- mean(stats::dnorm(xout[1, ], 0, hW))
 	fWEF[2] <- mean(stats::dnorm(xout[2, ], 0, hW))
