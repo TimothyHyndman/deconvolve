@@ -48,17 +48,19 @@
 #' @param pmf If \code{TRUE}, returns a probability mass function instead of a 
 #' density as the estimator. This is quicker than estimating a density. To use
 #' this option, the errors must not be provided.
-#' @param phiK A function giving the fourier transform of the kernel. 
-#' If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
-#' not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.
-#' @param muK2 The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.
-#' @param RK The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.
-#' @param tt A vector of evenly spaced t values on which to approximate the 
-#' integrals in the Fourier domain. If phiK is compactly supported, the first 
-#' and last elements of \code{tt} must be the lower and upper bound of the 
-#' support of phiK. If phiK is not compactly supported, the first and last 
-#' elements of \code{tt} must be large enough for your discretisation of the 
-#' integrals to be accurate.
+# ' @param phiK A function giving the fourier transform of the kernel. 
+# ' If supplied, \code{muK2}, \code{RK}, and \code{tt} must also be supplied. If 
+# ' not supplied it defaults to \eqn{(1 - t^2)^3} on the interval \eqn{[-1,1]}.
+# ' @param muK2 The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.
+# ' @param RK The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.
+# ' @param tt A vector of evenly spaced t values on which to approximate the 
+# ' integrals in the Fourier domain. If phiK is compactly supported, the first 
+# ' and last elements of \code{tt} must be the lower and upper bound of the 
+# ' support of phiK. If phiK is not compactly supported, the first and last 
+# ' elements of \code{tt} must be large enough for your discretisation of the 
+# ' integrals to be accurate.
+#' @param kernel_type The deconvolution kernel to use. The default kernel has
+#' characteristic function \eqn{(1-t^2)^3}.
 #' @param m The number of point masses to use to estimate the distribution of 
 #' \eqn{X} when the error is not supplied.
 #' 
@@ -113,13 +115,15 @@
 #' @export
 
 deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, 
-					   bw = NULL, rescale = FALSE, pmf = FALSE, phiK = NULL, 
-					   muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04), 
-					   m = 20){
+					   bw = NULL, rescale = FALSE, pmf = FALSE, 
+					   kernel_type = "default", m = 20){
 
-	if(is.null(phiK)){
-		phiK <- phiK2
-	}
+	kernel_list <- kernel(kernel_type)
+	phiK <- kernel_list$phik
+	muK2 <- kernel_list$muk2
+	RK <- kernel_list$rk
+	tt <- kernel_list$tt
+	deltat <- tt[2] - tt[1]
 
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
@@ -163,8 +167,7 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 
 	# Calculate Bandwidth if not supplied --------------------------------------
 	if (is.null(bw) & !(errors == "sym")) {
-			bw <- bandwidth(W, errortype, sigU, phiU, phiK = phiK, muK2 = muK2, 
-							RK = RK, tt = tt)
+			bw <- bandwidth(W, errortype, sigU, phiU, kernel_type = kernel_type)
 	}
 
 	# Convert errortype to phiU ------------------------------------------------

@@ -1,4 +1,4 @@
-#' Bandwidth Selectors for Deconvolution Kernel Density Estimation
+	#' Bandwidth Selectors for Deconvolution Kernel Density Estimation
 #' 
 #' Computes a bandwidth for use in deconvolution kernel density estimation of 
 #' \eqn{X} from data \eqn{W = X + U}. If 'SIMEX' algorithm used, computes a 
@@ -83,16 +83,8 @@
 #' @export
 
 bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL, 
-					  algorithm = "PI", n_cores = NULL, phiK = NULL, muK2 = 6, 
-					  RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
+					  algorithm = "PI", n_cores = NULL, kernel_type = "default"){
 	
-	n <- length(W)
-	deltat <- tt[2] - tt[1]
-
-	if(is.null(phiK)){
-		phiK <- phiK2
-	}
-
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
 		errors <- "sym"
@@ -162,6 +154,16 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 	# 	stop("You must provide an estimate for sigU when the errors are estimated.")
 	# }
 
+	# --------------------------------------------------------------------------
+	n <- length(W)
+
+	kernel_list <- kernel(kernel_type)
+	phiK <- kernel_list$phik
+	muK2 <- kernel_list$muk2
+	RK <- kernel_list$rk
+	tt <- kernel_list$tt
+	deltat <- tt[2] - tt[1]
+
 	# Convert errortype to phiU ------------------------------------------------
 
 	if (!(errors == 'est')) {
@@ -173,7 +175,7 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 	# Calculate varX if in het case --------------------------------------------
 	if (errors == "het"){
 		n <- length(W)
-		varX <- mean(W^2) - (mean(W))^2 - sum(sigU^2) / n
+		varX <- max(mean(W^2) - (mean(W))^2 - sum(sigU^2) / n, 1/n)	#max 1/n avoid negative varianace
 	}
 
 	# Perform appropriate bandwidth calculation --------------------------------
