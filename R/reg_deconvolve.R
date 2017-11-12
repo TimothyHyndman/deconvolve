@@ -9,14 +9,12 @@
 #' @param xx vector of x-values where to compute the regression estimator
 #' @param W vector of contaminated data W_1, ..., W_n
 #' @param Y vector of data Y_1, ..., Y_n
-#' @param h bandwidth
-#' @param rho ridge parameter. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice
 #' in errors-in-variables problems.  JASA,  103,  280-287.
 #' @param errortype 'Lap' for Laplace errors and 'norm' for normal errors.
 #' @param sigU parameter of Laplace or normal errors used only to define characteristic function of the error.
 #' @param n_cores cores used to do parallel computation to calculate bandwidth.
 #'
-#' @return Regression estimator.
+#' @return Regression estimator, bandwidth and ridge parameter rho. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice
 #'
 #' @section Warnings:
 #' \itemize{
@@ -42,7 +40,7 @@
 #'
 #' @export
 
-reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_cores = 2) {
+reg_deconvolve <- function(xx, W, Y, errortype, sigU, n_cores = NULL) {
 
     # --------------------------------------------------------
     # Preliminary calculations and initialisation of functions
@@ -77,16 +75,9 @@ reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_co
     longt <- length(tt)
     dim(tt) <- c(length(tt), 1)
 
-    # if h is not specified, calculate h using hSIMEXknown
-    if (is.null(h)){
-        if (is.null(rho)){
-        outcome_tmp = deconvolve::bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX", n_cores = n_cores)
+    outcome_tmp = deconvolve::bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX", n_cores = n_cores)
         h = outcome_tmp$h
         rho = outcome_tmp$rho
-        }else{
-            stop("rho and h need to be consistent!")
-        }
-    }
     # Compute the empirical characteristic function of W (times n) at t/h:
     # \hat\phi_W(t/h)
     OO <- t(outerop(tt/h, t(W),"*"))
@@ -134,7 +125,7 @@ reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_co
     # Finally obtain the regression estimator
     y <- Num / dd
 
-    return(as.vector(y))
+    return(list(y=as.vector(y), bw=h, rho = rho))
 }
 
 

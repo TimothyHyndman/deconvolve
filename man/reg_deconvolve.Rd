@@ -5,29 +5,24 @@
 \title{Compute the measurement error version of the Nadaraya-Watson regression
 estimator}
 \usage{
-reg_deconvolve(xx, W, Y, errortype, sigU, h = NULL, rho = NULL,
-  n_cores = 2)
+reg_deconvolve(xx, W, Y, errortype, sigU, n_cores = NULL)
 }
 \arguments{
 \item{xx}{vector of x-values where to compute the regression estimator}
 
 \item{W}{vector of contaminated data W_1, ..., W_n}
 
-\item{Y}{vector of data Y_1, ..., Y_n}
+\item{Y}{vector of data Y_1, ..., Y_n
+in errors-in-variables problems.  JASA,  103,  280-287.}
 
 \item{errortype}{'Lap' for Laplace errors and 'norm' for normal errors.}
 
 \item{sigU}{parameter of Laplace or normal errors used only to define characteristic function of the error.}
 
-\item{h}{bandwidth}
-
-\item{rho}{ridge parameter. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice
-in errors-in-variables problems.  JASA,  103,  280-287.}
-
 \item{n_cores}{cores used to do parallel computation to calculate bandwidth.}
 }
 \value{
-Regression estimator.
+Regression estimator, bandwidth and ridge parameter rho. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice
 }
 \description{
 Goal: estimate m where Y=m(X)+epsilon,  and we observe data on (W, Y),  where
@@ -60,12 +55,10 @@ problems.  \emph{JASA},  103,  280-287.
 }
 
 \examples{
-\dontrun{
-	n <- 200
+    n <- 200
 	sigX <- 1
 	sigU <- 0.2
 	data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", create_Y = TRUE)
 	xx <- seq(-2, 8, 0.1)
-	output <- deconvolve::reg_deconvolve(xx = xx, W = data$W, Y = data$Y, errortype = "norm", sigU = 0.2)
-}
+	output <- deconvolve::reg_deconvolve(xx = xx, W = data$W, Y = data$Y, errortype = "norm", sigU = 0.2, n_cores=2)
 }
