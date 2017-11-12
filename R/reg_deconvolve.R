@@ -80,7 +80,7 @@ reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_co
     # if h is not specified, calculate h using hSIMEXknown
     if (is.null(h)){
         if (is.null(rho)){
-        outcome_tmp = bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX", n_cores = n_cores)
+        outcome_tmp = deconvolve::bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX", n_cores = n_cores)
         h = outcome_tmp$h
         rho = outcome_tmp$rho
         }else{
@@ -112,7 +112,7 @@ reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_co
     # (2*pi*h)^(-1) \int e^{-itx/h} \hat\phi_W(t/h) \phi_K(t)/\phi_U(t/h) dt
 
 
-    xt <- outer(tt / h, t(xx),"*")
+    xt <- outerop(tt / h, t(xx),"*")
     cxt <- cos(xt)
     sxt <- sin(xt)
     rm(xt)
