@@ -73,23 +73,23 @@ reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_co
 
     # Range of t-values (must correspond to the domain of phiK)
     dt <- .0002
-    t <- seq(-1, 1, dt)
-    longt <- length(t)
-    dim(t) <- c(length(t), 1)
+    tt <- seq(-1, 1, dt)
+    longt <- length(tt)
+    dim(tt) <- c(length(tt), 1)
 
     # if h is not specified, calculate h using hSIMEXknown
     if (is.null(h)){
         if (is.null(rho)){
         outcome_tmp = bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX", n_cores = n_cores)
-        h = outcome_tmp[[1]]
-        rho = outcome_tmp[[2]]
+        h = outcome_tmp$h
+        rho = outcome_tmp$rho
         }else{
             stop("rho and h need to be consistent!")
         }
     }
     # Compute the empirical characteristic function of W (times n) at t/h:
     # \hat\phi_W(t/h)
-    OO <- t(outer(t/h, t(W)))
+    OO <- t(outerop(tt/h, t(W),"*"))
     csO <- cos(OO)
     snO <- sin(OO)
     rm(OO)
@@ -112,13 +112,13 @@ reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_co
     # (2*pi*h)^(-1) \int e^{-itx/h} \hat\phi_W(t/h) \phi_K(t)/\phi_U(t/h) dt
 
 
-    xt <- outer(t / h, t(xx))
+    xt <- outer(tt / h, t(xx),"*")
     cxt <- cos(xt)
     sxt <- sin(xt)
     rm(xt)
 
-    phiUth <- phiU(t / h)
-    matphiKU <- phiK(t) / phiUth
+    phiUth <- phiU(tt / h)
+    matphiKU <- phiK(tt) / phiUth
     dim(matphiKU) <- c(1, longt)
 
     Den <- (rehatphiW * matphiKU) %*% cxt + (imhatphiW * matphiKU) %*% sxt
@@ -137,3 +137,39 @@ reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_co
     return(as.vector(y))
 }
 
+
+
+#OUTEROP calculate an outer operation on two vectors
+#   function y=outerop(A,B,OPERATOR)
+#
+#   Calculates resultant matrix when the OPERATOR is applied
+#   to all combinations of the elements of vector A and the
+#   elements of vector B e.g. the outer product of A and B
+#   is outerop(A,B,'*'), the outer sum of A and B
+#   is outerop(A,B,'+')
+#
+#   If OPERATOR is omitted '+' is assumed
+#
+#   This function is equivalent to the
+#   APL language's circle.dot operation. e.g.
+#   in APL Ao.*B is the outer product
+#   of A and B % and Ao.+B is the outer sum.
+#   Ideally it would work on matrices but in practice
+#   I've only ever needed to use it with vectors.
+#
+#   Copyright Murphy O'Brien 2005
+#   all rights unreserved
+#
+outerop<-function(a,b,operator)
+{
+    if (missing(operator))
+    {operator="+"}                      # for only two arguments assume outerproduct
+
+    if (operator=="*")                      # common operator
+    {y=a%*%b} else
+    {outera=as.matrix(a)%*%rep(1,length(b))          # these are the matrices that
+    outerb=as.matrix(rep(1,length(a)))%*%b # meshgrid(A,B) would generate
+    functionHandle=match.fun(operator)    # new R14 functionality
+    y=functionHandle(outera,outerb)  }    # allows faster/neater method
+    return (y)
+}
