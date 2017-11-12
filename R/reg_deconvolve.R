@@ -14,6 +14,7 @@
 #' in errors-in-variables problems.  JASA,  103,  280-287.
 #' @param errortype 'Lap' for Laplace errors and 'norm' for normal errors.
 #' @param sigU parameter of Laplace or normal errors used only to define characteristic function of the error.
+#' @param n_cores cores used to do parallel computation to calculate bandwidth.
 #'
 #' @return Regression estimator.
 #'
@@ -41,7 +42,7 @@
 #'
 #' @export
 
-reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL) {
+reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL, n_cores = 2) {
 
     # --------------------------------------------------------
     # Preliminary calculations and initialisation of functions
@@ -79,7 +80,7 @@ reg_deconvolve <- function(xx, W, Y, errortype, sigU, h = NULL, rho = NULL) {
     # if h is not specified, calculate h using hSIMEXknown
     if (is.null(h)){
         if (is.null(rho)){
-        outcome_tmp = bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX")
+        outcome_tmp = bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX", n_cores = n_cores)
         h = outcome_tmp[[1]]
         rho = outcome_tmp[[2]]
         }else{
