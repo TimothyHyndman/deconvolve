@@ -11,12 +11,12 @@
 #'
 #' \strong{PI for Homoscedastic Error:} If \code{algorithm = "PI"} and the errors
 #' are defined by either a single function \code{phiU}, or a single value
-#' \code{sigU} along with its \code{errortype}, then the method used is as
+#' \code{sd_U} along with its \code{errortype}, then the method used is as
 #' described in Delaigle and Gijbels 2002, and Delaigle and Gijbels 2004.
 #'
 #' \strong{PI for Heteroscedastic Error:} If \code{algorithm = "PI"} and the
 #' errors are defined by a either a vector of functions \code{phiU}, or a vector
-#' \code{sigU} along with its \code{errortype} then the method used is as
+#' \code{sd_U} along with its \code{errortype} then the method used is as
 #' described in Delaigle and Meister 2008.
 #'
 #' \strong{PI for Unknown Error:} If \code{algorithm = "PI"} and the errors are
@@ -38,7 +38,7 @@
 #' algorithm.
 #' @param n_cores Number of cores to use when using SIMEX algorithm. If
 #' \code{NULL}, the number of cores to use will be automatically detected.
-#' @param sigU The standard deviations of \eqn{U}. A single value for
+#' @param sd_U The standard deviations of \eqn{U}. A single value for
 #' homoscedastic errors and a vector having the same length as \code{W} for
 #' heteroscedastic errors.
 #'
@@ -75,13 +75,13 @@
 #'
 #' @export
 
-bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
+bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 					  algorithm = "PI", n_cores = NULL, kernel_type = "default"){
 
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
 		errors <- "sym"
-	} else if (length(sigU) > 1  | length(phiU) > 1){
+	} else if (length(sd_U) > 1  | length(phiU) > 1){
 		errors <- "het"
 	} else {
 		errors <- "hom"
@@ -90,8 +90,8 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 	# Check inputs -------------------------------------------------------------
 	if (errors == "het") {
 		if (is.null(phiU)) {
-			if ((length(sigU) == length(W)) == FALSE) {
-				stop("sigU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
+			if ((length(sd_U) == length(W)) == FALSE) {
+				stop("sd_U must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
 			}
 		} else {
 			if ((length(phiU) == length(W)) == FALSE) {
@@ -100,8 +100,8 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 		}
 	}
 
-	if ((errors == "het" | errors == "hom")  & is.null(sigU)) {
-		stop("You must provide sigU along with the errors.")
+	if ((errors == "het" | errors == "hom")  & is.null(sd_U)) {
+		stop("You must provide sd_U along with the errors.")
 	}
 
 	if (is.null(errortype) == FALSE) {
@@ -125,8 +125,8 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 	# 	stop("You must use the PI algorithm if the errors are not supplied.")
 	# }
 
-	if (missing(sigU) & (errors == "hom" & algorithm == "PI")) {
-		stop("You must supply sigU to use the PI algorithm when the errors are homoscedastic.")
+	if (is.null(sd_U) & (errors == "hom" & algorithm == "PI")) {
+		stop("You must supply sd_U to use the PI algorithm when the errors are homoscedastic.")
 	}
 
 	if (algorithm == "SIMEX") {
@@ -137,14 +137,13 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 			stop("Algorithm type 'SIMEX' can only be used with homoscedastic
 				 errors.")
 		}
-		if (missing(sigU)) {
-			stop("Algorithm 'SIMEX' currently doesn't work with errors supplied
-				 using phiU")
+		if (is.null(sd_U) | is.null(errortype)) {
+			stop("Algorithm 'SIMEX' requires that the errors are provided using errortype and sd_U.")
 		}
 	}
 
-	# if (errors == "sym" & is.null(sigU)) {
-	# 	stop("You must provide an estimate for sigU when the errors are estimated.")
+	# if (errors == "sym" & is.null(sd_U)) {
+	# 	stop("You must provide an estimate for sd_U when the errors are estimated.")
 	# }
 
 	# --------------------------------------------------------------------------
@@ -161,21 +160,20 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 
 	if (!(errors == 'est')) {
 		if(is.null(phiU)) {
-			phiU <- create_phiU(errors, errortype, sigU)
+			phiU <- create_phiU(errors, errortype, sd_U)
 		}
 	}
 
 	# Calculate varX if in het case --------------------------------------------
 	if (errors == "het"){
 		n <- length(W)
-		varX <- max(mean(W^2) - (mean(W))^2 - sum(sigU^2) / n, 1/n)	#max 1/n avoid negative varianace
+		varX <- max(mean(W^2) - (mean(W))^2 - sum(sd_U^2) / n, 1/n)	#max 1/n avoid negative varianace
 	}
 
 	# Perform appropriate bandwidth calculation --------------------------------
 
 	if (algorithm == "CV"){
-		output <- CVdeconv(n, W, errortype, sigU, phiU, phiK, muK2, RK, deltat,
-						   tt)
+		output <- CVdeconv(n, W, phiU, phiK, muK2, RK, deltat, tt)
 	}
 
 	if (algorithm == "PI" & errors == "het") {
@@ -184,7 +182,7 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		output <- PI_deconvUknownth4(n, W, sigU, phiU, phiK, muK2, RK, deltat, tt)
+		output <- PI_deconvUknownth4(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt)
 	}
 
 	if (algorithm == "PI" & errors == "sym") {
@@ -208,7 +206,7 @@ bandwidth <- function(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 	}
 
 	if (algorithm == "SIMEX") {
-		output <- hSIMEXUknown(W, Y, errortype, sigU, phiK, muK2, RK, deltat,
+		output <- hSIMEXUknown(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat,
 							   tt, n_cores)
 	}
 

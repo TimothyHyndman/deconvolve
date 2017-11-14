@@ -9,7 +9,7 @@
 #' @param xx A vector of x values on which to compute the regression estimator.
 #' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
 #' errors or "norm" for normal errors.
-#' @param sigU The standard deviation of \eqn{U}. This does not need to be 
+#' @param sd_U The standard deviation of \eqn{U}. This does not need to be 
 #' provided if you define your error using phiU and provide \code{bw} and 
 #' \code{rho}.
 #' @param phiU A function giving the characteristic function of \eqn{U}. If you 
@@ -49,7 +49,7 @@
 #'
 #' @export
 
-reg_deconvolve <- function(W, Y, xx, errortype = NULL, sigU = NULL, phiU = NULL,
+reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
                            bw = NULL, rho = NULL, n_cores = NULL, 
                            kernel_type = "default") {
 
@@ -63,12 +63,12 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sigU = NULL, phiU = NULL,
         stop("You must provide either errortype or phiU.")
     }
 
-    if (!is.null(errortype) & is.null(sigU)) {
-        stop("You must provide sigU along with errortype.")
+    if (!is.null(errortype) & is.null(sd_U)) {
+        stop("You must provide sd_U along with errortype.")
     }
 
-    if ((is.null(bw) | is.null(rho)) & is.null(sigU)){
-        stop("You must provide sigU if you do not provide bw and rho.")
+    if ((is.null(bw) | is.null(rho)) & is.null(sd_U)){
+        stop("You must provide sd_U if you do not provide bw and rho.")
     }
 
     if (is.null(errortype) == FALSE) {
@@ -79,12 +79,12 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 
     # Convert errortype to phiU ------------------------------------------------
     if (is.null(phiU)){
-        phiU <- create_phiU(errors = "hom", errortype, sigU)
+        phiU <- create_phiU(errors = "hom", errortype, sd_U)
     }
 
     # Calculate bandwidth ------------------------------------------------------
     if (is.null(bw) | is.null(rho)) {
-        outcome_tmp <- bandwidth(W = W, errortype = errortype, sigU = sigU, 
+        outcome_tmp <- bandwidth(W = W, errortype = errortype, sd_U = sd_U, 
             phiU = phiU, Y = Y, algorithm = "SIMEX", n_cores = n_cores, 
             kernel_type = kernel_type)
         bw <- outcome_tmp$h

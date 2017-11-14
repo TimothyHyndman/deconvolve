@@ -1,5 +1,5 @@
-PI_deconvUknownth4het<-function(n,W,varX,phiUkvec,phiK=phiK2,muK2=6,RK=1024/3003/pi,
-	deltat = .0002,tt = seq(-1,1,deltat)){
+PI_deconvUknownth4het <- function(n, W, varX, phiUkvec, phiK, muK2, RK, deltat,
+								  tt){
 
 #Author: Aurore Delaigle
 #compute 2-stage plug-in bandwidth for heteroscedastic kerndel deconvolution estimator as in:

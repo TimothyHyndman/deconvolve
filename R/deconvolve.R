@@ -12,17 +12,17 @@
 #' based on the method described in Delaigle and Hall 2016.
 #' 
 #' \strong{Homoscedastic Error:} If the errors are defined by either a single 
-#' function \code{phiU}, or a single value \code{sigU} along with its 
+#' function \code{phiU}, or a single value \code{sd_U} along with its 
 #' \code{errortype} then the method used is as described in Stefanski and
 #' Carroll 1990.
 #' 
 #' \strong{Heteroscedastic Errors:} If the errors are defined by a either a 
-#' vector of functions \code{phiU}, or a vector \code{sigU} along with its 
+#' vector of functions \code{phiU}, or a vector \code{sd_U} along with its 
 #' \code{errortype} then the method used is as described in Delaigle and 
 #' Meister 2008.
 #' 
 #' Errors can be defined by either a distribution type (\code{errortype}) along 
-#' with the standard deviation(s) (\code{sigU}), or by the characteric 
+#' with the standard deviation(s) (\code{sd_U}), or by the characteric 
 #' function(s) of the errors (\code{phiU}). 
 #' 
 #' @param W A vector of the univariate contaminated data.
@@ -30,8 +30,8 @@
 #' missing if \code{pmf = TRUE}.
 #' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
 #' errors or "norm" for normal errors. If you define the errors this way then 
-#' you must also provide \code{sigU} but should not provide \code{phiU}.
-#' @param sigU The standard deviations of \eqn{U}. A single value for
+#' you must also provide \code{sd_U} but should not provide \code{phiU}.
+#' @param sd_U The standard deviations of \eqn{U}. A single value for
 #' homoscedastic errors and a vector having the same length as \code{W} for 
 #' heteroscedastic errors. This does not need to be provided if you define your
 #' error using phiU and provide \code{bw}.
@@ -111,7 +111,7 @@
 #' 
 #' @export
 
-deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, 
+deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, 
 					   bw = NULL, rescale = FALSE, pmf = FALSE, 
 					   kernel_type = "default", m = 20){
 
@@ -125,7 +125,7 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
 		errors <- "sym"
-	} else if ((length(sigU) > 1) | length(phiU) > 1){
+	} else if ((length(sd_U) > 1) | length(phiU) > 1){
 		errors <- "het"
 	} else {
 		errors <- "hom"
@@ -134,8 +134,8 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 	# Check inputs -------------------------------------------------------------
 	if (errors == "het") {
 		if (is.null(phiU)) {
-			if ((length(sigU) == length(W)) == FALSE) {
-				stop("sigU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
+			if ((length(sd_U) == length(W)) == FALSE) {
+				stop("sd_U must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
 			}
 		} else {
 			if ((length(phiU) == length(W)) == FALSE) {
@@ -144,8 +144,8 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 		}
 	}
 
-	if (!is.null(errortype) & is.null(sigU)) {
-		stop("You must provide sigU along with errortype.")
+	if (!is.null(errortype) & is.null(sd_U)) {
+		stop("You must provide sd_U along with errortype.")
 	}
 
 	if (is.null(errortype) == FALSE) {
@@ -154,8 +154,8 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 		}
 	}
 
-	if (!is.null(phiU) & is.null(bw) & is.null(sigU)){
-		stop("You must provide sigU along with phiU if you do not provide bw.")
+	if (!is.null(phiU) & is.null(bw) & is.null(sd_U)){
+		stop("You must provide sd_U along with phiU if you do not provide bw.")
 	}
 
 	if (pmf & !(errors == "sym")){
@@ -164,13 +164,13 @@ deconvolve <- function(W, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 
 	# Calculate Bandwidth if not supplied --------------------------------------
 	if (is.null(bw) & !(errors == "sym")) {
-			bw <- bandwidth(W, errortype, sigU, phiU, kernel_type = kernel_type)
+			bw <- bandwidth(W, errortype, sd_U, phiU, kernel_type = kernel_type)
 	}
 
 	# Convert errortype to phiU ------------------------------------------------
 	if (!(errors == "sym")){
 		if(is.null(phiU)) {
-			phiU <- create_phiU(errors, errortype, sigU)
+			phiU <- create_phiU(errors, errortype, sd_U)
 		}
 	}
 

@@ -5,9 +5,9 @@
 #' the function \code{deconvolve}.
 #' 
 #' @param n The size of the generated data
-#' @param sig_X The standard deviation of X
-#' @param sig_U The standard deviation(s) of U. For heteroscedastic errors,
-#' supply \code{sig_U} as a length n vector.
+#' @param sd_X The standard deviation of X
+#' @param sd_U The standard deviation(s) of U. For heteroscedastic errors,
+#' supply \code{sd_U} as a length n vector.
 #' @param dist_type One of \code{'chi'} or \code{'mix'}. The distribution type
 #' of X.
 #' @param error_type One of \code{'norm'} or \code{'Lap'}. The distribution type
@@ -22,7 +22,7 @@
 #' 
 #' @export
 
-GenerateTestData <- function(n, sig_X = 1, sig_U = 0.2, dist_type = "chi", 
+GenerateTestData <- function(n, sd_X = 1, sd_U = 0.2, dist_type = "chi", 
 							 error_type = "norm", create_Y = FALSE){
 	
 	# Sample true data ---------------------------------------------------------
@@ -30,9 +30,9 @@ GenerateTestData <- function(n, sig_X = 1, sig_U = 0.2, dist_type = "chi",
 		df <- 3
 		var_X <- 2*df
 		X <- stats::rchisq(n, df)
-		scaling_var <- (sqrt(var_X) / sig_X)
+		scaling_var <- (sqrt(var_X) / sd_X)
 		X <- X / scaling_var
-		var_X <- sig_X^2
+		var_X <- sd_X^2
 		true_dens <- function(xx){
 			scaling_var * stats::dchisq(xx * scaling_var, df)
 		}
@@ -49,9 +49,9 @@ GenerateTestData <- function(n, sig_X = 1, sig_U = 0.2, dist_type = "chi",
 		tmp <- matrix(stats::runif(n, 0, 1), nrow=1, ncol=n, byrow=TRUE)
 		X[which(tmp < pmix)] <- X2[which(tmp < pmix)]
 		var_X <- stats::var(X)
-		scaling_var <- (sqrt(var_X) / sig_X)
+		scaling_var <- (sqrt(var_X) / sd_X)
 		X <- X / scaling_var
-		var_X <- sig_X^2
+		var_X <- sd_X^2
 		true_dens <- function(xx){
 			xx <- xx * scaling_var
 			(1 - pmix) * stats::dnorm(xx, mu1, sig1) + 
@@ -62,22 +62,22 @@ GenerateTestData <- function(n, sig_X = 1, sig_U = 0.2, dist_type = "chi",
 
 	# Sample error -------------------------------------------------------------
 	if (error_type == "norm"){
-		if (length(sig_U) == 1){
-			U <- stats::rnorm(n, sd = sig_U)
+		if (length(sd_U) == 1){
+			U <- stats::rnorm(n, sd = sd_U)
 		} else {
 			U <- numeric(n)
 			for (i in 1:n) {
-				U[i] <- stats::rnorm(1, 0, sig_U[i])
+				U[i] <- stats::rnorm(1, 0, sd_U[i])
 			}
 		}
 	}
 
 	if (error_type == "Lap") {
-		if (length(sig_U) == 1) {
-			sigLap <- sig_U / sqrt(2)
+		if (length(sd_U) == 1) {
+			sigLap <- sd_U / sqrt(2)
 			U <- rlap(sigLap, 1, n)
 		} else {
-			sigLap <- sig_U / sqrt(2)
+			sigLap <- sd_U / sqrt(2)
 			U <- numeric(n)
 			for (i in 1:n) {
 				U[i] <- rlap(sigLap[i], 1, 1)

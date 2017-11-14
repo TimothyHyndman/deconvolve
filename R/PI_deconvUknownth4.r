@@ -1,6 +1,4 @@
-PI_deconvUknownth4<-function(n, W, sigU, phiU, phiK = phiK2, 
-							 muK2 = 6, RK = 1024 / 3003 / pi, deltat = .0002, 
-							 tt = seq(-1, 1, deltat)){
+PI_deconvUknownth4<-function(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt){
 
 # Authors: Aurore Delaigle
 # compute 2-stage plug-in bandwidth for kerndel deconvolution estimator as in:
@@ -26,8 +24,8 @@ PI_deconvUknownth4<-function(n, W, sigU, phiU, phiK = phiK2,
 # Option 1: provide error type and standard deviation of the errors
 # errortype: 'Lap' for Laplace errors and 'norm' for normal errors. If you use 
 # this way of defining the error then you also need to provide the value of 
-# sigU below.
-# sigU: standard deviation of the errors.
+# sd_U below.
+# sd_U: standard deviation of the errors.
 
 # Option 2: define the characeristic function of the errors:
 # phiU:function that gives the characteristic function of the error
@@ -96,7 +94,7 @@ dim(hgrid)=c(1,lh)
 
 
 # Estimator of the standard deviation of X
-stdevx = max(sqrt(stats::var(W) - sigU^2),1/n) ##### I changed varU into sigU^2
+stdevx = max(sqrt(stats::var(W) - sd_U^2),1/n) ##### I changed varU into sd_U^2
 
 
 

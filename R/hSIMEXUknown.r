@@ -18,10 +18,10 @@
 #
 # errortype: 'Lap' for Laplace errors and 'norm' for normal errors. For other
 # error distributions, simply redefine phiU below
-# sigU: parameter of Laplace or normal errors used only to define phiU.
+# sd_U: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter.
 
-hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
+hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt,
 						 no_cores){
 
 	if (is.null(no_cores)){
@@ -38,18 +38,6 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	# Preliminary calculations and initialisation of functions
 	# --------------------------------------------------------
 
-	# error can only be normal or laplace
-	if (errortype == "Lap") {
-		phiU <- function(t) {
-			1 / (1 + sigU^2 * t^2)
-		}
-	}
-	if (errortype == "norm") {
-		phiU <- function(t) {
-			exp(-sigU^2 * t^2 / 2)
-		}
-	}
-
 	dim(W) <- c(1, n)
 	dim(Y) <- c(1, n)
 
@@ -62,7 +50,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 	# Define a grid where to search for the SIMEX bandwidth. By default we take
 	# [h/2,2h], where h=PI bandwidth for density estimation.
 	# Increase the grid if too small
-	hPIfX <- PI_deconvUknownth4(n, W, sigU, phiU = phiU, phiK = phiK, muK2 = muK2,
+	hPIfX <- PI_deconvUknownth4(n, W, sd_U, phiU = phiU, phiK = phiK, muK2 = muK2,
 								RK = RK, deltat = deltat, tt = tt)
 	a <- hPIfX / 2
 	b <- 2 * hPIfX
@@ -105,10 +93,10 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 		CVrho <- matrix(0, lh, lrho)
 		# Generate SIMEX data Wstar
 		if (errortype == "Lap") {
-			Wstar <- W + rlap(sigU, 1, n)
+			Wstar <- W + rlap(sd_U/sqrt(2), 1, n)
 		}
 		if (errortype == "norm") {
-			Wstar <- W + stats::rnorm(n, 0, sigU)
+			Wstar <- W + stats::rnorm(n, 0, sd_U)
 		}
 
 		# For each h in the grid of h-candidates, compute the CV criterion for
@@ -116,7 +104,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 		for (kh in 1:lh){
 			h <- gridh[kh]
 			CVrho[kh, ] <- NWDecridgeL1OCUknown(n, Wstar, Y,
-						   errortype, sigU, h, gridrho, midbin, indbin, nbin)
+						   phiU, h, gridrho, midbin, indbin, nbin, phiK, deltat, tt)
 		}
 		CVrho
 	}
@@ -148,12 +136,12 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 		CVhstar_tmp <- 0 * gridh
 		# Generate SIMEX data Wstar2
 		if (errortype == "Lap"){
-			Wstar <- W + rlap(sigU, 1, n)
-			Wstar2 <- Wstar + rlap(sigU, 1, n)
+			Wstar <- W + rlap(sd_U/sqrt(2), 1, n)
+			Wstar2 <- Wstar + rlap(sd_U/sqrt(2), 1, n)
 		}
 		if (errortype == "norm") {
-			Wstar <- W + stats::rnorm(n, 0, sigU)
-			Wstar2 <- Wstar + stats::rnorm(n, 0, sigU)
+			Wstar <- W + stats::rnorm(n, 0, sd_U)
+			Wstar2 <- Wstar + stats::rnorm(n, 0, sd_U)
 		}
 
 		# Bin the Wstar data to speed up the computations
@@ -164,7 +152,7 @@ hSIMEXUknown <- function(W, Y, errortype, sigU, phiK, muK2, RK, deltat, tt,
 		for (kh in 1:lh){
 			h <- gridh[kh]
 			CVhstar_tmp[kh] <- NWDecridgeL1OCUknown(n, Wstar2, Y,
-							   errortype, sigU, h, rho, midbin, indbin, nbin)
+							   phiU, h, rho, midbin, indbin, nbin, phiK, deltat, tt)
 		}
 		CVhstar_tmp
 	}

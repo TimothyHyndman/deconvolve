@@ -1,5 +1,4 @@
-DeconErrKnownPdf<-function(xx, W, h, phiU, rescale = FALSE, 
-	phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, tt = seq(-1, 1, 2e-04)){
+DeconErrKnownPdf<-function(xx, W, h, phiU, rescale, phiK, muK2, RK, tt){
 
 	#--------------------------------------------------------------------------#
 	# Compute DKDE

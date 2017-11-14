@@ -1,5 +1,5 @@
-DeconErrSymPmf <- function(W, m, n.iter.tp = 5, 
-										n.iter.var = 2, show.diagnostics = F){
+DeconErrSymPmf <- function(W, m, n.iter.tp = 5, n.iter.var = 2, 
+						   show.diagnostics = F){
 
 	Diagnostic <- function(message){
 		PrintDiagnostic(message, show.diagnostics)

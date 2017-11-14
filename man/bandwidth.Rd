@@ -4,7 +4,7 @@
 \alias{bandwidth}
 \title{Bandwidth Selectors for Deconvolution Kernel Density Estimation}
 \usage{
-bandwidth(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
+bandwidth(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
   algorithm = "PI", n_cores = NULL, kernel_type = "default")
 }
 \arguments{
@@ -12,9 +12,9 @@ bandwidth(W, errortype = NULL, sigU = NULL, phiU = NULL, Y = NULL,
 
 \item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
 errors or "norm" for normal errors. If you define the errors this way then 
-you must also provide \code{sigU} but should not provide \code{phiU}.}
+you must also provide \code{sd_U} but should not provide \code{phiU}.}
 
-\item{sigU}{The standard deviations of \eqn{U}. A single value for
+\item{sd_U}{The standard deviations of \eqn{U}. A single value for
 homoscedastic errors and a vector having the same length as \code{W} for
 heteroscedastic errors.}
 
@@ -53,12 +53,12 @@ selected.
 
 \strong{PI for Homoscedastic Error:} If \code{algorithm = "PI"} and the errors
 are defined by either a single function \code{phiU}, or a single value
-\code{sigU} along with its \code{errortype}, then the method used is as
+\code{sd_U} along with its \code{errortype}, then the method used is as
 described in Delaigle and Gijbels 2002, and Delaigle and Gijbels 2004.
 
 \strong{PI for Heteroscedastic Error:} If \code{algorithm = "PI"} and the
 errors are defined by a either a vector of functions \code{phiU}, or a vector
-\code{sigU} along with its \code{errortype} then the method used is as
+\code{sd_U} along with its \code{errortype} then the method used is as
 described in Delaigle and Meister 2008.
 
 \strong{PI for Unknown Error:} If \code{algorithm = "PI"} and the errors are
@@ -101,46 +101,46 @@ Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1,
 \examples{
 # CV bandwidth -----------------------------------------------------------------
 n <- 200
-sigX <- 1
-sigU <- 0.2
-W <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm")
+sd_X <- 1
+sd_U <- 0.2
+W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
 
-bw <- bandwidth(W, errortype = "norm", sigU = sigU, algorithm = "CV")
+bw <- bandwidth(W, errortype = "norm", sd_U = sd_U, algorithm = "CV")
 
 
 # PI bandwidth with heteroscedastic errors -------------------------------------
 n <- 200
-sigX <- 1
-sigU_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
-W <- GenerateTestData(n, sigX, sigU_vec, dist_type = "mix", error_type = "norm")
+sd_X <- 1
+sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
+W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
 
-bw <- bandwidth(W, errortype = "norm", sigU = sigU_vec)
+bw <- bandwidth(W, errortype = "norm", sd_U = sd_U_vec)
 
 # SIMEX bandwidth --------------------------------------------------------------
 n <- 200
-sigX <- 1
-sigU <- 0.2
-data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", 
+sd_X <- 1
+sd_U <- 0.2
+data <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm", 
 						 create_Y = TRUE)
-output <- bandwidth(data$W, errortype = "norm", sigU = sigU, Y = data$Y, 
+output <- bandwidth(data$W, errortype = "norm", sd_U = sd_U, Y = data$Y, 
 					algorithm = "SIMEX", n_cores = 2)
 bw <- output$h
 
 # PI bandwidth with heteroscedastic errors supplied using phiU -----------------
 n <- 200
-sigX <- 1
-sigU_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
+sd_X <- 1
+sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 phiU <- c()
-for (sigUk in sigU_vec){
+for (sigUk in sd_U_vec){
 	phiUk <- function(tt) {
 		exp(-sigUk^2 * tt^2 / 2)
 	}
 	phiU <- c(phiU, phiUk)
 }
 
-W <- GenerateTestData(n, sigX, sigU_vec, dist_type = "mix", error_type = "norm")
+W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
 
-bw <- bandwidth(W, sigU = sigU_vec, phiU = phiU)
+bw <- bandwidth(W, sd_U = sd_U_vec, phiU = phiU)
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

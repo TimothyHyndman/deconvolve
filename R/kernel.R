@@ -15,7 +15,7 @@ kernel <- function(type = "default"){
 }
 
 #Fourier transform of commonly used kernel function in deconvolution. (a default setting for the input)
-phiK2 <-function(t) {
+phiK2 <- function(t) {
   y <- (1 - t^2)^3
   y[abs(t) > 1] <- 0
   y

@@ -1,6 +1,6 @@
 # This function is seperated from hSIMEX.r
-NWDecridgeL1OCUknown <- function(n, W, Y, errortype, sigU, h, rhogrid, midbin, 
-								 indbin, nbin) {
+NWDecridgeL1OCUknown <- function(n, W, Y, phiU, h, rhogrid, midbin, 
+								 indbin, nbin, phiK, dt, t) {
 	# Author: Aurore Delaigle
 	# Compute a version of weighted CV used in SIMEX, for binned data
 	# W plays the role of the contaminated data
@@ -11,33 +11,8 @@ NWDecridgeL1OCUknown <- function(n, W, Y, errortype, sigU, h, rhogrid, midbin,
 	# If you want to consider another error type, simply replace phiU by the 
 	# characteristic function of your error type
 	W <- as.vector(W)
-
-	if (errortype == "Lap")	{
-		phiU <- function(t){
-			1 / (1 + sigU^2 * t^2)
-		}
-	}
-	if (errortype == "norm") {
-		phiU <- function(t) {
-			exp(-sigU^2 * t^2 / 2)
-		}
-	}
-
-
-	# phiK: Fourier transform of the kernel K. You can change this if you wish 
-	# to use another kernel but make sure you change the range of t-values, 
-	# which should correspond to the support of phiK The phiK used in this code 
-	# must be the same as in the other codes (hSIMEX + NW codes)
-	phiK <- function(t) {
-		(1 - t^2)^3
-	}
-	dt <- .001
-	t <- seq(-1, 1, dt)
 	th <- t / h
 	longt <- length(t)
-
-
-
 
 	# Compute the empirical characteristic function of W (times n) at t/h: 
 	# \hat\phi_W(t/h)

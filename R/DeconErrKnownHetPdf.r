@@ -1,6 +1,4 @@
-DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec, 
-	rescale = FALSE, phiK = NULL, muK2 = 6, RK = 1024 / 3003 / pi, 
-	tt = seq(-1, 1, 2e-04)){
+DeconErrKnownHetPdf <- function(xx, W, h, phiUkvec, rescale, phiK, muK2, RK, tt){
 
 	# Convert vector of functions to single function ---------------------------
 	phiUk <- function(tt,k) {
@@ -10,10 +8,6 @@ DeconErrKnownHetPdf<-function(xx, W, h, phiUkvec,
 	#--------------------------------------------------------------------------#
 	# Compute DKDE
 	#--------------------------------------------------------------------------#
-
-	if(is.null(phiK)){
-		phiK <- phiK2
-	}
 
 	W <- as.vector(W)
 	n <- length(W)

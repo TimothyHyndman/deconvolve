@@ -1,10 +1,6 @@
 PI_DeconvUEstTh4 <- function(W, phi.U, hat.var.U, tt, PhiK, muK2, t){
 	n <- length(W)
 	dt <- t[2] - t[1]
-	# PhiK <- function(t){
-	# 	(1 - t^2)^3
-	# }
-	# muK2 <- 6
 	
 
 	st.dev.X <- max( !is.na(sqrt( stats::var(W) - hat.var.U )), 1/n )

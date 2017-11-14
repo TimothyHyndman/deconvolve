@@ -4,16 +4,16 @@
 \alias{GenerateTestData}
 \title{Generate convolved data for use in deconvolve examples}
 \usage{
-GenerateTestData(n, sig_X = 1, sig_U = 0.2, dist_type = "chi",
+GenerateTestData(n, sd_X = 1, sd_U = 0.2, dist_type = "chi",
   error_type = "norm", create_Y = FALSE)
 }
 \arguments{
 \item{n}{The size of the generated data}
 
-\item{sig_X}{The standard deviation of X}
+\item{sd_X}{The standard deviation of X}
 
-\item{sig_U}{The standard deviation(s) of U. For heteroscedastic errors,
-supply \code{sig_U} as a length n vector.}
+\item{sd_U}{The standard deviation(s) of U. For heteroscedastic errors,
+supply \code{sd_U} as a length n vector.}
 
 \item{dist_type}{One of \code{'chi'} or \code{'mix'}. The distribution type
 of X.}

@@ -5,7 +5,7 @@
 \title{Compute the measurement error version of the Nadaraya-Watson regression
 estimator}
 \usage{
-reg_deconvolve(W, Y, xx, errortype = NULL, sigU = NULL, phiU = NULL,
+reg_deconvolve(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
   bw = NULL, rho = NULL, n_cores = NULL, kernel_type = "default")
 }
 \arguments{
@@ -18,7 +18,7 @@ reg_deconvolve(W, Y, xx, errortype = NULL, sigU = NULL, phiU = NULL,
 \item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
 errors or "norm" for normal errors.}
 
-\item{sigU}{The standard deviation of \eqn{U}. This does not need to be 
+\item{sd_U}{The standard deviation of \eqn{U}. This does not need to be 
 provided if you define your error using phiU and provide \code{bw} and 
 \code{rho}.}
 
@@ -70,9 +70,9 @@ deconvolution. \emph{Statistics and Computing}, 17, 349 - 355.
 
 \examples{
 n <- 200
-sigX <- 1
-sigU <- 0.2
-data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", create_Y = TRUE)
+sd_X <- 1
+sd_U <- 0.2
+data <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm", create_Y = TRUE)
 xx <- seq(-2, 8, 0.1)
-output <- reg_deconvolve(data$W, data$Y, xx, errortype = "norm", sigU = 0.2, n_cores = 2)
+output <- reg_deconvolve(data$W, data$Y, xx, errortype = "norm", sd_U = 0.2, n_cores = 2)
 }

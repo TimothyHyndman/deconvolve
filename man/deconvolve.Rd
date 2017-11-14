@@ -4,7 +4,7 @@
 \alias{deconvolve}
 \title{Deconvolution Kernel Density Estimator}
 \usage{
-deconvolve(W, xx, errortype = NULL, sigU = NULL, phiU = NULL, bw = NULL,
+deconvolve(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
   rescale = FALSE, pmf = FALSE, kernel_type = "default", m = 20)
 }
 \arguments{
@@ -15,9 +15,9 @@ missing if \code{pmf = TRUE}.}
 
 \item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
 errors or "norm" for normal errors. If you define the errors this way then 
-you must also provide \code{sigU} but should not provide \code{phiU}.}
+you must also provide \code{sd_U} but should not provide \code{phiU}.}
 
-\item{sigU}{The standard deviations of \eqn{U}. A single value for
+\item{sd_U}{The standard deviations of \eqn{U}. A single value for
 homoscedastic errors and a vector having the same length as \code{W} for 
 heteroscedastic errors. This does not need to be provided if you define your
 error using phiU and provide \code{bw}.}
@@ -75,17 +75,17 @@ supplied then the error is assumed symmetric and the deconvolution method is
 based on the method described in Delaigle and Hall 2016.
 
 \strong{Homoscedastic Error:} If the errors are defined by either a single 
-function \code{phiU}, or a single value \code{sigU} along with its 
+function \code{phiU}, or a single value \code{sd_U} along with its 
 \code{errortype} then the method used is as described in Stefanski and
 Carroll 1990.
 
 \strong{Heteroscedastic Errors:} If the errors are defined by a either a 
-vector of functions \code{phiU}, or a vector \code{sigU} along with its 
+vector of functions \code{phiU}, or a vector \code{sd_U} along with its 
 \code{errortype} then the method used is as described in Delaigle and 
 Meister 2008.
 
 Errors can be defined by either a distribution type (\code{errortype}) along 
-with the standard deviation(s) (\code{sigU}), or by the characteric 
+with the standard deviation(s) (\code{sd_U}), or by the characteric 
 function(s) of the errors (\code{phiU}).
 }
 \section{Warnings}{
@@ -135,44 +135,40 @@ print(d)
 
 # Homoscedastic Errors ---------------------------------------------------------
 n <- 200
-sigX <- 1
-sigU <- 0.2
-W <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm")
+sd_X <- 1
+sd_U <- 0.2
+W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
 xx <- seq(min(W), max(W), length.out = 100)
 
-yy <- deconvolve(W, xx, errortype = "norm", sigU = sigU)
+yy <- deconvolve(W, xx, errortype = "norm", sd_U = sd_U)
 
 # Heteroscedastic Errors -------------------------------------------------------
 n <- 200
-sigX <- 1
-sigU_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
-W <- GenerateTestData(n, sigX, sigU_vec, dist_type = "mix", error_type = "norm")
+sd_X <- 1
+sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
+W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
 xx <- seq(min(W), max(W), length.out = 100)
 
-yy <- deconvolve(W, xx, errortype = "norm", sigU = sigU_vec)
+yy <- deconvolve(W, xx, errortype = "norm", sd_U = sd_U_vec)
 
 # Heteroscedastic Errors provided using a vector of phiUs ----------------------
 n <- 200
-sigX <- 1
-sigU <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
-W <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm")
+sd_X <- 1
+sd_U <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
+W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
 xx <- seq(min(W), max(W), length.out = 100)
 
-# Calculate the characteristic functions of the errors
 phiU_vec=c()
 phiU <- function(k) {
 	function(tt){
-		exp(-sigU[k]^2 * tt^2 / 2)
+		exp(-sd_U[k]^2 * tt^2 / 2)
 	}
 }
 for(k in 1:n) {	
-	# phiU <- function(tt,k) {
-	# 	exp(-sigU[k]^2 * tt^2 / 2)
-	# }
 	phiU_vec <- c(phiU_vec, phiU(k))
 }
 
-yy <- deconvolve(W, xx, sigU = sigU, phiU = phiU_vec)
+yy <- deconvolve(W, xx, sd_U = sd_U, phiU = phiU_vec)
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

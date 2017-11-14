@@ -1,6 +1,4 @@
-DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK = NULL, muK2 = 6, 
-								t = seq(-1, 1, 2e-04), rescale = FALSE, 
-								h = NULL){
+DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale, h){
 
 	theta <- X.pmf$support
 	p <- X.pmf$probweights
