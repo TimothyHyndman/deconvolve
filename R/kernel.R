@@ -1,4 +1,4 @@
-kernel <- function(type = "default"){
+kernel <- function(type = "default", coarse = FALSE){
   phik <- switch(type,
                  "default" = phiK2)
   
@@ -8,8 +8,13 @@ kernel <- function(type = "default"){
   rk <- switch(type,
                "default" = 1024 / 3003 / pi)
 
-  tt <- switch(type,
-               "default" = seq(-1, 1, 2e-04))
+  if (coarse) {
+    tt <- switch(type,
+                 "default" = seq(-1, 1, 1e-03))
+  } else {
+    tt <- switch(type,
+                 "default" = seq(-1, 1, 2e-04))
+  }
 
   list(phik = phik, muk2 = muk2, rk = rk, tt = tt)
 }

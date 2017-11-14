@@ -157,7 +157,12 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 	# --------------------------------------------------------------------------
 	n <- length(W)
 
-	kernel_list <- kernel(kernel_type)
+	if (algorithm == "SIMEX") {
+		kernel_list <- kernel(kernel_type, coarse = TRUE)
+	} else {
+		kernel_list <- kernel(kernel_type)
+	}
+	
 	phiK <- kernel_list$phik
 	muK2 <- kernel_list$muk2
 	RK <- kernel_list$rk
