@@ -15,8 +15,10 @@ reg_deconvolve(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
 \item{xx}{A vector of x values on which to compute the regression estimator.}
 
-\item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
-errors or "norm" for normal errors.}
+\item{errortype}{The distribution type of \eqn{U}. Either "laplace" or 
+"normal". If you define the errors this way then you must also provide 
+\code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
+and partially matched.}
 
 \item{sd_U}{The standard deviation of \eqn{U}. This does not need to be 
 provided if you define your error using phiU and provide \code{bw} and 

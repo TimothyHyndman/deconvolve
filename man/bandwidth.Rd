@@ -10,9 +10,10 @@ bandwidth(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
 
-\item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
-errors or "norm" for normal errors. If you define the errors this way then 
-you must also provide \code{sd_U} but should not provide \code{phiU}.}
+\item{errortype}{The distribution type of \eqn{U}. Either "laplace" or 
+"normal". If you define the errors this way then you must also provide 
+\code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
+and partially matched.}
 
 \item{sd_U}{The standard deviations of \eqn{U}. A single value for
 homoscedastic errors and a vector having the same length as \code{W} for

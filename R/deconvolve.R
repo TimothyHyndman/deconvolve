@@ -28,9 +28,10 @@
 #' @param W A vector of the univariate contaminated data.
 #' @param xx A vector of x values on which to compute the density. This can be
 #' missing if \code{pmf = TRUE}.
-#' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
-#' errors or "norm" for normal errors. If you define the errors this way then 
-#' you must also provide \code{sd_U} but should not provide \code{phiU}.
+#' @param errortype The distribution type of \eqn{U}. Either "laplace" or 
+#' "normal". If you define the errors this way then you must also provide 
+#' \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
+#' and partially matched.
 #' @param sd_U The standard deviations of \eqn{U}. A single value for
 #' homoscedastic errors and a vector having the same length as \code{W} for 
 #' heteroscedastic errors. This does not need to be provided if you define your
@@ -131,6 +132,15 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 		errors <- "hom"
 	}
 
+	# Partial matching ---------------------------------------------------------
+	dist_types <- c("normal", "laplace")
+	if (!is.null(errortype)) {
+		errortype <- dist_types[pmatch(tolower(errortype), dist_types)]
+		if (is.na(errortype)) {
+			stop("Please provide a valid errortype.")
+		}
+	}
+
 	# Check inputs -------------------------------------------------------------
 	if (errors == "het") {
 		if (is.null(phiU)) {
@@ -146,12 +156,6 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
 	if (!is.null(errortype) & is.null(sd_U)) {
 		stop("You must provide sd_U along with errortype.")
-	}
-
-	if (is.null(errortype) == FALSE) {
-		if ((errortype == "norm" | errortype == "Lap") == FALSE) {
-			stop("errortype must be one of: 'norm', or 'Lap'.")
-		}
 	}
 
 	if (!is.null(phiU) & is.null(bw) & is.null(sd_U)){

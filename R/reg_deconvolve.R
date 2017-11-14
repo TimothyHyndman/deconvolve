@@ -7,8 +7,10 @@
 #' @param W A vector of the univariate contaminated data W_1, ..., W_n.
 #' @param Y A vector of the response data Y_1, ..., Y_n.
 #' @param xx A vector of x values on which to compute the regression estimator.
-#' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
-#' errors or "norm" for normal errors.
+#' @param errortype The distribution type of \eqn{U}. Either "laplace" or 
+#' "normal". If you define the errors this way then you must also provide 
+#' \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
+#' and partially matched.
 #' @param sd_U The standard deviation of \eqn{U}. This does not need to be 
 #' provided if you define your error using phiU and provide \code{bw} and 
 #' \code{rho}.
@@ -58,6 +60,15 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
     tt <- kernel_list$tt
     deltat <- tt[2] - tt[1]
 
+    # Partial matching ---------------------------------------------------------
+    dist_types <- c("normal", "laplace")
+    if (!is.null(errortype)) {
+        errortype <- dist_types[pmatch(tolower(errortype), dist_types)]
+        if (is.na(errortype)) {
+            stop("Please provide a valid errortype.")
+        }
+    }
+
     # Check inputs -------------------------------------------------------------
     if (is.null(errortype) & is.null(phiU)) {
         stop("You must provide either errortype or phiU.")
@@ -69,12 +80,6 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
     if ((is.null(bw) | is.null(rho)) & is.null(sd_U)){
         stop("You must provide sd_U if you do not provide bw and rho.")
-    }
-
-    if (is.null(errortype) == FALSE) {
-        if ((errortype == "norm" | errortype == "Lap") == FALSE) {
-            stop("errortype must be one of: 'norm', or 'Lap'.")
-        }
     }
 
     # Convert errortype to phiU ------------------------------------------------

@@ -87,6 +87,15 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 		errors <- "hom"
 	}
 
+	# Partial matching ---------------------------------------------------------
+	dist_types <- c("normal", "laplace")
+	if (!is.null(errortype)) {
+		errortype <- dist_types[pmatch(tolower(errortype), dist_types)]
+		if (is.na(errortype)) {
+			stop("Please provide a valid errortype.")
+		}
+	}
+
 	# Check inputs -------------------------------------------------------------
 	if (errors == "het") {
 		if (is.null(phiU)) {
@@ -102,12 +111,6 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 
 	if ((errors == "het" | errors == "hom")  & is.null(sd_U)) {
 		stop("You must provide sd_U along with the errors.")
-	}
-
-	if (is.null(errortype) == FALSE) {
-		if ((errortype == "norm" | errortype == "Lap") == FALSE) {
-			stop("errortype must be one of: 'norm', or 'Lap'.")
-		}
 	}
 
 	if ((algorithm == "CV" | algorithm == "PI" | algorithm == "SIMEX") == FALSE) {
@@ -199,7 +202,7 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 
 		# Estimate PhiX and PhiU ---------------------------------------------------
 		phi.X <- ComputePhiPmf(theta, p, tt)
-		phi.U <- d$phi.W$norm / Mod(phi.X)
+		phi.U <- d$phi.W$normal / Mod(phi.X)
 
 		# Actually find bandwidth
 		output <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)

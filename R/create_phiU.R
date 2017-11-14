@@ -1,18 +1,18 @@
 create_phiU <- function(errors, errortype, sd_U){
 
-	if(errortype == 'Lap' & errors == "hom") {
+	if(errortype == 'laplace' & errors == "hom") {
 		phiU <- function(tt) {
 			1 / (1 + sd_U^2 * tt^2 / 2)
 		}
 	}
 
-	if(errortype == 'norm' & errors == "hom") {
+	if(errortype == 'normal' & errors == "hom") {
 		phiU <- function(tt) {
 			exp(-sd_U^2 * tt^2 / 2)
 		}
 	}
 
-	if(errortype == 'Lap' & errors == "het") {
+	if(errortype == 'laplace' & errors == "het") {
 		phiU <- c()
 		for (sigUk in sd_U){
 			phiUk <- function(tt) {
@@ -22,7 +22,7 @@ create_phiU <- function(errors, errortype, sd_U){
 		}
 	}
 
-	if(errortype == 'norm' & errors == "het") {
+	if(errortype == 'normal' & errors == "het") {
 		phiU <- c()
 		for (sigUk in sd_U){
 			phiUk <- function(tt) {

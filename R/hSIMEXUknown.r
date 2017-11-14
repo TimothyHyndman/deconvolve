@@ -16,7 +16,7 @@
 # Y: vector of data Y_1,...,Y_n
 # h: bandwidth
 #
-# errortype: 'Lap' for Laplace errors and 'norm' for normal errors. For other
+# errortype: 'laplace' for Laplace errors and 'normal' for normal errors. For other
 # error distributions, simply redefine phiU below
 # sd_U: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter.
@@ -92,10 +92,10 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt
 	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
 		CVrho <- matrix(0, lh, lrho)
 		# Generate SIMEX data Wstar
-		if (errortype == "Lap") {
+		if (errortype == "laplace") {
 			Wstar <- W + rlap(sd_U/sqrt(2), 1, n)
 		}
-		if (errortype == "norm") {
+		if (errortype == "normal") {
 			Wstar <- W + stats::rnorm(n, 0, sd_U)
 		}
 
@@ -135,11 +135,11 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt
 	outcome_SIMEX2 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
 		CVhstar_tmp <- 0 * gridh
 		# Generate SIMEX data Wstar2
-		if (errortype == "Lap"){
+		if (errortype == "laplace"){
 			Wstar <- W + rlap(sd_U/sqrt(2), 1, n)
 			Wstar2 <- Wstar + rlap(sd_U/sqrt(2), 1, n)
 		}
-		if (errortype == "norm") {
+		if (errortype == "normal") {
 			Wstar <- W + stats::rnorm(n, 0, sd_U)
 			Wstar2 <- Wstar + stats::rnorm(n, 0, sd_U)
 		}
