@@ -114,23 +114,7 @@
 
 deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, 
 					   bw = NULL, rescale = FALSE, pmf = FALSE, 
-					   kernel_type = "default", m = 20){
-
-	kernel_list <- kernel(kernel_type)
-	phiK <- kernel_list$phik
-	muK2 <- kernel_list$muk2
-	RK <- kernel_list$rk
-	tt <- kernel_list$tt
-	deltat <- tt[2] - tt[1]
-
-	# Determine error type provided --------------------------------------------
-	if (is.null(errortype) & is.null(phiU)) {
-		errors <- "sym"
-	} else if ((length(sd_U) > 1) | length(phiU) > 1){
-		errors <- "het"
-	} else {
-		errors <- "hom"
-	}
+					   kernel_type = c("default"), m = 20){
 
 	# Partial matching ---------------------------------------------------------
 	dist_types <- c("normal", "laplace")
@@ -139,6 +123,17 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 		if (is.na(errortype)) {
 			stop("Please provide a valid errortype.")
 		}
+	}
+
+	kernel_type <- match.arg(kernel_type)
+
+	# Determine error type provided --------------------------------------------
+	if (is.null(errortype) & is.null(phiU)) {
+		errors <- "sym"
+	} else if ((length(sd_U) > 1) | length(phiU) > 1){
+		errors <- "het"
+	} else {
+		errors <- "hom"
 	}
 
 	# Check inputs -------------------------------------------------------------
@@ -171,6 +166,14 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 			bw <- bandwidth(W, errortype, sd_U, phiU, kernel_type = kernel_type)
 	}
 
+	# --------------------------------------------------------------------------
+	kernel_list <- kernel(kernel_type)
+	phiK <- kernel_list$phik
+	muK2 <- kernel_list$muk2
+	RK <- kernel_list$rk
+	tt <- kernel_list$tt
+	deltat <- tt[2] - tt[1]
+	
 	# Convert errortype to phiU ------------------------------------------------
 	if (!(errors == "sym")){
 		if(is.null(phiU)) {

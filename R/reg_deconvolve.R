@@ -53,12 +53,7 @@
 
 reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
                            bw = NULL, rho = NULL, n_cores = NULL, 
-                           kernel_type = "default") {
-
-    kernel_list <- kernel(kernel_type)
-    phiK <- kernel_list$phik
-    tt <- kernel_list$tt
-    deltat <- tt[2] - tt[1]
+                           kernel_type = c("default")) {
 
     # Partial matching ---------------------------------------------------------
     dist_types <- c("normal", "laplace")
@@ -68,6 +63,8 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
             stop("Please provide a valid errortype.")
         }
     }
+
+    kernel_type <- match.arg(kernel_type)
 
     # Check inputs -------------------------------------------------------------
     if (is.null(errortype) & is.null(phiU)) {
@@ -81,6 +78,12 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
     if ((is.null(bw) | is.null(rho)) & is.null(sd_U)){
         stop("You must provide sd_U if you do not provide bw and rho.")
     }
+
+    # --------------------------------------------------------------------------
+    kernel_list <- kernel(kernel_type)
+    phiK <- kernel_list$phik
+    tt <- kernel_list$tt
+    deltat <- tt[2] - tt[1]
 
     # Convert errortype to phiU ------------------------------------------------
     if (is.null(phiU)){

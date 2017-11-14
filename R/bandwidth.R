@@ -76,7 +76,8 @@
 #' @export
 
 bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
-					  algorithm = "PI", n_cores = NULL, kernel_type = "default"){
+					  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL, 
+					  kernel_type = c("default")){
 
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
@@ -96,6 +97,10 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 		}
 	}
 
+	algorithm <- match.arg(algorithm)
+
+	kernel_type <- match.arg(kernel_type)
+
 	# Check inputs -------------------------------------------------------------
 	if (errors == "het") {
 		if (is.null(phiU)) {
@@ -113,9 +118,9 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 		stop("You must provide sd_U along with the errors.")
 	}
 
-	if ((algorithm == "CV" | algorithm == "PI" | algorithm == "SIMEX") == FALSE) {
-		stop("algorithm must be one of: 'PI', 'CV', or 'SIMEX'.")
-	}
+	# if ((algorithm == "CV" | algorithm == "PI" | algorithm == "SIMEX") == FALSE) {
+	# 	stop("algorithm must be one of: 'PI', 'CV', or 'SIMEX'.")
+	# }
 
 	if (algorithm == "CV") {
 		if (!(errors == "hom")) {
