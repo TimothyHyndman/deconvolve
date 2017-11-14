@@ -91,9 +91,6 @@ function(s) of the errors (\code{phiU}).
 \section{Warnings}{
 
 \itemize{
-\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
-	all be calculated from the same kernel. If you change one of these, you must
-	also change the rest to match.
 \item If you supply your own bandwidth, then you should ensure that the
 	kernel used here matches the one you used to calculate your bandwidth.
 \item The DKDE can also be computed using the Fast Fourier Transform, which 

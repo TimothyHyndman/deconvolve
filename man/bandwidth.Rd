@@ -72,15 +72,6 @@ in Stefanski and Carroll 1990, and Delaigle and Gijbels 2004.
 \strong{SIMEX:} If \code{algorithm = "SIMEX"} then the method used is as
 described in Delaigle and Hall 2008.
 }
-\section{Warnings}{
-
-\itemize{
-	\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
-	all be calculated from the same kernel. If you change one of these, you must
-	also change the rest to match.
-}
-}
-
 \section{References}{
 
 Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic

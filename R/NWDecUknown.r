@@ -1,4 +1,3 @@
-#' @export
 # Author: Aurore Delaigle
 # Compute the measurement error version of the Nadaraya-Watson regression 
 # estimator
@@ -15,7 +14,6 @@
 # 
 # errortype: 'Lap' for Laplace errors and 'norm' for normal errors. For other 
 # error distributions,  simply redefine phiU below 
-# sigU: parameter of Laplace or normal errors used only to define phiU.
 # 
 # rho: ridge parameter. See
 # Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice 
@@ -44,42 +42,19 @@
 # 
 #  -----------------------------------------------------------------------------
 
-NWDecUknown <- function(n, xx, W, Y, sigU, phiU, h, rho) {
+NWDecUknown <- function(xx, W, Y, phiU, h, rho, phiK, t, dt) {
 
 	# --------------------------------------------------------
 	# Preliminary calculations and initialisation of functions
 	# --------------------------------------------------------
 
-
-	# Default values of phiU(t)=characteristic function of the errors
-	# If you want to consider another error type,  simply replace phiU by the 
-	# characteristic function of your error type
 	W <- as.vector(W)
-
-
-
-
-	# phiK: Fourier transform of the kernel K. You can change this if you wish 
-	# to use another kernel but make sure 
-	# you change the range of t-values,  which should correspond to the support 
-	# of phiK
-
-	phiK <- function(t) {
-		(1 - t^2)^3
-	}
-
-
-	# Range of t-values (must correspond to the domain of phiK)
-	dt <- .0002
-	t <- seq(-1, 1, dt)
+	n <- length(W)
 	longt <- length(t)
-	# dim(t) <- c(length(t), 1)
-
-
 
 	# Compute the empirical characteristic function of W (times n) at t/h: 
 	# \hat\phi_W(t/h)
-	OO <- t(outer(t/h, t(W)))
+	OO <- t(outer(t/h, W))
 	csO <- cos(OO)
 	snO <- sin(OO)
 	rm(OO)
@@ -102,7 +77,7 @@ NWDecUknown <- function(n, xx, W, Y, sigU, phiU, h, rho) {
 	# (2*pi*h)^(-1) \int e^{-itx/h} \hat\phi_W(t/h) \phi_K(t)/\phi_U(t/h) dt
 
 
-	xt <- outer(t / h, t(xx))
+	xt <- outer(t / h, xx)
 	cxt <- cos(xt)
 	sxt <- sin(xt)
 	rm(xt)
@@ -115,7 +90,6 @@ NWDecUknown <- function(n, xx, W, Y, sigU, phiU, h, rho) {
 	Num <- (renum * matphiKU) %*% cxt + (imnum * matphiKU) %*% sxt
 	Num <- Num * (dt / (n * h * 2 * pi))
 	Den <- Den * (dt / (n * h * 2 * pi))
-
 
 	# If denomintor is too small,  replace it by the ridge rho
 	dd <- Den

@@ -45,13 +45,6 @@
 #' @return The bandwidth estimator. If using 'SIMEX' algorithm then returns a
 #' list containing the bandwidth 'h' and ridge parameter 'rho'.
 #'
-#' @section Warnings:
-#' \itemize{
-#' 	\item The arguments \code{phiK}, \code{muK2}, \code{RK}, and \code{tt} must
-#' 	all be calculated from the same kernel. If you change one of these, you must
-#' 	also change the rest to match.
-#' }
-#'
 #' @section References:
 #' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic
 #' error. \emph{Bernoulli}, 14, 2, 562-579.

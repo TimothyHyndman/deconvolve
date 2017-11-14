@@ -5,60 +5,74 @@
 \title{Compute the measurement error version of the Nadaraya-Watson regression
 estimator}
 \usage{
-reg_deconvolve(xx, W, Y, errortype, sigU, n_cores = NULL)
+reg_deconvolve(W, Y, xx, errortype = NULL, sigU = NULL, phiU = NULL,
+  bw = NULL, rho = NULL, n_cores = NULL, kernel_type = "default")
 }
 \arguments{
-\item{xx}{vector of x-values where to compute the regression estimator}
+\item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
 
-\item{W}{vector of contaminated data W_1, ..., W_n}
+\item{Y}{A vector of the response data Y_1, ..., Y_n.}
 
-\item{Y}{vector of data Y_1, ..., Y_n
-in errors-in-variables problems.  JASA,  103,  280-287.}
+\item{xx}{A vector of x values on which to compute the regression estimator.}
 
-\item{errortype}{'Lap' for Laplace errors and 'norm' for normal errors.}
+\item{errortype}{The distribution type of \eqn{U}. Either "Lap" for Laplace 
+errors or "norm" for normal errors.}
 
-\item{sigU}{parameter of Laplace or normal errors used only to define characteristic function of the error.}
+\item{sigU}{The standard deviation of \eqn{U}. This does not need to be 
+provided if you define your error using phiU and provide \code{bw} and 
+\code{rho}.}
 
-\item{n_cores}{cores used to do parallel computation to calculate bandwidth.}
+\item{phiU}{A function giving the characteristic function of \eqn{U}. If you 
+define the errors this way then you should not provide \code{errortype}.}
+
+\item{bw}{The bandwidth to use. If you provide this then you should also
+provide \code{rho}.}
+
+\item{rho}{The ridge parameter to use. If you provide this then you should 
+also provide \code{bw}.}
+
+\item{n_cores}{Number of cores to use when calculating the bandwidth. If
+\code{NULL}, the number of cores to use will be automatically detected.}
+
+\item{kernel_type}{The deconvolution kernel to use. The default kernel has
+characteristic function \eqn{(1-t^2)^3}.}
 }
 \value{
-Regression estimator, bandwidth and ridge parameter rho. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice
+Regression estimator, bandwidth and ridge parameter rho. Using SIMEX 
+to choose smoothing-parameters. See Delaigle and Hall 2008.
 }
 \description{
-Goal: estimate m where Y=m(X)+epsilon,  and we observe data on (W, Y),  where
-W=X+U.
-See Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With
-Errors in Variables,  The Annals of Statistics,  21,  1900-1925
+Estimates \eqn{m} from data \eqn{(W, Y)} where \eqn{Y = m(X) + \epsilon} and 
+\eqn{W = X + U}. See Fan and Truong 1993.
 }
 \section{Warnings}{
 
 \itemize{
-\item h and rho need to be consistent. They need to be both specified or unspecified.
-\item The range of t-values -1 and 1 correspond to the support of phiK.
-\item If the grid of t-values is fine enough,  the estimator can simply be
-computed like here without having problems with oscillations.
-\item The phiK here is also used to compute the bandwidth.
-\item The estimator can also be computed using the Fast Fourier Transform,  which
-is faster,  but more complex.
-\item See Delaigle,  A. and Gijbels,  I. (2007). Frequent problems in calculating
-integrals and optimizing objective functions: a case study in density
-deconvolution.   Statistics and Computing,   17,   349 - 355.}
+\item If provided, the bandwidth \code{h} and ridge parameter \code{rho} need 
+to be consistent. You should either provide both or neither.
+\item The estimator can also be computed using the Fast Fourier Transform, 
+which is faster, but more complex. See Delaigle and Gijbels 2007.
+}
 }
 
 \section{References}{
 
-Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors in Variables,  \emph{The
-Annals of Statistics}.  21,  1900-1925.
+Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors 
+in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 
-Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice in errors-in-variables
-problems.  \emph{JASA},  103,  280-287.
+Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice 
+in errors-in-variables problems. \emph{JASA},  103,  280-287.
+
+Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
+integrals and optimizing objective functions: a case study in density
+deconvolution. \emph{Statistics and Computing}, 17, 349 - 355.
 }
 
 \examples{
-    n <- 200
-	sigX <- 1
-	sigU <- 0.2
-	data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", create_Y = TRUE)
-	xx <- seq(-2, 8, 0.1)
-	output <- deconvolve::reg_deconvolve(xx = xx, W = data$W, Y = data$Y, errortype = "norm", sigU = 0.2, n_cores=2)
+n <- 200
+sigX <- 1
+sigU <- 0.2
+data <- GenerateTestData(n, sigX, sigU, dist_type = "mix", error_type = "norm", create_Y = TRUE)
+xx <- seq(-2, 8, 0.1)
+output <- reg_deconvolve(data$W, data$Y, xx, errortype = "norm", sigU = 0.2, n_cores = 2)
 }

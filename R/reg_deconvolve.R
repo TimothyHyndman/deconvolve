@@ -1,166 +1,99 @@
 #' Compute the measurement error version of the Nadaraya-Watson regression
 #' estimator
 #'
-#' Goal: estimate m where Y=m(X)+epsilon,  and we observe data on (W, Y),  where
-#' W=X+U.
-#' See Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With
-#' Errors in Variables,  The Annals of Statistics,  21,  1900-1925
-
-#' @param xx vector of x-values where to compute the regression estimator
-#' @param W vector of contaminated data W_1, ..., W_n
-#' @param Y vector of data Y_1, ..., Y_n
-#' in errors-in-variables problems.  JASA,  103,  280-287.
-#' @param errortype 'Lap' for Laplace errors and 'norm' for normal errors.
-#' @param sigU parameter of Laplace or normal errors used only to define characteristic function of the error.
-#' @param n_cores cores used to do parallel computation to calculate bandwidth.
+#' Estimates \eqn{m} from data \eqn{(W, Y)} where \eqn{Y = m(X) + \epsilon} and 
+#' \eqn{W = X + U}. See Fan and Truong 1993.
+#' 
+#' @param W A vector of the univariate contaminated data W_1, ..., W_n.
+#' @param Y A vector of the response data Y_1, ..., Y_n.
+#' @param xx A vector of x values on which to compute the regression estimator.
+#' @param errortype The distribution type of \eqn{U}. Either "Lap" for Laplace 
+#' errors or "norm" for normal errors.
+#' @param sigU The standard deviation of \eqn{U}. This does not need to be 
+#' provided if you define your error using phiU and provide \code{bw} and 
+#' \code{rho}.
+#' @param phiU A function giving the characteristic function of \eqn{U}. If you 
+#' define the errors this way then you should not provide \code{errortype}.
+#' @param bw The bandwidth to use. If you provide this then you should also
+#' provide \code{rho}.
+#' @param rho The ridge parameter to use. If you provide this then you should 
+#' also provide \code{bw}.
+#' @param n_cores Number of cores to use when calculating the bandwidth. If
+#' \code{NULL}, the number of cores to use will be automatically detected.
+#' @param kernel_type The deconvolution kernel to use. The default kernel has
+#' characteristic function \eqn{(1-t^2)^3}.
 #'
-#' @return Regression estimator, bandwidth and ridge parameter rho. See Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice
+#' @return Regression estimator, bandwidth and ridge parameter rho. Using SIMEX 
+#' to choose smoothing-parameters. See Delaigle and Hall 2008. 
 #'
 #' @section Warnings:
 #' \itemize{
-#' \item h and rho need to be consistent. They need to be both specified or unspecified.
-#' \item The range of t-values -1 and 1 correspond to the support of phiK.
-#' \item If the grid of t-values is fine enough,  the estimator can simply be
-#' computed like here without having problems with oscillations.
-#' \item The phiK here is also used to compute the bandwidth.
-#' \item The estimator can also be computed using the Fast Fourier Transform,  which
-#' is faster,  but more complex.
-#' \item See Delaigle,  A. and Gijbels,  I. (2007). Frequent problems in calculating
-#' integrals and optimizing objective functions: a case study in density
-#' deconvolution.   Statistics and Computing,   17,   349 - 355.}
+#' \item If provided, the bandwidth \code{h} and ridge parameter \code{rho} need 
+#' to be consistent. You should either provide both or neither.
+#' \item The estimator can also be computed using the Fast Fourier Transform, 
+#' which is faster, but more complex. See Delaigle and Gijbels 2007.
+#' }
 #'
 #' @section References:
-#' Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors in Variables,  \emph{The
-#' Annals of Statistics}.  21,  1900-1925.
+#' Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors 
+#' in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 #'
-#' Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice in errors-in-variables
-#' problems.  \emph{JASA},  103,  280-287.
+#' Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice 
+#' in errors-in-variables problems. \emph{JASA},  103,  280-287.
+#' 
+#' Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
+#' integrals and optimizing objective functions: a case study in density
+#' deconvolution. \emph{Statistics and Computing}, 17, 349 - 355.
 #'
 #' @example man/examples/reg_deconvolve_eg.R
 #'
 #' @export
 
-reg_deconvolve <- function(xx, W, Y, errortype, sigU, n_cores = NULL) {
+reg_deconvolve <- function(W, Y, xx, errortype = NULL, sigU = NULL, phiU = NULL,
+                           bw = NULL, rho = NULL, n_cores = NULL, 
+                           kernel_type = "default") {
 
-    # --------------------------------------------------------
-    # Preliminary calculations and initialisation of functions
-    # --------------------------------------------------------
-    W <- as.vector(W)
-    n <- length(W)
-    # error can only be normal or laplace
-    if (errortype == "Lap") {
-        phiU <- function(t) {
-            1 / (1 + sigU^2 * t^2)
+    kernel_list <- kernel(kernel_type)
+    phiK <- kernel_list$phik
+    tt <- kernel_list$tt
+    deltat <- tt[2] - tt[1]
+
+    # Check inputs -------------------------------------------------------------
+    if (is.null(errortype) & is.null(phiU)) {
+        stop("You must provide either errortype or phiU.")
+    }
+
+    if (!is.null(errortype) & is.null(sigU)) {
+        stop("You must provide sigU along with errortype.")
+    }
+
+    if ((is.null(bw) | is.null(rho)) & is.null(sigU)){
+        stop("You must provide sigU if you do not provide bw and rho.")
+    }
+
+    if (is.null(errortype) == FALSE) {
+        if ((errortype == "norm" | errortype == "Lap") == FALSE) {
+            stop("errortype must be one of: 'norm', or 'Lap'.")
         }
     }
-    if (errortype == "norm") {
-        phiU <- function(t) {
-            exp(-sigU^2 * t^2 / 2)
-        }
+
+    # Convert errortype to phiU ------------------------------------------------
+    if (is.null(phiU)){
+        phiU <- create_phiU(errors = "hom", errortype, sigU)
     }
 
-    # phiK: Fourier transform of the kernel K. You can change this if you wish
-    # to use another kernel but make sure
-    # you change the range of t-values,  which should correspond to the support
-    # of phiK
-
-    phiK <- function(t) {
-        (1 - t^2)^3
+    # Calculate bandwidth ------------------------------------------------------
+    if (is.null(bw) | is.null(rho)) {
+        outcome_tmp <- bandwidth(W = W, errortype = errortype, sigU = sigU, 
+            phiU = phiU, Y = Y, algorithm = "SIMEX", n_cores = n_cores, 
+            kernel_type = kernel_type)
+        bw <- outcome_tmp$h
+        rho <- outcome_tmp$rho
     }
 
+    # Compute estimate for m(X) ------------------------------------------------
+    y <- NWDecUknown(xx, W, Y, phiU, bw, rho, phiK, tt, deltat)
 
-    # Range of t-values (must correspond to the domain of phiK)
-    dt <- .0002
-    tt <- seq(-1, 1, dt)
-    longt <- length(tt)
-    dim(tt) <- c(length(tt), 1)
+    list(y = y, bw = bw, rho = rho)
 
-    outcome_tmp = deconvolve::bandwidth(W = W, Y = Y, errortype = errortype, sigU = sigU, algorithm = "SIMEX", n_cores = n_cores)
-        h = outcome_tmp$h
-        rho = outcome_tmp$rho
-    # Compute the empirical characteristic function of W (times n) at t/h:
-    # \hat\phi_W(t/h)
-    OO <- t(outerop(tt/h, t(W),"*"))
-    csO <- cos(OO)
-    snO <- sin(OO)
-    rm(OO)
-
-    rehatphiW <- apply(csO, 2, sum)
-    imhatphiW <- apply(snO, 2, sum)
-
-
-    # Compute \sum_j Y_j e^{itW_j/h}
-    dim(Y) <- c(1, n)
-    renum <- Y %*% csO
-    imnum <- Y %*% snO
-
-
-    # Compute numerator and denominator of the estimator separately
-    # Numerator: real part of
-    # (2*pi*h)^(-1) \int e^{-itx/h} n^(-1)\sum_j Y_j e^{itW_j/h} \phi_K(t)/\phi_U(t/h) dt
-    #
-    # Denominator: real part of
-    # (2*pi*h)^(-1) \int e^{-itx/h} \hat\phi_W(t/h) \phi_K(t)/\phi_U(t/h) dt
-
-
-    xt <- outerop(tt / h, t(xx),"*")
-    cxt <- cos(xt)
-    sxt <- sin(xt)
-    rm(xt)
-
-    phiUth <- phiU(tt / h)
-    matphiKU <- phiK(tt) / phiUth
-    dim(matphiKU) <- c(1, longt)
-
-    Den <- (rehatphiW * matphiKU) %*% cxt + (imhatphiW * matphiKU) %*% sxt
-    Num <- (renum * matphiKU) %*% cxt + (imnum * matphiKU) %*% sxt
-    Num <- Num * (dt / (n * h * 2 * pi))
-    Den <- Den * (dt / (n * h * 2 * pi))
-
-
-    # If denomintor is too small,  replace it by the ridge rho
-    dd <- Den
-    dd[which(dd < rho)] <- rho
-
-    # Finally obtain the regression estimator
-    y <- Num / dd
-
-    return(list(y=as.vector(y), bw=h, rho = rho))
-}
-
-
-
-#OUTEROP calculate an outer operation on two vectors
-#   function y=outerop(A,B,OPERATOR)
-#
-#   Calculates resultant matrix when the OPERATOR is applied
-#   to all combinations of the elements of vector A and the
-#   elements of vector B e.g. the outer product of A and B
-#   is outerop(A,B,'*'), the outer sum of A and B
-#   is outerop(A,B,'+')
-#
-#   If OPERATOR is omitted '+' is assumed
-#
-#   This function is equivalent to the
-#   APL language's circle.dot operation. e.g.
-#   in APL Ao.*B is the outer product
-#   of A and B % and Ao.+B is the outer sum.
-#   Ideally it would work on matrices but in practice
-#   I've only ever needed to use it with vectors.
-#
-#   Copyright Murphy O'Brien 2005
-#   all rights unreserved
-#
-outerop<-function(a,b,operator)
-{
-    if (missing(operator))
-    {operator="+"}                      # for only two arguments assume outerproduct
-
-    if (operator=="*")                      # common operator
-    {y=a%*%b} else
-    {outera=as.matrix(a)%*%rep(1,length(b))          # these are the matrices that
-    outerb=as.matrix(rep(1,length(a)))%*%b # meshgrid(A,B) would generate
-    functionHandle=match.fun(operator)    # new R14 functionality
-    y=functionHandle(outera,outerb)  }    # allows faster/neater method
-    return (y)
 }
