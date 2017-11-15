@@ -25,6 +25,13 @@
 GenerateTestData <- function(n, sd_X = 1, sd_U = 0.2, dist_type = "chi", 
 							 error_type = "norm", create_Y = FALSE){
 	
+	error_types <- c("normal", "laplace")
+    error_type <- error_types[pmatch(tolower(error_type), error_types)]
+    if (is.na(error_type)) {
+            stop("Please provide a valid errortype.")
+    }
+
+
 	# Sample true data ---------------------------------------------------------
 	if (dist_type == "chi"){
 		df <- 3
@@ -61,7 +68,7 @@ GenerateTestData <- function(n, sd_X = 1, sd_U = 0.2, dist_type = "chi",
 
 
 	# Sample error -------------------------------------------------------------
-	if (error_type == "norm"){
+	if (error_type == "normal"){
 		if (length(sd_U) == 1){
 			U <- stats::rnorm(n, sd = sd_U)
 		} else {
@@ -72,7 +79,7 @@ GenerateTestData <- function(n, sd_X = 1, sd_U = 0.2, dist_type = "chi",
 		}
 	}
 
-	if (error_type == "Lap") {
+	if (error_type == "laplace") {
 		if (length(sd_U) == 1) {
 			sigLap <- sd_U / sqrt(2)
 			U <- rlap(sigLap, 1, n)
