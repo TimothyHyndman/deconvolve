@@ -6,7 +6,8 @@
 estimator}
 \usage{
 reg_deconvolve(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
-  bw = NULL, rho = NULL, n_cores = NULL, kernel_type = "default")
+  bw = NULL, rho = NULL, n_cores = NULL, kernel_type = c("default"),
+  seed = NULL)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
@@ -15,22 +16,22 @@ reg_deconvolve(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
 \item{xx}{A vector of x values on which to compute the regression estimator.}
 
-\item{errortype}{The distribution type of \eqn{U}. Either "laplace" or 
-"normal". If you define the errors this way then you must also provide 
+\item{errortype}{The distribution type of \eqn{U}. Either "laplace" or
+"normal". If you define the errors this way then you must also provide
 \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
 and partially matched.}
 
-\item{sd_U}{The standard deviation of \eqn{U}. This does not need to be 
-provided if you define your error using phiU and provide \code{bw} and 
+\item{sd_U}{The standard deviation of \eqn{U}. This does not need to be
+provided if you define your error using phiU and provide \code{bw} and
 \code{rho}.}
 
-\item{phiU}{A function giving the characteristic function of \eqn{U}. If you 
+\item{phiU}{A function giving the characteristic function of \eqn{U}. If you
 define the errors this way then you should not provide \code{errortype}.}
 
 \item{bw}{The bandwidth to use. If you provide this then you should also
 provide \code{rho}.}
 
-\item{rho}{The ridge parameter to use. If you provide this then you should 
+\item{rho}{The ridge parameter to use. If you provide this then you should
 also provide \code{bw}.}
 
 \item{n_cores}{Number of cores to use when calculating the bandwidth. If
@@ -38,31 +39,33 @@ also provide \code{bw}.}
 
 \item{kernel_type}{The deconvolution kernel to use. The default kernel has
 characteristic function \eqn{(1-t^2)^3}.}
+
+\item{seed}{Set seed for SIMEX. Otherwise a default seed will be automatically set.}
 }
 \value{
-Regression estimator, bandwidth and ridge parameter rho. Using SIMEX 
+Regression estimator, bandwidth and ridge parameter rho. Using SIMEX
 to choose smoothing-parameters. See Delaigle and Hall 2008.
 }
 \description{
-Estimates \eqn{m} from data \eqn{(W, Y)} where \eqn{Y = m(X) + \epsilon} and 
+Estimates \eqn{m} from data \eqn{(W, Y)} where \eqn{Y = m(X) + \epsilon} and
 \eqn{W = X + U}. See Fan and Truong 1993.
 }
 \section{Warnings}{
 
 \itemize{
-\item If provided, the bandwidth \code{h} and ridge parameter \code{rho} need 
+\item If provided, the bandwidth \code{h} and ridge parameter \code{rho} need
 to be consistent. You should either provide both or neither.
-\item The estimator can also be computed using the Fast Fourier Transform, 
+\item The estimator can also be computed using the Fast Fourier Transform,
 which is faster, but more complex. See Delaigle and Gijbels 2007.
 }
 }
 
 \section{References}{
 
-Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors 
+Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
 in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 
-Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice 
+Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
 in errors-in-variables problems. \emph{JASA},  103,  280-287.
 
 Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating

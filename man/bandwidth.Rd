@@ -5,7 +5,8 @@
 \title{Bandwidth Selectors for Deconvolution Kernel Density Estimation}
 \usage{
 bandwidth(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
-  algorithm = "PI", n_cores = NULL, kernel_type = "default")
+  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
+  kernel_type = c("default"), seed = NULL)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -36,6 +37,8 @@ homoscedastic.}
 
 \item{kernel_type}{The deconvolution kernel to use. The default kernel has
 characteristic function \eqn{(1-t^2)^3}.}
+
+\item{seed}{Set seed for SIMEX only.}
 }
 \value{
 The bandwidth estimator. If using 'SIMEX' algorithm then returns a

@@ -22,13 +22,13 @@
 # rho: ridge parameter.
 
 hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt,
-						 no_cores){
+						 n_cores, seed){
 
-	if (is.null(no_cores)){
-		no_cores = parallel::detectCores()
-		no_cores = max(no_cores - 1, 1)
+	if (is.null(n_cores)){
+		n_cores = parallel::detectCores()
+		n_cores = max(n_cores - 1, 1)
 	}
-	cl <- parallel::makeCluster(no_cores)
+	cl <- parallel::makeCluster(n_cores)
 	doParallel::registerDoParallel(cl)
 
 	W <- as.vector(W)
@@ -90,6 +90,11 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt
 	indbin <- matrix(unlist(BinData(W, nbin)[2]), nrow = n)
 
 	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
+	    #set seed
+	    if (!is.null(seed)){
+	        set.seed(seed + bb)
+	    }else{
+	    set.seed(bb+1000)}
 		CVrho <- matrix(0, lh, lrho)
 		# Generate SIMEX data Wstar
 		if (errortype == "laplace") {
@@ -133,6 +138,12 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt
 
 
 	outcome_SIMEX2 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
+
+	    if (!is.null(seed)){
+	        set.seed(seed + bb + BB)
+	    }else{
+	        set.seed(bb + 1000 + BB)}
+
 		CVhstar_tmp <- 0 * gridh
 		# Generate SIMEX data Wstar2
 		if (errortype == "laplace"){

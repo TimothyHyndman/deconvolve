@@ -41,6 +41,7 @@
 #' @param sd_U The standard deviations of \eqn{U}. A single value for
 #' homoscedastic errors and a vector having the same length as \code{W} for
 #' heteroscedastic errors.
+#' @param seed Set seed for SIMEX only.
 #'
 #' @return The bandwidth estimator. If using 'SIMEX' algorithm then returns a
 #' list containing the bandwidth 'h' and ridge parameter 'rho'.
@@ -76,8 +77,8 @@
 #' @export
 
 bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
-					  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL, 
-					  kernel_type = c("default")){
+					  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
+					  kernel_type = c("default"), seed = NULL){
 
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
@@ -162,7 +163,7 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 	} else {
 		kernel_list <- kernel(kernel_type)
 	}
-	
+
 	phiK <- kernel_list$phik
 	muK2 <- kernel_list$muk2
 	RK <- kernel_list$rk
@@ -220,7 +221,7 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 
 	if (algorithm == "SIMEX") {
 		output <- hSIMEXUknown(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat,
-							   tt, n_cores)
+							   tt, n_cores, seed)
 	}
 
 	output
