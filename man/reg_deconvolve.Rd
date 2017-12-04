@@ -66,7 +66,8 @@ Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
 in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 
 Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
-in errors-in-variables problems. \emph{JASA},  103,  280-287.
+in errors-in-variables problems. \emph{Journal of the American Statistical
+Association}, 103, 481, 280-287
 
 Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
 integrals and optimizing objective functions: a case study in density
@@ -80,4 +81,7 @@ sd_U <- 0.2
 data <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm", create_Y = TRUE)
 xx <- seq(-2, 8, 0.1)
 output <- reg_deconvolve(data$W, data$Y, xx, errortype = "norm", sd_U = 0.2, n_cores = 2)
+}
+\author{
+Aurore Delaigle, Timothy Hyndman, Tianying Wang
 }

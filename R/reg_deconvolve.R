@@ -42,12 +42,15 @@
 #' in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 #'
 #' Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
-#' in errors-in-variables problems. \emph{JASA},  103,  280-287.
+#' in errors-in-variables problems. \emph{Journal of the American Statistical
+#' Association}, 103, 481, 280-287
 #'
 #' Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
 #' integrals and optimizing objective functions: a case study in density
 #' deconvolution. \emph{Statistics and Computing}, 17, 349 - 355.
-#'
+#' 
+#' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
+#' 
 #' @example man/examples/reg_deconvolve_eg.R
 #'
 #' @export

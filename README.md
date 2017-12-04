@@ -3,7 +3,7 @@
 deconvolve
 ==========
 
-The R package *deconvolve* provides tools for performing non-parametric deconvolution on measurement error problems.
+The R package *deconvolve* provides tools for performing non-parametric deconvolution on measurement error problems. It contains functions for finding bandwidths, deconvolved densities and non-parametric regression estimates.
 
 Installation
 ------------
@@ -21,7 +21,13 @@ Usage
 ``` r
 library(deconvolve)
 
-# Put example here
+# Put examples here
+
+# Bandwidth
+
+# Deconvolution
+
+# Regression
 ```
 
 License

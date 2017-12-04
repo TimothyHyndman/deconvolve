@@ -1,18 +1,23 @@
 Package: deconvolve
-Type: Package
 Title: Deconvolution Tools for Measurement Error Problems
-Version: 0.1
-Date: 2017-03-18
-Author: Aurore Delaigle and Tianying Wang
-Maintainer: Tianying Wang <tianying@stat.tamu.edu>
-Description: This package provides tools for performing non-parametric deconvolution on measurement error problems.
-License: GPL-2
-ByteCompile: true
-Packaged: 2017-03-19 02:59:48 UTC; tianying
-RoxygenNote: 6.0.1
+Version: 0.0.1
+Authors@R: c(
+	person("Aurore", "Delaigle", role = c("aut", "cre"), email = "aurored@unimelb.edu.au"),
+	person("Timothy", "Hyndman", role = "aut", email = "timothy.hyndman@gmail.com"),
+	person("Tianying", "Wang", role = "aut"))
+Maintainer: Timothy Hyndman <timothy.hyndman@gmail.com>
+Description: This package provides tools for performing non-parametric 
+	deconvolution on measurement error problems.
+Depends: R (>= 3.4.2)
 Imports:
 	stats,
 	NlcOptim,
 	ggplot2,
 	foreach,
 	doParallel
+LazyData: yes
+ByteCompile: TRUE
+URL: https://github.com/TimothyHyndman/deconvolve
+BugReports: https://github.com/TimothyHyndman/deconvolve/issues
+License: GPL (>=2)
+RoxygenNote: 6.0.1

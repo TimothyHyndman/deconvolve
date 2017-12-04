@@ -15,7 +15,8 @@ knitr::opts_chunk$set(
 # deconvolve
 
 The R package *deconvolve* provides tools for performing non-parametric 
-deconvolution on measurement error problems.
+deconvolution on measurement error problems. It contains functions for finding 
+bandwidths, deconvolved densities and non-parametric regression estimates.
 
 ## Installation
 
@@ -32,7 +33,13 @@ devtools::install_github("timothyhyndman/deconvolve")
 ```{r, eval=FALSE}
 library(deconvolve)
 
-# Put example here
+# Put examples here
+
+# Bandwidth
+
+# Deconvolution
+
+# Regression
 
 ```
 
