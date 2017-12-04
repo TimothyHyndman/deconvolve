@@ -89,6 +89,7 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt
 	midbin <- unlist(BinData(W, nbin)[1])
 	indbin <- matrix(unlist(BinData(W, nbin)[2]), nrow = n)
 
+	bb <- NULL
 	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
 	    #set seed
 	    if (!is.null(seed)){
