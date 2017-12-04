@@ -1,6 +1,6 @@
 Package: deconvolve
 Title: Deconvolution Tools for Measurement Error Problems
-Version: 0.0.1
+Version: 0.1.0
 Authors@R: c(
 	person("Aurore", "Delaigle", role = c("aut", "cre"), email = "aurored@unimelb.edu.au"),
 	person("Timothy", "Hyndman", role = "aut", email = "timothy.hyndman@gmail.com"),
