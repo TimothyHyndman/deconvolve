@@ -1,0 +1,41 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figure/"
+)
+```
+
+# deconvolve
+
+The R package *deconvolve* provides tools for performing non-parametric 
+deconvolution on measurement error problems.
+
+## Installation
+
+You can install the **development** version from 
+[Github](https://github.com/timothyhyndman/deconvolve).
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("timothyhyndman/deconvolve")
+```
+
+## Usage
+
+```{r, eval=FALSE}
+library(deconvolve)
+
+# Put example here
+
+```
+
+## License
+
+This package is free and open source software, licensed under GPL (>=2).
