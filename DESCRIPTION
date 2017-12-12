@@ -4,9 +4,9 @@ Version: 0.1.0
 Authors@R: c(
 	person("Aurore", "Delaigle", role = c("aut", "cre"), email = "aurored@unimelb.edu.au"),
 	person("Timothy", "Hyndman", role = "aut", email = "timothy.hyndman@gmail.com"),
-	person("Tianying", "Wang", role = "aut"))
+	person("Tianying", "Wang", role = "aut", email = "tianying@stat.tamu.edu"))
 Maintainer: Timothy Hyndman <timothy.hyndman@gmail.com>
-Description: This package provides tools for performing non-parametric 
+Description: This package provides tools for performing non-parametric
 	deconvolution on measurement error problems.
 Depends: R (>= 3.4.2)
 Imports:
