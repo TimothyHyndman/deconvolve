@@ -25,8 +25,10 @@ and partially matched.}
 provided if you define your error using phiU and provide \code{bw} and
 \code{rho}.}
 
-\item{phiU}{A function giving the characteristic function of \eqn{U}. If you
-define the errors this way then you should not provide \code{errortype}.}
+\item{phiU}{A function giving the characteristic function of \eqn{U}. You 
+should only define the errors this way if you also provide \code{bw} and 
+\code{rho}. If you define the errors this way then you should not provide 
+\code{errortype}.}
 
 \item{bw}{The bandwidth to use. If you provide this then you should also
 provide \code{rho}.}

@@ -14,8 +14,10 @@
 #' @param sd_U The standard deviation of \eqn{U}. This does not need to be
 #' provided if you define your error using phiU and provide \code{bw} and
 #' \code{rho}.
-#' @param phiU A function giving the characteristic function of \eqn{U}. If you
-#' define the errors this way then you should not provide \code{errortype}.
+#' @param phiU A function giving the characteristic function of \eqn{U}. You 
+#' should only define the errors this way if you also provide \code{bw} and 
+#' \code{rho}. If you define the errors this way then you should not provide 
+#' \code{errortype}. 
 #' @param bw The bandwidth to use. If you provide this then you should also
 #' provide \code{rho}.
 #' @param rho The ridge parameter to use. If you provide this then you should
@@ -77,6 +79,10 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
     if (!is.null(errortype) & is.null(sd_U)) {
         stop("You must provide sd_U along with errortype.")
+    }
+
+    if ((is.null(bw) | is.null(rho)) & (is.null(sd_U) | is.null(errortype))) {
+            stop("If the bandwidth is not provided then you must provide errortype and sd_U.")
     }
 
     if ((is.null(bw) | is.null(rho)) & is.null(sd_U)){
