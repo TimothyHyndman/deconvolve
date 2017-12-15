@@ -21,13 +21,10 @@ Usage
 ``` r
 library(deconvolve)
 
-# Put examples here
-
-# Bandwidth
-
-# Deconvolution
-
-# Regression
+n <- 200
+W <- GenerateTestData(n, dist_type = "chi", error_type = "norm")
+xx <- seq(min(W), max(W), length.out = 100)
+d <- deconvolve(W, xx)
 ```
 
 License
