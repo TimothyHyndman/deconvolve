@@ -82,7 +82,7 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
     }
 
     if ((is.null(bw) | is.null(rho)) & (is.null(sd_U) | is.null(errortype))) {
-            stop("If the bandwidth is not provided then you must provide errortype and sd_U.")
+        stop("If the bandwidth is not provided then you must provide errortype and sd_U.")
     }
 
     if ((is.null(bw) | is.null(rho)) & is.null(sd_U)){

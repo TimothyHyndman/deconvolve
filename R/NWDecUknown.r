@@ -100,4 +100,3 @@ NWDecUknown <- function(xx, W, Y, phiU, h, rho, phiK, t, dt) {
 
 	as.vector(y)
 }
-
