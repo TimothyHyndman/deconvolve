@@ -22,7 +22,7 @@
 #' Meister 2008.
 #' 
 #' Errors can be defined by either a distribution type (\code{errortype}) along 
-#' with the standard deviation(s) (\code{sd_U}), or by the characteric 
+#' with the standard deviation(s) (\code{sd_U}), or by the characteristic 
 #' function(s) of the errors (\code{phiU}). 
 #' 
 #' @param W A vector of the univariate contaminated data.

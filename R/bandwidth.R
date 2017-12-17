@@ -34,7 +34,7 @@
 #' @param algorithm Either \code{"PI"} for plug-in estimator or \code{"CV"} for
 #' cross-validation estimator. If \code{"CV"} then the errors must be
 #' homoscedastic.
-#' @param Y A vector of the univariate dependant data. Only required for 'SIMEX'
+#' @param Y A vector of the univariate dependent data. Only required for 'SIMEX'
 #' algorithm.
 #' @param n_cores Number of cores to use when using SIMEX algorithm. If
 #' \code{NULL}, the number of cores to use will be automatically detected.
