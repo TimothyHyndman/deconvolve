@@ -16,8 +16,8 @@ NWDecridgeL1OCUknown <- function(n, W, Y, phiU, h, rhogrid, midbin,
 
 	# Compute the empirical characteristic function of W (times n) at t/h: 
 	# \hat\phi_W(t/h)
-	OO <- matrix(rep(th, n), nrow = n,byrow = T)
-	OO <- matrix(rep(W, longt), ncol = longt,byrow = F) * OO
+	OO <- matrix(rep(th, n), nrow = n,byrow = TRUE)
+	OO <- matrix(rep(W, longt), ncol = longt,byrow = FALSE) * OO
 	csO <- cos(OO)
 	snO <- sin(OO)
 	rm(OO)
@@ -32,8 +32,8 @@ NWDecridgeL1OCUknown <- function(n, W, Y, phiU, h, rhogrid, midbin,
 
 	# Compute \hat m(M_i) where M_i is the middle of the bin in which X_i (the 
 	# non contaminated data) lies
-	xt <- matrix(rep(th, nbin), ncol = nbin, byrow = F) 
-	xt <- xt * matrix(rep(midbin, longt), nrow = longt, byrow = T)
+	xt <- matrix(rep(th, nbin), ncol = nbin, byrow = FALSE) 
+	xt <- xt * matrix(rep(midbin, longt), nrow = longt, byrow = TRUE)
 	cxt <- cos(xt)
 	sxt <- sin(xt)
 	rm(xt)

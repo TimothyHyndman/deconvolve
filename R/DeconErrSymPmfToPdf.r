@@ -64,6 +64,6 @@ estimate_var_u <- function(W, tt.BB, theta, p){
 	t_vec <- 		  tt.BB[ phi.U.BB >= 0.95 ]
 	phi.U.t_vec <- phi.U.BB[ phi.U.BB >= 0.95 ]
 
-	pp <- stats::lm(phi.U.t_vec ~ stats::poly(t_vec, 2, raw = T))
+	pp <- stats::lm(phi.U.t_vec ~ stats::poly(t_vec, 2, raw = TRUE))
 	hat.var.U <- -2 * pp$coefficients[[3]]
 }

@@ -212,9 +212,9 @@ BinData <- function(W, nbin){
 
 	# Find in which bin each observation lies
 	Wmat = kronecker(matrix(1, 1, nbin), W)
-	Amat = matrix(rep(Abin, n), nrow = n, byrow = T)
-	Bmat = matrix(rep(Bbin, n), nrow = n, byrow = T)
-	indice = matrix(rep(seq(1, nbin), n), nrow = n, byrow = T)
+	Amat <- matrix(rep(Abin, n), nrow = n, byrow = TRUE)
+	Bmat <- matrix(rep(Bbin, n), nrow = n, byrow = TRUE)
+	indice <- matrix(rep(seq(1, nbin), n), nrow = n, byrow = TRUE)
 	indice = apply(indice * ((Wmat > Amat) & (Wmat <= Bmat)), 1, sum)
 
 	# Put those beyond the extremities at the extremities

@@ -1,5 +1,5 @@
 DeconErrSymPmf <- function(W, m, n.iter.tp = 5, n.iter.var = 2, 
-						   show.diagnostics = F){
+						   show.diagnostics = FALSE){
 
 	Diagnostic <- function(message){
 		PrintDiagnostic(message, show.diagnostics)
@@ -114,13 +114,13 @@ DeconErrSymPmf <- function(W, m, n.iter.tp = 5, n.iter.var = 2,
 
 	var.min <- Inf
 	for (i in 1:n.iter.var){
-		looping <- T
+		looping <- TRUE
 		while (looping){			
 			# NlcOptim can't handle it if the Generated QP problem is infeasible
 			# However, this error only pops up some of the time. For now, a 
 			# dirty solution is to keep running the code with different starting
 			# values and ignore everything until we get no error
-			looping <- F
+			looping <- FALSE
 
 			theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
 			p0 <- stats::runif(m, min = 0, max = 1)
@@ -140,7 +140,7 @@ DeconErrSymPmf <- function(W, m, n.iter.tp = 5, n.iter.var = 2,
 			})
 
 			if (is.null(min.var.sol.test)) {
-				looping <- T
+				looping <- TRUE
 			}
 		}
 		
@@ -232,9 +232,9 @@ SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
 
 	# Combine thetas that are too close together
 	if (length(p) > 1){
-		looping <- T
+		looping <- TRUE
 	} else {
-		looping <- F
+		looping <- FALSE
 	}
 
 	i <- 1
@@ -250,7 +250,7 @@ SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
 		}
 
 		if (i >= length(p)){
-			looping <- F
+			looping <- FALSE
 		}
 	}
 
