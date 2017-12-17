@@ -25,7 +25,7 @@ single value for homoscedastic errors and a vector having the same length as
 \code{W} for heteroscedastic errors. If you define the errors this way then 
 you should not provide \code{errortype}.}
 
-\item{Y}{A vector of the univariate dependant data. Only required for 'SIMEX'
+\item{Y}{A vector of the univariate dependent data. Only required for 'SIMEX'
 algorithm.}
 
 \item{algorithm}{Either \code{"PI"} for plug-in estimator or \code{"CV"} for

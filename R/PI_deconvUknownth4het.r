@@ -85,7 +85,7 @@ phiKsq=as.vector(phiKsq)
 
 #Compute sum over k of phiU_k(tt/h)^2
 phiUsq=matrix(0,length(tt),length(hgrid))
-for (k in 1:n)
+for (k in seq_len(n))
 	{
 	matphiU=phiUk(toverh,k)
 	phiUsq=phiUsq+matphiU^2
@@ -123,7 +123,7 @@ OO <- outer(tt / h3, W)
 
 # Compute phiU(-t/h) -- since phiU is symmetric, this is the same as phiU(t/h)
 matphiU=OO
-for (k in 1:n)
+for (k in seq_len(n))
 	{matphiU[,k]=phiUk(tt/h3,k)}
 
 
@@ -163,7 +163,7 @@ h2 = hgrid[indh2]
 OO <- outer(tt / h2, W)
 # Compute phiU(-t/h) -- since phiU is symmetric, this is the same as phiU(t/h)
 matphiU=OO
-for (k in 1:n)
+for (k in seq_len(n))
 	{matphiU[,k]=phiUk(tt/h2,k)}
 
 #Estimate empirical characteristic function of X at t/h2

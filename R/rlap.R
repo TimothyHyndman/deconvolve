@@ -2,7 +2,7 @@
 # variance of a Laplace(sigLap) is equal to 2 sigLap^2. Thus sigLap is NOT the
 # standard deviation.
 rlap <- function(sigLap, n1, n2){
-	y <- matrix(stats::runif(n1 * n2, 0, 1), nrow = n1, ncol = n2, byrow = T)
+	y <- matrix(stats::runif(n1 * n2, 0, 1), nrow = n1, ncol = n2, byrow = TRUE)
 	response <- sigLap * log(2 * y)
 	response[which(y > 0.5)] <- -sigLap * log(2 - 2 * y[which(y > 0.5)])
 

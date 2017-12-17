@@ -25,8 +25,8 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt
 						 n_cores, seed){
 
 	if (is.null(n_cores)){
-		n_cores = parallel::detectCores()
-		n_cores = max(n_cores - 1, 1)
+		n_cores <- parallel::detectCores()
+		n_cores <- max(n_cores - 1, 1)
 	}
 	cl <- parallel::makeCluster(n_cores)
 	doParallel::registerDoParallel(cl)
@@ -118,7 +118,7 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt
 	CVrho <- matrix(0, lh, lrho)
 	for (i in 1:BB)
 	{
-		CVrho = CVrho + outcome_SIMEX1[[i]]
+		CVrho <- CVrho + outcome_SIMEX1[[i]]
 	}
 
 
@@ -195,31 +195,31 @@ BinData <- function(W, nbin){
 	# This program bins the data W into nbins
 
 	n <- length(W)
-	dim(W) = c(n, 1)
+	dim(W) <- c(n, 1)
 
 	# Compute extremities of the bins
-	ab = stats::quantile(W, c(0.05, 0.95))
+	ab <- stats::quantile(W, c(0.05, 0.95))
 
 	# Bin widths
-	delta = (ab[2] - ab[1]) / nbin
+	delta <- (ab[2] - ab[1]) / nbin
 
 	# Bin centers
-	midbin = ab[1] + delta / 2 + delta * (seq(0, (nbin - 1)))
+	midbin <- ab[1] + delta / 2 + delta * (seq(0, (nbin - 1)))
 
 	# Bin left and right extremities
-	Abin = midbin - delta / 2
-	Bbin = midbin + delta / 2
+	Abin <- midbin - delta / 2
+	Bbin <- midbin + delta / 2
 
 	# Find in which bin each observation lies
-	Wmat = kronecker(matrix(1, 1, nbin), W)
-	Amat = matrix(rep(Abin, n), nrow = n, byrow = T)
-	Bmat = matrix(rep(Bbin, n), nrow = n, byrow = T)
-	indice = matrix(rep(seq(1, nbin), n), nrow = n, byrow = T)
-	indice = apply(indice * ((Wmat > Amat) & (Wmat <= Bmat)), 1, sum)
+	Wmat <- kronecker(matrix(1, 1, nbin), W)
+	Amat <- matrix(rep(Abin, n), nrow = n, byrow = TRUE)
+	Bmat <- matrix(rep(Bbin, n), nrow = n, byrow = TRUE)
+	indice <- matrix(rep(seq(1, nbin), n), nrow = n, byrow = TRUE)
+	indice <- apply(indice * ((Wmat > Amat) & (Wmat <= Bmat)), 1, sum)
 
 	# Put those beyond the extremities at the extremities
-	indice[which(W <= Abin[1])] = 1
-	indice[which(W > Bbin[nbin])] = nbin
+	indice[which(W <= Abin[1])] <- 1
+	indice[which(W > Bbin[nbin])] <- nbin
 
 	list2 <- list(midbin, indice)
 

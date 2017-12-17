@@ -22,7 +22,7 @@
 #' Meister 2008.
 #' 
 #' Errors can be defined by either a distribution type (\code{errortype}) along 
-#' with the standard deviation(s) (\code{sd_U}), or by the characteric 
+#' with the standard deviation(s) (\code{sd_U}), or by the characteristic 
 #' function(s) of the errors (\code{phiU}). 
 #' 
 #' @param W A vector of the univariate contaminated data.
@@ -114,7 +114,7 @@
 
 deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, 
 					   bw = NULL, rescale = FALSE, pmf = FALSE, 
-					   kernel_type = c("default"), m = 20){
+					   kernel_type = "default", m = 20){
 
 	# Partial matching ---------------------------------------------------------
 	dist_types <- c("normal", "laplace")

@@ -1,4 +1,4 @@
-CVdeconv <- function(n, W, phiU, phiK, muK2, RK, deltat, tt){
+CVdeconv <- function(n, W, phiU, phiK, muK2, RK, deltat, tt) {
 
 # Authors: Aurore Delaigle
 # This function computes the cross-validation (CV) bandwidth for kernel 
@@ -47,72 +47,65 @@ CVdeconv <- function(n, W, phiU, phiK, muK2, RK, deltat, tt){
 # Preliminary calculations and initialisation of functions
 # --------------------------------------------------------
 
+	W  <- as.vector(W)
 
-W=as.vector(W)
+	#make sure t is a vector in the right format
+	dim(tt) <- c(length(tt),1)
 
-#make sure t is a vector in the right format
-dim(tt)=c(length(tt),1);
+	#Define hgrid, the grid of h values where to search for a solution: you can change the default grid if no solution is found on this grid.
+	maxh <- (max(W)-min(W))/10
 
+	#normal reference bandwidth of the naive KDE estimator (estimator that ignores the errors) using the same kernel as above
+	hnaive <- ((8*sqrt(pi)*RK/3/muK2^2)^0.2)*sqrt( stats::var(W) )*n^(-1/5)
 
-#Define hgrid, the grid of h values where to search for a solution: you can change the default grid if no solution is found on this grid.
-maxh=(max(W)-min(W))/10;
+	#grid of h values on which we will look for hCV, If you did not find a minimum on that grid you can redefine it
+	hgrid <- seq(hnaive/3,maxh,(maxh-hnaive/3)/100)
+	lh <- length(hgrid)
+	dim(hgrid) <- c(1,lh)
 
-#normal reference bandwidth of the naive KDE estimator (estimator that ignores the errors) using the same kernel as above
-hnaive=((8*sqrt(pi)*RK/3/muK2^2)^0.2)*sqrt( stats::var(W) )*n^(-1/5);
+	#Quantities that will be needed several times in the computations below
+	toverh <- tt%*%(1/hgrid)
+	phiU2 <- phiU(toverh)^2
+	phiKt <- phiK(tt)
 
-#grid of h values on which we will look for hCV, If you did not find a minimum on that grid you can redefine it
-hgrid=seq(hnaive/3,maxh,(maxh-hnaive/3)/100);
-lh = length(hgrid);
-dim(hgrid)=c(1,lh);
+	#----------------------
+	#Compute CV criterion
+	#----------------------
 
+	longh <- length(hgrid)
+	CVcrit <- rep(0,longh)
+	OO <- outer(tt, t(W))
 
-#Quantities that will be needed several times in the computations below
-toverh=tt%*%(1/hgrid);
-phiU2=phiU(toverh)^2;
-phiKt=phiK(tt);
+	#Compute CV criterion for all values of h on the grid of h values
 
+	for (j in seq_len(longh)) {
+		h <- hgrid[j]
 
-
-#----------------------
-#Compute CV criterion
-#----------------------
-
-longh=length(hgrid);
-CVcrit=rep(0,longh);
-OO = outer(tt, t(W))
-
-
-#Compute CV criterion for all values of h on the grid of h values
-
-for (j in 1:longh)
-	{
-	h=hgrid[j];
-
-	#Estimate the square of the norm of the empirical characteristic function of W
-	rehatphiW=apply(cos(OO/h),1,sum)/n;
-	imhatphiW=apply(sin(OO/h),1,sum)/n;
-	normhatphiW2=rehatphiW^2+imhatphiW^2;
-	
-	#Compute CV
-	CVcrit[j]=sum(phiKt/phiU2[,j]*(normhatphiW2*((n-1)*phiKt-2*n)+2));
-	CVcrit[j]=CVcrit[j]/h;
+		#Estimate the square of the norm of the empirical characteristic function of W
+		rehatphiW <- apply(cos(OO/h),1,sum)/n
+		imhatphiW <- apply(sin(OO/h),1,sum)/n
+		normhatphiW2 <- rehatphiW^2+imhatphiW^2
+		
+		#Compute CV
+		CVcrit[j] <- sum(phiKt/phiU2[,j]*(normhatphiW2*((n-1)*phiKt-2*n)+2))
+		CVcrit[j] <- CVcrit[j]/h
 	}
 
+	#----------------------
+	#Find CV bandwidth
+	#----------------------
 
-#----------------------
-#Find CV bandwidth
-#----------------------
+	#Find the indices corresponding to all local minima of the CV curve
+	indh <- which((CVcrit[2:(longh-1)] < CVcrit[1:(longh-2)]) & (CVcrit[2:(longh-1)] < CVcrit[3:(longh)]))
 
-#Find the indices corresponding to all local minima of the CV curve
-indh=which((CVcrit[2:(longh-1)]<CVcrit[1:(longh-2)])&(CVcrit[2:(longh-1)]<CVcrit[3:(longh)]));
+	#if did not find a local minimum, take the global minimun on the boundaries of the h grid
+	if (length(indh)<1) {
+		hCV <- which.min(CVcrit)
+	} else {
+		#In case of multiple solutions, take the largest bandwidth: you can change this to your preferred way of breaking ties
+		hCV <- max(hgrid[indh])
+	}
 
-
-#if did not find a local minimum, take the global minimun on the boundaries of the h grid
-if (length(indh)<1)
-	{hCV=which.min(CVcrit)} else {
-	#In case of multiple solutions, take the largest bandwidth: you can change this to your preferred way of breaking ties
-	hCV = max(hgrid[indh]);}
-
-
-return (hCV)}
+	return (hCV)
+}
 
