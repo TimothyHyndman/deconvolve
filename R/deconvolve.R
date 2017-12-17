@@ -114,7 +114,7 @@
 
 deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, 
 					   bw = NULL, rescale = FALSE, pmf = FALSE, 
-					   kernel_type = c("default"), m = 20){
+					   kernel_type = "default", m = 20){
 
 	# Partial matching ---------------------------------------------------------
 	dist_types <- c("normal", "laplace")

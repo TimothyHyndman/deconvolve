@@ -78,7 +78,7 @@
 
 bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 					  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
-					  kernel_type = c("default"), seed = NULL){
+					  kernel_type = "default", seed = NULL){
 
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {

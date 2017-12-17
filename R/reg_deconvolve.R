@@ -59,7 +59,7 @@
 
 reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
                            bw = NULL, rho = NULL, n_cores = NULL,
-                           kernel_type = c("default"), seed = NULL) {
+                           kernel_type = "default", seed = NULL) {
 
     # Partial matching ---------------------------------------------------------
     dist_types <- c("normal", "laplace")
