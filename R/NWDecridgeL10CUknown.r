@@ -54,7 +54,7 @@ NWDecridgeL1OCUknown <- function(n, W, Y, phiU, h, rhogrid, midbin,
 	snO <- t(snO)
 
 	Den <- Den - matphiKU %*% (csO * cxt) - matphiKU %*% (snO * sxt)
-	for (i in 1:n) {
+	for (i in seq_len(n)) {
 		csO[, i] <- csO[, i] * Y[i]
 		snO[, i] <- snO[, i] * Y[i]
 	}
@@ -72,7 +72,7 @@ NWDecridgeL1OCUknown <- function(n, W, Y, phiU, h, rhogrid, midbin,
 	fWEF <- stats::dnorm(xout, 0, hW) %*% (numeric(n) + 1/n)
 
 	CV <- 0 * rhogrid
-	for (krho in 1:length(rhogrid))	{
+	for (krho in seq_along(rhogrid))	{
 		rho <- rhogrid[krho]
 		dd <- Den
 		dd[which(dd<rho)] <- rho
