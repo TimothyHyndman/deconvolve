@@ -21,7 +21,7 @@ DeconErrKnownHetPdf <- function(xx, W, h, phiUkvec, rescale, phiK, muK2, RK, tt)
 
 	# Compute phiU_k(-t/h) for each k -- since phiU_k is symmetric, this is the 
 	# same as phiU_k(t/h)
-	matphiU <- OO;
+	matphiU <- OO
 	for (k in 1:n)
 		matphiU[, k] <- phiUk(tt / h, k)
 

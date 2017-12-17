@@ -1,4 +1,4 @@
-PI_deconvUknownth4<-function(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt){
+PI_deconvUknownth4 <- function(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt){
 
 # Authors: Aurore Delaigle
 # compute 2-stage plug-in bandwidth for kerndel deconvolution estimator as in:
@@ -63,141 +63,129 @@ PI_deconvUknownth4<-function(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt){
 #
 # In case of multiple bandwidth solutions, by default this code takes the 
 # largest solution: you can change this to your preferred way of breaking ties.
-# Often if you plot CV you will see that the first few solutions seem 
-# unreasonable (CV fluctuates widely). You can take the first minimum that looks 
+# Often if you plot CV you will see that the first few solutions seem
+# unreasonable (CV fluctuates widely). You can take the first minimum that looks
 # reasonable.
 #-------------------------------------------------------------------------------
 
 
-# --------------------------------------------------------
-# Preliminary calculations and initialisation of functions
-# --------------------------------------------------------
+  # --------------------------------------------------------
+  # Preliminary calculations and initialisation of functions
+  # --------------------------------------------------------
 
+  # second moment \int x^2 K(x) dx  of the kernel K
+  W <- as.vector(W)
 
-# second moment \int x^2 K(x) dx  of the kernel K
-W=as.vector(W)
+  # grid of h values where to search for a solution: you can change the default 
+  # grid if no solution is found in this grid.
+  maxh <- (max(W)-min(W))/10
 
+  # normal reference bandwidth of the naive KDE estimator (estimator that ignores 
+  # the errors) using the same kernel as above
+  hnaive <- ((8*sqrt(pi)*RK/3/muK2^2)^0.2)*sqrt(stats::var(W))*n^(-1/5)
 
-# grid of h values where to search for a solution: you can change the default 
-# grid if no solution is found in this grid.
-maxh=(max(W)-min(W))/10
+  # grid of h values on which we will look for hPI, If you did not find a minimum 
+  # on that grid you can redefine it
+  hgrid <- seq(hnaive/3, maxh, (maxh-hnaive/3)/100)
+  lh <- length(hgrid)
+  dim(hgrid) <- c(1,lh)
 
-# normal reference bandwidth of the naive KDE estimator (estimator that ignores 
-# the errors) using the same kernel as above
-hnaive=((8*sqrt(pi)*RK/3/muK2^2)^0.2)*sqrt(stats::var(W))*n^(-1/5)
+  # Estimator of the standard deviation of X
+  stdevx <- max(sqrt(stats::var(W) - sd_U^2),1/n) ##### I changed varU into sd_U^2
 
-# grid of h values on which we will look for hPI, If you did not find a minimum 
-# on that grid you can redefine it
-hgrid=seq(hnaive/3,maxh,(maxh-hnaive/3)/100)
-lh = length(hgrid)
-dim(hgrid)=c(1,lh)
+  # Quantities that will be needed several times in the computations below
+  toverh <- tt%*%(1/hgrid)
 
+  phiKsq <- (phiK(tt))^2
+  phiKsq <- as.vector(phiKsq)
+  phiUsq <- phiU(toverh)^2
 
-# Estimator of the standard deviation of X
-stdevx = max(sqrt(stats::var(W) - sd_U^2),1/n) ##### I changed varU into sd_U^2
+  #---------------------------------------------
+  # Estimate theta4 by normal reference method     
+  #---------------------------------------------
 
+  th4 <- stdevx^(-9)*105/(32*sqrt(pi)) 
 
+  #-------------------------------------------------------
+  # Find bandwidth h3 for computing th3, then compute th3
+  #-------------------------------------------------------
 
-# Quantities that will be needed several times in the computations below
-toverh=tt%*%(1/hgrid)
+  rr <- 3
+  term1 <- -hgrid^2*muK2*th4
+  term2 <- kronecker(matrix(1,1,lh),tt^(2*rr)*phiKsq)/phiUsq
+  term2 <- apply(term2,2,sum)*deltat
+  term2 <- term2/(2*pi*n*hgrid^(2*rr+1))
 
-phiKsq=(phiK(tt))^2
-phiKsq=as.vector(phiKsq)
-phiUsq=phiU(toverh)^2
+  ABias2 <- (term1 + term2)^2
 
+  # Print the index of the minimiser of Abias2 to see if we are inside the grid 
+  # (if not, enlarge the grid of bandwidths)
+  indh3 <- which.min(ABias2)
+  if(indh3==1)
+  	cat("\n minimum of Abias2 for rr=3 is the first element of the grid of 
+  		bandwidths. Consider enlarging the grid")
+  if(indh3==length(hgrid))
+  	cat("\n minimum of Abias2 for rr=3 is the last element of the grid of 
+  		bandwidths. Consider enlarging the grid")
+  h3 <- hgrid[indh3]
 
+  # Estimate empirical characteristic function of W at t/h3
+  OO <- outer(tt/h3,t(W))
+  rehatphiW <- apply(cos(OO),1,sum)/n
+  imhatphiW <- apply(sin(OO),1,sum)/n
+  rm(OO)
 
+  # Compute th3
+  normhatphiW2 <- rehatphiW^2+imhatphiW^2
+  th3 <- sum(tt^(2*rr) * normhatphiW2 * phiKsq / phiUsq[,indh3])
+  th3 <- th3*deltat/(2*pi*h3^(2*rr+1))
 
-#---------------------------------------------
-# Estimate theta4 by normal reference method     
-#---------------------------------------------
+  # -----------------------------------------------------
+  # Find bandwidth h2 for computing th2, then compute th2
+  # -----------------------------------------------------
 
-th4 = stdevx^(-9)*105/(32*sqrt(pi)) 
+  rr <- 2
+  term1 <- -hgrid^2*muK2*th3
+  term2 <- kronecker(matrix(1,1,lh),tt^(2*rr)*phiKsq)/phiUsq
+  term2 <- apply(term2,2,sum)*deltat/(2*pi*n*hgrid^(2*rr+1))
 
-#-------------------------------------------------------
-# Find bandwidth h3 for computing th3, then compute th3
-#-------------------------------------------------------
+  ABias2 <- (term1 + term2)^2
 
-rr=3
-term1= -hgrid^2*muK2*th4
-term2=kronecker(matrix(1,1,lh),tt^(2*rr)*phiKsq)/phiUsq
-term2=apply(term2,2,sum)*deltat
-term2=term2/(2*pi*n*hgrid^(2*rr+1))
+  # Print the index of the minimiser of Abias2 to see if we are inside the grid 
+  # (if not, enlarge the grid of bandwidths)
+  indh2 <- which.min(ABias2)
+  if(indh2==1)
+  	cat("\n minimum of Abias2 for rr=2 is the first element of the grid of 
+  		bandwidths. Consider enlarging the grid\n")
+  if(indh2==length(hgrid))
+  	cat("\n minimum of Abias2 for rr=2 is the last element of the grid of 
+  		bandwidths. Consider enlarging the grid\n")
+  h2 <- hgrid[indh2]
 
-ABias2 = (term1 + term2)^2
+  # Estimate empirical characteristic function of W at t/h2
+  OO <- outer(tt/h2,t(W))
+  rehatphiW <- apply(cos(OO),1,sum)/n
+  imhatphiW <- apply(sin(OO),1,sum)/n
+  rm(OO)
 
-# Print the index of the minimiser of Abias2 to see if we are inside the grid 
-# (if not, enlarge the grid of bandwidths)
-indh3=which.min(ABias2)
-if(indh3==1)
-	cat("\n minimum of Abias2 for rr=3 is the first element of the grid of 
-		bandwidths. Consider enlarging the grid")
-if(indh3==length(hgrid))
-	cat("\n minimum of Abias2 for rr=3 is the last element of the grid of 
-		bandwidths. Consider enlarging the grid")
-h3 = hgrid[indh3]
+  # Compute th2
+  normhatphiW2 <- rehatphiW^2+imhatphiW^2
+  th2 <- sum(tt^(2*rr) * normhatphiW2 * phiKsq / phiUsq[,indh2])
+  th2 <- th2*deltat/(2*pi*h2^(2*rr+1))
 
-# Estimate empirical characteristic function of W at t/h3
-OO=outer(tt/h3,t(W))
-rehatphiW=apply(cos(OO),1,sum)/n
-imhatphiW=apply(sin(OO),1,sum)/n
-rm(OO)
+  #-------------------------------------------------------------------------------
+  # Finally, compute the bandwidth that minimises the AMISE of the deconvolution 
+  # kernel density estimator
+  #-------------------------------------------------------------------------------
 
-# Compute th3
-normhatphiW2=rehatphiW^2+imhatphiW^2
-th3 = sum(tt^(2*rr) * normhatphiW2 * phiKsq / phiUsq[,indh3])
-th3 = th3*deltat/(2*pi*h3^(2*rr+1))
+  term1 <- hgrid^4*muK2^2*th2/4
 
-# -----------------------------------------------------
-# Find bandwidth h2 for computing th2, then compute th2
-# -----------------------------------------------------
+  term2 <- kronecker(matrix(1,1,lh),phiKsq)/phiUsq
+  term2 <- apply(term2,2,sum)*deltat/(2*pi*n*hgrid)
+  AMISE <- term1+term2
 
+  indh <- which.min(AMISE)
+  hPI <- hgrid[indh]
 
-rr=2
-term1= -hgrid^2*muK2*th3
-term2=kronecker(matrix(1,1,lh),tt^(2*rr)*phiKsq)/phiUsq
-term2=apply(term2,2,sum)*deltat/(2*pi*n*hgrid^(2*rr+1))
-
-ABias2 = (term1 + term2)^2
-
-# Print the index of the minimiser of Abias2 to see if we are inside the grid 
-# (if not, enlarge the grid of bandwidths)
-indh2=which.min(ABias2)
-if(indh2==1)
-	cat("\n minimum of Abias2 for rr=2 is the first element of the grid of 
-		bandwidths. Consider enlarging the grid\n")
-if(indh2==length(hgrid))
-	cat("\n minimum of Abias2 for rr=2 is the last element of the grid of 
-		bandwidths. Consider enlarging the grid\n")
-h2 = hgrid[indh2]
-
-# Estimate empirical characteristic function of W at t/h2
-OO=outer(tt/h2,t(W))
-rehatphiW=apply(cos(OO),1,sum)/n
-imhatphiW=apply(sin(OO),1,sum)/n
-rm(OO)
-
-
-# Compute th2
-normhatphiW2=rehatphiW^2+imhatphiW^2
-th2 = sum(tt^(2*rr) * normhatphiW2 * phiKsq / phiUsq[,indh2])
-th2=th2*deltat/(2*pi*h2^(2*rr+1))
-
-
-#-------------------------------------------------------------------------------
-# Finally, compute the bandwidth that minimises the AMISE of the deconvolution 
-# kernel density estimator
-#-------------------------------------------------------------------------------
-
-term1=hgrid^4*muK2^2*th2/4
-
-
-term2=kronecker(matrix(1,1,lh),phiKsq)/phiUsq
-term2=apply(term2,2,sum)*deltat/(2*pi*n*hgrid)
-AMISE=term1+term2
-
-indh=which.min(AMISE)
-hPI = hgrid[indh]
-
-hPI
+  hPI
 }
