@@ -1,6 +1,8 @@
 kernel <- function(type = "default", coarse = FALSE){
   phik <- switch(type,
-                 "default" = phiK2)
+                 "default" = phiK2,
+                 "normal" = normalK,
+                 "sinc" = sincK)
   
   muk2 <- switch(type,
                  "default" = 6)
@@ -10,10 +12,14 @@ kernel <- function(type = "default", coarse = FALSE){
 
   if (coarse) {
     tt <- switch(type,
-                 "default" = seq(-1, 1, 1e-03))
+                 "default" = seq(-1, 1, 1e-03),
+                 "normal" = seq(-10, 10, length.out = 2000),
+                 "sinc" = seq(-1, 1, 1e-03))
   } else {
     tt <- switch(type,
-                 "default" = seq(-1, 1, 2e-04))
+                 "default" = seq(-1, 1, 2e-04)
+                 "normal" = seq(-10, 10, length.out = 10000),
+                 "sinc" = seq(-1,1, 2e-04))
   }
 
   list(phik = phik, muk2 = muk2, rk = rk, tt = tt)
@@ -24,4 +30,13 @@ phiK2 <- function(t) {
   y <- (1 - t^2)^3
   y[abs(t) > 1] <- 0
   y
+}
+
+normalK <- function(t) {
+  y <- exp(-t^2/2)
+  y
+}
+
+sincK <- function(t) {
+  1
 }
