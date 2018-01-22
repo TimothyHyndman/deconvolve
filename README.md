@@ -27,6 +27,31 @@ xx <- seq(min(W), max(W), length.out = 100)
 d <- deconvolve(W, xx)
 ```
 
+Available methods
+-----------------
+
+This is a list of every method that this package contains
+
+##### Deconvolution
+
+-   Homoscedastic Errors
+-   Heteroscedastic Errors
+-   Unknown Errors
+-   *Unknown Errors with Replicates (coming soon)*
+
+##### Bandwidth selection
+
+-   Plug-in Estimator for Homoscedastic Errors
+-   Plug-in Estimator for Heteroscedastic Errors
+-   Plug-in Estimator for Unknown Errors
+-   *Plug-in Estimator for Unknown Errors with Replicates (coming soon)*
+-   CV
+-   SIMEX
+
+##### Regression
+
+-   Homoscedastic Errors
+
 License
 -------
 
