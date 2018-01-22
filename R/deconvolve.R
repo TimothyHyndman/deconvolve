@@ -114,7 +114,7 @@
 
 deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, 
 					   bw = NULL, rescale = FALSE, pmf = FALSE, 
-					   kernel_type = "default", m = 20){
+					   kernel_type = c("default", "normal", "sinc"), m = 20){
 
 	# Partial matching ---------------------------------------------------------
 	dist_types <- c("normal", "laplace")
@@ -159,6 +159,16 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
 	if (pmf & !(errors == "sym")){
 		stop("Option pmf cannot be used when the error is provided.")
+	}
+
+	if (kernel_type == "normal") {
+		warning("You should only use the 'normal' kernel when the errors are 
+			Laplace or convolutions of Laplace.")
+	}
+
+	if (kernel_type == "sinc") {
+		warning("You should ensure that you are not using a plug-in bandwidth 
+			method for the bandwidth.")
 	}
 
 	# Calculate Bandwidth if not supplied --------------------------------------

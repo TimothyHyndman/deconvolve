@@ -59,7 +59,8 @@
 
 reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
                            bw = NULL, rho = NULL, n_cores = NULL,
-                           kernel_type = "default", seed = NULL) {
+                           kernel_type = c("default", "normal", "sinc"), 
+                           seed = NULL) {
 
     # Partial matching ---------------------------------------------------------
     dist_types <- c("normal", "laplace")
@@ -87,6 +88,16 @@ reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
     if ((is.null(bw) | is.null(rho)) & is.null(sd_U)){
         stop("You must provide sd_U if you do not provide bw and rho.")
+    }
+
+    if (kernel_type == "normal") {
+        warning("You should only use the 'normal' kernel when the errors are 
+            Laplace or convolutions of Laplace.")
+    }
+
+    if (kernel_type == "sinc") {
+        warning("You should ensure that you are not using a plug-in bandwidth 
+            method for the bandwidth.")
     }
 
     # --------------------------------------------------------------------------

@@ -5,10 +5,14 @@ kernel <- function(type = "default", coarse = FALSE){
                  "sinc" = sincK)
   
   muk2 <- switch(type,
-                 "default" = 6)
+                 "default" = 6,
+                 "normal" = 1,
+                 "sinc" = 2/3)
 
   rk <- switch(type,
-               "default" = 1024 / 3003 / pi)
+               "default" = 1024 / 3003 / pi,
+               "normal" = 1,
+               "sinc" = 2)
 
   if (coarse) {
     tt <- switch(type,
@@ -17,7 +21,7 @@ kernel <- function(type = "default", coarse = FALSE){
                  "sinc" = seq(-1, 1, 1e-03))
   } else {
     tt <- switch(type,
-                 "default" = seq(-1, 1, 2e-04)
+                 "default" = seq(-1, 1, 2e-04),
                  "normal" = seq(-10, 10, length.out = 10000),
                  "sinc" = seq(-1,1, 2e-04))
   }
@@ -38,5 +42,5 @@ normalK <- function(t) {
 }
 
 sincK <- function(t) {
-  1
+  t*0 + 1
 }

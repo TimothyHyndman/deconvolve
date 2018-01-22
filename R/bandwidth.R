@@ -78,7 +78,7 @@
 
 bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 					  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
-					  kernel_type = "default", seed = NULL){
+					  kernel_type = c("default", "normal", "sinc"), seed = NULL){
 
 	# Determine error type provided --------------------------------------------
 	if (is.null(errortype) & is.null(phiU)) {
@@ -151,6 +151,14 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 		}
 	}
 
+	if (kernel_type == "normal") {
+		warning("You should only use the 'normal' kernel when the errors are 
+			Laplace or convolutions of Laplace.")
+	}
+
+	if (kernel_type == "sinc" & algorithm == "PI") {
+		stop("You cannot use the 'sinc' kernel with the plug-in algorithm.")
+	}
 	# if (errors == "sym" & is.null(sd_U)) {
 	# 	stop("You must provide an estimate for sd_U when the errors are estimated.")
 	# }
