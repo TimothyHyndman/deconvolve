@@ -7,11 +7,11 @@ kernel <- function(type = "default", coarse = FALSE){
   muk2 <- switch(type,
                  "default" = 6,
                  "normal" = 1,
-                 "sinc" = 2/3)
+                 "sinc" = NA)  # Integral does not converge
 
   rk <- switch(type,
                "default" = 1024 / 3003 / pi,
-               "normal" = 1,
+               "normal" = 1 / (2 * sqrt(pi)),
                "sinc" = 2)
 
   if (coarse) {
