@@ -16,7 +16,10 @@ DeconErrSymPmf <- function(W, m, n.iter.tp = 5, n.iter.var = 2,
 	#--------------------------------------------------------------------------#
 	# Calculate phi.W on [-8,8] so we can find t*
 	tt.length <- 100
-	tt <- seq(-1, 8, length.out = tt.length)
+	hnaive <- 1.06*sqrt(var(W))*n^(-1/5)
+	hmin <- hnaive/3
+	# tt <- seq(-1, 8, length.out = tt.length)
+	tt <- seq(-1/hmin, 1/hmin, length.out = tt.length)
 	phi.W <- ComputePhiEmp(W, tt)
 
 	# Calculate t*
