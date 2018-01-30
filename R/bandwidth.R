@@ -179,8 +179,7 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 	deltat <- tt[2] - tt[1]
 
 	# Convert errortype to phiU ------------------------------------------------
-
-	if (!(errors == 'est')) {
+	if (!(errors == 'sym')) {
 		if(is.null(phiU)) {
 			phiU <- create_phiU(errors, errortype, sd_U)
 		}
@@ -204,7 +203,7 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		sd_X <- max(sqrt(stats::var(W) - sd_U^2),1/n)
+		sd_X <- max( !is.na(sqrt(stats::var(W) - sd_U^2)), 1/n)
 		output <- plugin_bandwidth(W, phi_U, sd_X, kernel_type)
 		# output <- PI_deconvUknownth4(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt)
 
@@ -227,7 +226,12 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 		phi.U <- d$phi.W$normal / Mod(phi.X)
 
 		# Actually find bandwidth
-		output <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)
+		phi_U_splined <- function(t) {
+			PhiUSpline(t, hat.var.U, phi.U, tt)
+		}
+		sd_X <- max( !is.na(sqrt( stats::var(W) - hat.var.U )), 1/n )
+		output <- plugin_bandwidth(W, phi_U, sd_X, "default")
+		# output <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)
 	}
 
 	if (algorithm == "SIMEX") {

@@ -22,8 +22,7 @@ plugin_bandwidth <- function(W, phi_U, sd_X, kernel_type) {
 	calculate_indh <- function(rr, th) {
 		term1 <- -hgrid^2 * mu_K2 * th
 		term2 <- kronecker(matrix(1, 1, lh), tt^(2*rr) * phiKsq) / phiUsq
-		term2 <- apply(term2, 2, sum) * deltat
-		term2 <- term2 / (2 * pi * n * hgrid^(2 * rr + 1))
+		term2 <- colSums(term2) * deltat  / (2 * pi * n * hgrid^(2 * rr + 1))
 
 		ABias2 <- (term1 + term2)^2
 
@@ -72,7 +71,7 @@ plugin_bandwidth <- function(W, phi_U, sd_X, kernel_type) {
 	# h1
 	term1 <- hgrid^4 * mu_K2^2 * th2 / 4
 	term2 <- kronecker(matrix(1,1,lh), phiKsq) / phiUsq
-	term2 <- apply(term2, 2, sum) * deltat / (2 * pi * n * hgrid)
+	term2 <- colSums(term2) * deltat / (2 * pi * n * hgrid)
 	AMISE <- term1 + term2
 	indh1 <- which.min(AMISE)
 	

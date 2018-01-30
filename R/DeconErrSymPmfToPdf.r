@@ -21,14 +21,20 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale, h){
 
 	# Find Plug-In Bandwidth ---------------------------------------------------
 	if (is.null(h)) {
-		h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)	
+		phi_U_splined <- function(t) {
+			PhiUSpline(t, hat.var.U, phi.U, tt)
+		}
+		sd_X <- max( !is.na(sqrt( stats::var(W) - hat.var.U )), 1/n )
+		h.PIc <- plugin_bandwidth(W, phi_U, sd_X, "default")
+		# h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)	
 	} else {
 		h.PIc <- h
 	}
 	
 
 	# --------------------------------------------------------------------------
-	phi.U.PI <- PhiUSpline(t/h.PIc, hat.var.U, phi.U, tt)
+	# phi.U.PI <- PhiUSpline(t/h.PIc, hat.var.U, phi.U, tt)
+	phi.U.PI <- phi_U_splined(t/h.PIc)
 	phi.W.PI <- ComputePhiEmp(W, t/h.PIc)
 
 	phi.X.re <- phi.W.PI$re / phi.U.PI
