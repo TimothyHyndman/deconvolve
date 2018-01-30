@@ -31,9 +31,9 @@
 #' described in Delaigle and Hall 2008.
 #'
 #' @inheritParams deconvolve
-#' @param algorithm Either \code{"PI"} for plug-in estimator or \code{"CV"} for
-#' cross-validation estimator. If \code{"CV"} then the errors must be
-#' homoscedastic.
+#' @param algorithm One of \code{"PI"} for plug-in estimator, \code{"CV"} for
+#' cross-validation estimator or \code{"SIMEX"}. If \code{"CV"} then the errors 
+#' must be homoscedastic.
 #' @param Y A vector of the univariate dependent data. Only required for 'SIMEX'
 #' algorithm.
 #' @param n_cores Number of cores to use when using SIMEX algorithm. If

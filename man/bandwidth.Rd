@@ -6,7 +6,7 @@
 \usage{
 bandwidth(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
   algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
-  kernel_type = c("default"), seed = NULL)
+  kernel_type = c("default", "normal", "sinc"), seed = NULL)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -28,9 +28,9 @@ you should not provide \code{errortype}.}
 \item{Y}{A vector of the univariate dependent data. Only required for 'SIMEX'
 algorithm.}
 
-\item{algorithm}{Either \code{"PI"} for plug-in estimator or \code{"CV"} for
-cross-validation estimator. If \code{"CV"} then the errors must be
-homoscedastic.}
+\item{algorithm}{One of \code{"PI"} for plug-in estimator, \code{"CV"} for
+cross-validation estimator or \code{"SIMEX"}. If \code{"CV"} then the errors 
+must be homoscedastic.}
 
 \item{n_cores}{Number of cores to use when using SIMEX algorithm. If
 \code{NULL}, the number of cores to use will be automatically detected.}

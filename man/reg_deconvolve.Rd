@@ -6,8 +6,8 @@
 estimator}
 \usage{
 reg_deconvolve(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
-  bw = NULL, rho = NULL, n_cores = NULL, kernel_type = c("default"),
-  seed = NULL)
+  bw = NULL, rho = NULL, n_cores = NULL, kernel_type = c("default",
+  "normal", "sinc"), seed = NULL)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
