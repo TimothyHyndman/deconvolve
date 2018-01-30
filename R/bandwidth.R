@@ -204,7 +204,10 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		output <- PI_deconvUknownth4(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt)
+		sd_X <- max(sqrt(stats::var(W) - sd_U^2),1/n)
+		output <- plugin_bandwidth(W, phi_U, sd_X, kernel_type)
+		# output <- PI_deconvUknownth4(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt)
+
 	}
 
 	if (algorithm == "PI" & errors == "sym") {
