@@ -203,7 +203,7 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 	}
 
 	if (errors == "sym") {
-		out <- DeconErrSymPmf(W, m)
+		out <- DeconErrSymPmf(W, m, kernel_type)
 		if (!pmf) {
 			phi.W <- out$phi.W
 			pdf <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt, 

@@ -4,6 +4,7 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale, h){
 	p <- X.pmf$probweights
 	dt <- t[2] - t[1]
 	tt <- phi.W$t.values
+	n <- length(W)
 	
 	if(is.null(phiK)){
 		phiK <- phiK2
@@ -25,7 +26,7 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale, h){
 			PhiUSpline(t, hat.var.U, phi.U, tt)
 		}
 		sd_X <- max( !is.na(sqrt( stats::var(W) - hat.var.U )), 1/n )
-		h.PIc <- plugin_bandwidth(W, phi_U, sd_X, "default")
+		h.PIc <- plugin_bandwidth(W, phi_U_splined, sd_X, "default")
 		# h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)	
 	} else {
 		h.PIc <- h

@@ -204,7 +204,7 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 
 	if (algorithm == "PI" & errors == "hom") {
 		sd_X <- max( !is.na(sqrt(stats::var(W) - sd_U^2)), 1/n)
-		output <- plugin_bandwidth(W, phi_U, sd_X, kernel_type)
+		output <- plugin_bandwidth(W, phiU, sd_X, kernel_type)
 		# output <- PI_deconvUknownth4(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt)
 
 	}
@@ -230,7 +230,7 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 			PhiUSpline(t, hat.var.U, phi.U, tt)
 		}
 		sd_X <- max( !is.na(sqrt( stats::var(W) - hat.var.U )), 1/n )
-		output <- plugin_bandwidth(W, phi_U, sd_X, "default")
+		output <- plugin_bandwidth(W, phi_U_splined, sd_X, "default")
 		# output <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)
 	}
 

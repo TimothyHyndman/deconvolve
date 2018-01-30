@@ -7,6 +7,8 @@ plugin_bandwidth <- function(W, phi_U, sd_X, kernel_type) {
 	tt <- kernel_list$tt
 	deltat <- tt[2] - tt[1]
 
+	n <- length(W)
+
 	# Grid of h on which to search for a solution
 	maxh <- (max(W) - min(W)) / 10
 	hnaive <- ((8 * sqrt(pi) * RK/3/mu_K2^2)^0.2) * sqrt(stats::var(W)) * 
@@ -17,7 +19,7 @@ plugin_bandwidth <- function(W, phi_U, sd_X, kernel_type) {
 	# Quantities and functions that will be needed multiple times
 	toverh <- tt %*% t(1 / hgrid)
 	phiKsq <- phiK(tt)^2
-	phiUsq <- phiU(toverh)^2
+	phiUsq <- phi_U(toverh)^2
 
 	calculate_indh <- function(rr, th) {
 		term1 <- -hgrid^2 * mu_K2 * th
