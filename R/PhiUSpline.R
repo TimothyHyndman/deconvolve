@@ -4,7 +4,7 @@ PhiUSpline <- function(t.over.h, hat.var.U, phi.U, tt){
 	ind2 <- ( t.over.h <  t.limits[1] ) | ( t.over.h >  t.limits[2] )
 
 	PhiULap <- function(t){
-		1 / ( 1 + hat.var.U / 2 * t^2)
+		1 / (1 + hat.var.U / 2 * t^2)
 	}
 
 	y <- 0*t.over.h

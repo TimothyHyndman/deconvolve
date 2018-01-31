@@ -30,12 +30,14 @@ plugin_bandwidth <- function(W, phi_U, sd_X, kernel_type) {
 
 		indh <- which.min(ABias2)
 		if (indh == 1) {
-			warning("Minimum of Abias2 for rr=3 is the first element of the grid of 
-			bandwidths. Consider enlarging the grid.")
+			warning(paste("Minimum of Abias2 for rr =", as.character(rr), "is 
+				the first element of the grid of bandwidths. Consider enlarging 
+				the grid."))
 		}
 		if(indh == lh){
-			warning("Minimum of Abias2 for rr=3 is the last element of the grid of 
-			bandwidths. Consider enlarging the grid.")
+			warning(paste("Minimum of Abias2 for rr =", as.character(rr), "is 
+				the last element of the grid of bandwidths. Consider enlarging 
+				the grid."))
 		}
 
 		indh
