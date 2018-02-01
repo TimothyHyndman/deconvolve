@@ -112,8 +112,9 @@
 #' 
 #' @export
 
-deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, 
-					   bw = NULL, rescale = FALSE, pmf = FALSE, 
+deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100), 
+					   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, 
+					   rescale = FALSE, pmf = FALSE, 
 					   kernel_type = c("default", "normal", "sinc"), m = 20){
 
 	# Partial matching ---------------------------------------------------------
@@ -173,7 +174,8 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
 	# Calculate Bandwidth if not supplied --------------------------------------
 	if (is.null(bw) & !(errors == "sym")) {
-			bw <- bandwidth(W, errortype, sd_U, phiU, kernel_type = kernel_type)
+			bw <- bandwidth(W, W2, errortype, sd_U, phiU, 
+							kernel_type = kernel_type)
 	}
 
 	# --------------------------------------------------------------------------

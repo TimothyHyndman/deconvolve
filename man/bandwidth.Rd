@@ -4,8 +4,8 @@
 \alias{bandwidth}
 \title{Bandwidth Selectors for Deconvolution Kernel Density Estimation}
 \usage{
-bandwidth(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
-  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
+bandwidth(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL,
+  Y = NULL, algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
   kernel_type = c("default", "normal", "sinc"), seed = NULL)
 }
 \arguments{

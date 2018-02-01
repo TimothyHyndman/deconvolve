@@ -57,8 +57,9 @@
 #'
 #' @export
 
-reg_deconvolve <- function(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
-                           bw = NULL, rho = NULL, n_cores = NULL,
+reg_deconvolve <- function(W, Y, xx = seq(min(W), max(W), length.out = 100), 
+                           errortype = NULL, sd_U = NULL, phiU = NULL, 
+                           bw = NULL, rho = NULL, n_cores = NULL, 
                            kernel_type = c("default", "normal", "sinc"), 
                            seed = NULL) {
 

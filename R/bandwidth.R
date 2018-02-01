@@ -76,12 +76,14 @@
 #'
 #' @export
 
-bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
+bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 					  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
 					  kernel_type = c("default", "normal", "sinc"), seed = NULL){
 
 	# Determine error type provided --------------------------------------------
-	if (is.null(errortype) & is.null(phiU)) {
+	if (!is.null(W2)) {
+		errors <- "rep"
+	} else if (is.null(errortype) & is.null(phiU)) {
 		errors <- "sym"
 	} else if (length(sd_U) > 1  | length(phiU) > 1){
 		errors <- "het"
@@ -99,7 +101,6 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 	}
 
 	algorithm <- match.arg(algorithm)
-
 	kernel_type <- match.arg(kernel_type)
 
 	# Check inputs -------------------------------------------------------------
@@ -179,16 +180,10 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 	deltat <- tt[2] - tt[1]
 
 	# Convert errortype to phiU ------------------------------------------------
-	if (!(errors == 'sym')) {
+	if ((errors == 'hom') | (errors == 'het') ) {
 		if(is.null(phiU)) {
 			phiU <- create_phiU(errors, errortype, sd_U)
 		}
-	}
-
-	# Calculate varX if in het case --------------------------------------------
-	if (errors == "het"){
-		n <- length(W)
-		varX <- max(mean(W^2) - (mean(W))^2 - sum(sd_U^2) / n, 1/n)	#max 1/n avoid negative varianace
 	}
 
 	# Perform appropriate bandwidth calculation --------------------------------
@@ -197,33 +192,52 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 		output <- CVdeconv(n, W, phiU, phiK, muK2, RK, deltat, tt)
 	}
 
+	if (algorithm == "SIMEX") {
+		output <- hSIMEXUknown(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, 
+							   deltat, tt, n_cores, seed)
+	}
+
 	if (algorithm == "PI" & errors == "het") {
-		output <- PI_deconvUknownth4het(n, W, varX, phiU, phiK, muK2, RK,
+		n <- length(W)
+		varX <- max(mean(W^2) - (mean(W))^2 - sum(sd_U^2) / n, 1/n)
+		output <- PI_deconvUknownth4het(n, W, varX, phiU, phiK, muK2, RK, 
 										deltat, tt)
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
 		sd_X <- max( !is.na(sqrt(stats::var(W) - sd_U^2)), 1/n)
 		output <- plugin_bandwidth(W, phiU, sd_X, kernel_type)
-		# output <- PI_deconvUknownth4(n, W, sd_U, phiU, phiK, muK2, RK, deltat, tt)
+	}
 
+	if (algorithm == "PI" & errors == "rep") {
+		diff <- W - W2
+		diff <- diff[(W != 0) & (W2 != 0)]
+		sd_U <- sqrt(stats::var(diff)/2)
+		n <- length(c(W, W2))
+		sd_X <- max( !is.na(sqrt(stats::var(c(W, W2)) - sd_U^2)), 1/n)
+
+		phiU <- function(t) {
+			replicates_phiU(t, W, W2, kernel_type)
+		}
+
+		output <- plugin_bandwidth(c(W, W2), phiU, sd_X, kernel_type)
 	}
 
 	if (algorithm == "PI" & errors == "sym") {
-		d <- DeconErrSymPmf(W, 10)
+		d <- DeconErrSymPmf(W, 10, kernel_type)
 		theta <- d$support
 		p <- d$probweights
 		t <- tt
 		tt <- d$phi.W$t.values
 
-		# Estimate Var(U) ----------------------------------------------------------
+		# Estimate Var(U) ------------------------------------------------------
 		tt.BB.length <- 200		# Use a finer grid than tt
 		tt.BB <- seq(tt[1], tt[length(tt)], length.out = tt.BB.length)
 		hat.var.U <- estimate_var_u(W, tt.BB, theta, p)
 
-		# Estimate PhiX and PhiU ---------------------------------------------------
+		# Estimate PhiX and PhiU -----------------------------------------------
 		phi.X <- ComputePhiPmf(theta, p, tt)
-		phi.U <- d$phi.W$normal / Mod(phi.X)
+		phi.U <- d$phi.W$norm / Mod(phi.X)
 
 		# Actually find bandwidth
 		phi_U_splined <- function(t) {
@@ -231,12 +245,6 @@ bandwidth <- function(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
 		}
 		sd_X <- max( !is.na(sqrt( stats::var(W) - hat.var.U )), 1/n )
 		output <- plugin_bandwidth(W, phi_U_splined, sd_X, "default")
-		# output <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)
-	}
-
-	if (algorithm == "SIMEX") {
-		output <- hSIMEXUknown(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat,
-							   tt, n_cores, seed)
 	}
 
 	output
