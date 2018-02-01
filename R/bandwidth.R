@@ -233,17 +233,19 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 		# Estimate Var(U) ------------------------------------------------------
 		tt.BB.length <- 200		# Use a finer grid than tt
 		tt.BB <- seq(tt[1], tt[length(tt)], length.out = tt.BB.length)
-		hat.var.U <- estimate_var_u(W, tt.BB, theta, p)
+		sd_U <- sqrt(estimate_var_u(W, tt.BB, theta, p))
 
 		# Estimate PhiX and PhiU -----------------------------------------------
 		phi.X <- ComputePhiPmf(theta, p, tt)
 		phi.U <- d$phi.W$norm / Mod(phi.X)
 
-		# Actually find bandwidth
+		t_cutoff <- tt[length(tt)]
 		phi_U_splined <- function(t) {
-			PhiUSpline(t, hat.var.U, phi.U, tt)
+			phiU_spline(t, sd_U, t_cutoff, tt, phi.U)
 		}
-		sd_X <- max( !is.na(sqrt( stats::var(W) - hat.var.U )), 1/n )
+		
+		# Actually find bandwidth
+		sd_X <- max(!is.na(sqrt(stats::var(W) - sd_U^2)), 1 / n)
 		output <- plugin_bandwidth(W, phi_U_splined, sd_X, "default")
 	}
 

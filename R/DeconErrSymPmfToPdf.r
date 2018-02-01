@@ -10,31 +10,30 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale, h){
 		phiK <- phiK2
 	}
 
-	# Estimate Var(U) ----------------------------------------------------------
+	# Estimate sd_U ------------------------------------------------------------
 	tt.BB.length <- 200		# Use a finer grid than tt
 	tt.BB <- seq(tt[1], tt[length(tt)], length.out = tt.BB.length)
-
-	hat.var.U <- estimate_var_u(W, tt.BB, theta, p)
+	sd_U <- sqrt(estimate_var_u(W, tt.BB, theta, p))
 
 	# Estimate PhiX and PhiU ---------------------------------------------------
 	phi.X <- ComputePhiPmf(theta, p, tt)
 	phi.U <- phi.W$norm / Mod(phi.X)
 
+	t_cutoff <- tt[length(tt)]	# We have already found t_cutoff earlier when
+								# calculating phiW
+	phi_U_splined <- function(t) {
+		phiU_spline(t, sd_U, t_cutoff, tt, phi.U)
+	}
+	
 	# Find Plug-In Bandwidth ---------------------------------------------------
 	if (is.null(h)) {
-		phi_U_splined <- function(t) {
-			PhiUSpline(t, hat.var.U, phi.U, tt)
-		}
-		sd_X <- max( !is.na(sqrt( stats::var(W) - hat.var.U )), 1/n )
+		sd_X <- max(!is.na(sqrt(stats::var(W) - sd_U^2)), 1 / n)
 		h.PIc <- plugin_bandwidth(W, phi_U_splined, sd_X, "default")
-		# h.PIc <- PI_DeconvUEstTh4(W, phi.U, hat.var.U, tt, phiK, muK2, t)	
 	} else {
 		h.PIc <- h
 	}
 	
-
 	# --------------------------------------------------------------------------
-	# phi.U.PI <- PhiUSpline(t/h.PIc, hat.var.U, phi.U, tt)
 	phi.U.PI <- phi_U_splined(t/h.PIc)
 	phi.W.PI <- ComputePhiEmp(W, t/h.PIc)
 

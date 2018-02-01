@@ -5,9 +5,10 @@
 \title{Compute the measurement error version of the Nadaraya-Watson regression
 estimator}
 \usage{
-reg_deconvolve(W, Y, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
-  bw = NULL, rho = NULL, n_cores = NULL, kernel_type = c("default",
-  "normal", "sinc"), seed = NULL)
+reg_deconvolve(W, Y, xx = seq(min(W), max(W), length.out = 100),
+  errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, rho = NULL,
+  n_cores = NULL, kernel_type = c("default", "normal", "sinc"),
+  seed = NULL)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
@@ -81,8 +82,7 @@ n <- 200
 sd_X <- 1
 sd_U <- 0.2
 data <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm", create_Y = TRUE)
-xx <- seq(-2, 8, 0.1)
-output <- reg_deconvolve(data$W, data$Y, xx, errortype = "norm", sd_U = 0.2, n_cores = 2)
+output <- reg_deconvolve(data$W, data$Y, errortype = "norm", sd_U = 0.2, n_cores = 2)
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang
