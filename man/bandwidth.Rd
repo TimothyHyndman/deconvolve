@@ -11,6 +11,9 @@ bandwidth(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL,
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
 
+\item{W2}{A vector of replicate measurements. If supplied, then the erorr 
+will be estimated using replicates.}
+
 \item{errortype}{The distribution type of \eqn{U}. Either "laplace" or 
 "normal". If you define the errors this way then you must also provide 
 \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
@@ -64,6 +67,9 @@ described in Delaigle and Gijbels 2002, and Delaigle and Gijbels 2004.
 errors are defined by a either a vector of functions \code{phiU}, or a vector
 \code{sd_U} along with its \code{errortype} then the method used is as
 described in Delaigle and Meister 2008.
+
+\strong{PI for Replicates:} If \code{algorithm = "PI"} and a replicate 
+vector \code{W2} is supplied, then the error is estimated using replicates.
 
 \strong{PI for Unknown Error:} If \code{algorithm = "PI"} and the errors are
 not supplied, then the error is estimated using the method described in

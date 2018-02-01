@@ -1,15 +1,11 @@
-DeconErrKnownPdf<-function(xx, W, h, phiU, rescale, phiK, muK2, RK, tt){
+DeconErrKnownPdf <- function(xx, W, h, phiU, kernel_type, rescale){
 
-	#--------------------------------------------------------------------------#
-	# Compute DKDE
-	#--------------------------------------------------------------------------#
-	if(is.null(phiK)){
-		phiK <- phiK2
-	}
-
-	W <- as.vector(W)
-	n <- length(W)
+	kernel_list <- kernel(kernel_type)
+	phiK <- kernel_list$phik
+	tt <- kernel_list$tt
 	deltat <- tt[2] - tt[1]
+
+	n <- length(W)
 
 	OO <- outer(tt/h, W)
 	phiUth <- phiU(tt/h)
@@ -35,5 +31,5 @@ DeconErrKnownPdf<-function(xx, W, h, phiU, rescale, phiK, muK2, RK, tt){
 	}
 
 
-	return (fXdecUK)
+	fXdecUK
 }

@@ -12,6 +12,9 @@ deconvolve(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
 
+\item{W2}{A vector of replicate measurements. If supplied, then the erorr 
+will be estimated using replicates.}
+
 \item{xx}{A vector of x values on which to compute the density. This can be
 missing if \code{pmf = TRUE}.}
 
@@ -73,9 +76,13 @@ heteroscedastic, or symmetric.
 The function \code{deconvolve} chooses from one of three different methods 
 depending on how the error distribution is defined.
 
-\strong{Symmetric Error:} If neither \code{errortype} or \code{phiU} are 
-supplied then the error is assumed symmetric and the deconvolution method is 
-based on the method described in Delaigle and Hall 2016.
+\strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied
+then the error is calculated using replicates.
+
+\strong{Symmetric Error:} If none of \code{errortype}, \code{phiU}, or 
+\code{W2} are supplied then the error is assumed symmetric and the 
+deconvolution method is based on the method described in Delaigle and Hall 
+2016.
 
 \strong{Homoscedastic Error:} If the errors are defined by either a single 
 function \code{phiU}, or a single value \code{sd_U} along with its 

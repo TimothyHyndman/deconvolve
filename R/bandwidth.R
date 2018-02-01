@@ -19,6 +19,9 @@
 #' \code{sd_U} along with its \code{errortype} then the method used is as
 #' described in Delaigle and Meister 2008.
 #'
+#' \strong{PI for Replicates:} If \code{algorithm = "PI"} and a replicate 
+#' vector \code{W2} is supplied, then the error is estimated using replicates.
+#' 
 #' \strong{PI for Unknown Error:} If \code{algorithm = "PI"} and the errors are
 #' not supplied, then the error is estimated using the method described in
 #' Delaigle and Hall 2016 and then the bandwidth is calculated using the method
@@ -215,9 +218,13 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 		sd_U <- sqrt(stats::var(diff)/2)
 		n <- length(c(W, W2))
 		sd_X <- max( !is.na(sqrt(stats::var(c(W, W2)) - sd_U^2)), 1/n)
+		hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
+			sqrt(stats::var(c(W, W2))) * n^(-1/5)
+		h_min <- hnaive / 3
+		t_search <- tt/h_min
 
 		phiU <- function(t) {
-			replicates_phiU(t, W, W2, kernel_type)
+			replicates_phiU(t, W, W2, t_search)
 		}
 
 		output <- plugin_bandwidth(c(W, W2), phiU, sd_X, kernel_type)
