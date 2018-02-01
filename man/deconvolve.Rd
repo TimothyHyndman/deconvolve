@@ -4,11 +4,16 @@
 \alias{deconvolve}
 \title{Deconvolution Kernel Density Estimator}
 \usage{
-deconvolve(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
-  rescale = FALSE, pmf = FALSE, kernel_type = c("default"), m = 20)
+deconvolve(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
+  errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
+  rescale = FALSE, pmf = FALSE, kernel_type = c("default", "normal",
+  "sinc"), m = 20)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
+
+\item{W2}{A vector of replicate measurements. If supplied, then the erorr 
+will be estimated using replicates.}
 
 \item{xx}{A vector of x values on which to compute the density. This can be
 missing if \code{pmf = TRUE}.}
@@ -71,9 +76,13 @@ heteroscedastic, or symmetric.
 The function \code{deconvolve} chooses from one of three different methods 
 depending on how the error distribution is defined.
 
-\strong{Symmetric Error:} If neither \code{errortype} or \code{phiU} are 
-supplied then the error is assumed symmetric and the deconvolution method is 
-based on the method described in Delaigle and Hall 2016.
+\strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied
+then the error is calculated using replicates.
+
+\strong{Symmetric Error:} If none of \code{errortype}, \code{phiU}, or 
+\code{W2} are supplied then the error is assumed symmetric and the 
+deconvolution method is based on the method described in Delaigle and Hall 
+2016.
 
 \strong{Homoscedastic Error:} If the errors are defined by either a single 
 function \code{phiU}, or a single value \code{sd_U} along with its 
@@ -123,9 +132,7 @@ deconvolution. \emph{Statistics and Computing}, 17, 349-355.
 # Symmetric Errors -------------------------------------------------------------
 n <- 200
 W <- GenerateTestData(n, dist_type = "chi", error_type = "norm")
-xx <- seq(min(W), max(W), length.out = 100)
-
-d <- deconvolve(W, xx)
+d <- deconvolve(W)
 plot(d)
 print(d)
 
@@ -139,25 +146,22 @@ n <- 200
 sd_X <- 1
 sd_U <- 0.2
 W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
-xx <- seq(min(W), max(W), length.out = 100)
 
-yy <- deconvolve(W, xx, errortype = "norm", sd_U = sd_U)
+yy <- deconvolve(W, errortype = "norm", sd_U = sd_U)
 
 # Heteroscedastic Errors -------------------------------------------------------
 n <- 200
 sd_X <- 1
 sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
-xx <- seq(min(W), max(W), length.out = 100)
 
-yy <- deconvolve(W, xx, errortype = "norm", sd_U = sd_U_vec)
+yy <- deconvolve(W, errortype = "norm", sd_U = sd_U_vec)
 
 # Heteroscedastic Errors provided using a vector of phiUs ----------------------
 n <- 200
 sd_X <- 1
 sd_U <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
-xx <- seq(min(W), max(W), length.out = 100)
 
 phiU_vec=c()
 phiU <- function(k) {
@@ -169,7 +173,7 @@ for(k in 1:n) {
 	phiU_vec <- c(phiU_vec, phiU(k))
 }
 
-yy <- deconvolve(W, xx, sd_U = sd_U, phiU = phiU_vec)
+yy <- deconvolve(W, sd_U = sd_U, phiU = phiU_vec)
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

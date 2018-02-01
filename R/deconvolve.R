@@ -7,9 +7,13 @@
 #' The function \code{deconvolve} chooses from one of three different methods 
 #' depending on how the error distribution is defined.
 #' 
-#' \strong{Symmetric Error:} If neither \code{errortype} or \code{phiU} are 
-#' supplied then the error is assumed symmetric and the deconvolution method is 
-#' based on the method described in Delaigle and Hall 2016.
+#' \strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied
+#' then the error is calculated using replicates.
+#' 
+#' \strong{Symmetric Error:} If none of \code{errortype}, \code{phiU}, or 
+#' \code{W2} are supplied then the error is assumed symmetric and the 
+#' deconvolution method is based on the method described in Delaigle and Hall 
+#' 2016.
 #' 
 #' \strong{Homoscedastic Error:} If the errors are defined by either a single 
 #' function \code{phiU}, or a single value \code{sd_U} along with its 
@@ -26,6 +30,8 @@
 #' function(s) of the errors (\code{phiU}). 
 #' 
 #' @param W A vector of the univariate contaminated data.
+#' @param W2 A vector of replicate measurements. If supplied, then the erorr 
+#' will be estimated using replicates.
 #' @param xx A vector of x values on which to compute the density. This can be
 #' missing if \code{pmf = TRUE}.
 #' @param errortype The distribution type of \eqn{U}. Either "laplace" or 
@@ -112,8 +118,9 @@
 #' 
 #' @export
 
-deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL, 
-					   bw = NULL, rescale = FALSE, pmf = FALSE, 
+deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100), 
+					   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, 
+					   rescale = FALSE, pmf = FALSE, 
 					   kernel_type = c("default", "normal", "sinc"), m = 20){
 
 	# Partial matching ---------------------------------------------------------
@@ -128,7 +135,9 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 	kernel_type <- match.arg(kernel_type)
 
 	# Determine error type provided --------------------------------------------
-	if (is.null(errortype) & is.null(phiU)) {
+	if (!is.null(W2)) {
+		errors <- "rep"
+	} else if (is.null(errortype) & is.null(phiU)) {
 		errors <- "sym"
 	} else if ((length(sd_U) > 1) | length(phiU) > 1){
 		errors <- "het"
@@ -173,7 +182,8 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
 	# Calculate Bandwidth if not supplied --------------------------------------
 	if (is.null(bw) & !(errors == "sym")) {
-			bw <- bandwidth(W, errortype, sd_U, phiU, kernel_type = kernel_type)
+			bw <- bandwidth(W, W2, errortype, sd_U, phiU, 
+							kernel_type = kernel_type)
 	}
 
 	# --------------------------------------------------------------------------
@@ -185,7 +195,7 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 	deltat <- tt[2] - tt[1]
 	
 	# Convert errortype to phiU ------------------------------------------------
-	if (!(errors == "sym")){
+	if ((errors == "hom") | (errors == "het")){
 		if(is.null(phiU)) {
 			phiU <- create_phiU(errors, errortype, sd_U)
 		}
@@ -193,7 +203,7 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 
 	# Perform appropriate deconvolution ----------------------------------------
 	if (errors == "hom"){
-		pdf <- DeconErrKnownPdf(xx, W, bw, phiU, rescale, phiK, muK2, RK, tt)
+		pdf <- DeconErrKnownPdf(xx, W, bw, phiU, kernel_type, rescale)
 		output <- list("x" = xx, "pdf" = pdf, "W" = W)
 	}
 
@@ -202,8 +212,18 @@ deconvolve <- function(W, xx, errortype = NULL, sd_U = NULL, phiU = NULL,
 		output <- list("x" = xx, "pdf" = pdf, "W" = W)
 	}
 
+	if (errors == "rep") {
+		t_search <- tt/bw
+		phiU_splined <- function(t){
+			replicates_phiU(t, W, W2, t_search)
+		}
+		W <- c(W, W2)
+		pdf <- DeconErrKnownPdf(xx, W, bw, phiU_splined, kernel_type, rescale)
+		output <- list("x" = xx, "pdf" = pdf, "W1" = W, "W2" = W2)
+	}
+
 	if (errors == "sym") {
-		out <- DeconErrSymPmf(W, m)
+		out <- DeconErrSymPmf(W, m, kernel_type)
 		if (!pmf) {
 			phi.W <- out$phi.W
 			pdf <- DeconErrSymPmfToPdf(out, W, phi.W, xx, phiK, muK2, tt, 

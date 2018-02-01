@@ -4,12 +4,15 @@
 \alias{bandwidth}
 \title{Bandwidth Selectors for Deconvolution Kernel Density Estimation}
 \usage{
-bandwidth(W, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
-  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
-  kernel_type = c("default"), seed = NULL)
+bandwidth(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL,
+  Y = NULL, algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
+  kernel_type = c("default", "normal", "sinc"), seed = NULL)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
+
+\item{W2}{A vector of replicate measurements. If supplied, then the erorr 
+will be estimated using replicates.}
 
 \item{errortype}{The distribution type of \eqn{U}. Either "laplace" or 
 "normal". If you define the errors this way then you must also provide 
@@ -28,9 +31,9 @@ you should not provide \code{errortype}.}
 \item{Y}{A vector of the univariate dependent data. Only required for 'SIMEX'
 algorithm.}
 
-\item{algorithm}{Either \code{"PI"} for plug-in estimator or \code{"CV"} for
-cross-validation estimator. If \code{"CV"} then the errors must be
-homoscedastic.}
+\item{algorithm}{One of \code{"PI"} for plug-in estimator, \code{"CV"} for
+cross-validation estimator or \code{"SIMEX"}. If \code{"CV"} then the errors 
+must be homoscedastic.}
 
 \item{n_cores}{Number of cores to use when using SIMEX algorithm. If
 \code{NULL}, the number of cores to use will be automatically detected.}
@@ -64,6 +67,9 @@ described in Delaigle and Gijbels 2002, and Delaigle and Gijbels 2004.
 errors are defined by a either a vector of functions \code{phiU}, or a vector
 \code{sd_U} along with its \code{errortype} then the method used is as
 described in Delaigle and Meister 2008.
+
+\strong{PI for Replicates:} If \code{algorithm = "PI"} and a replicate 
+vector \code{W2} is supplied, then the error is estimated using replicates.
 
 \strong{PI for Unknown Error:} If \code{algorithm = "PI"} and the errors are
 not supplied, then the error is estimated using the method described in

@@ -1,9 +1,14 @@
-DeconErrSymPmf <- function(W, m, n.iter.tp = 5, n.iter.var = 2, 
+DeconErrSymPmf <- function(W, m, kernel_type, n.iter.tp = 5, n.iter.var = 2, 
 						   show.diagnostics = FALSE){
 
 	Diagnostic <- function(message){
 		PrintDiagnostic(message, show.diagnostics)
 	}
+
+	kernel_list <- kernel(kernel_type)
+	phiK <- kernel_list$phik
+	mu_K2 <- kernel_list$muk2
+	RK <- kernel_list$rk
 
 	if (m < 2){
 		stop("m must be at least 2")
@@ -16,7 +21,8 @@ DeconErrSymPmf <- function(W, m, n.iter.tp = 5, n.iter.var = 2,
 	#--------------------------------------------------------------------------#
 	# Calculate phi.W on [-8,8] so we can find t*
 	tt.length <- 100
-	hnaive <- 1.06*sqrt(var(W))*n^(-1/5)
+	hnaive <- ((8 * sqrt(pi) * RK/3/mu_K2^2)^0.2) * sqrt(stats::var(W)) * 
+		n^(-1/5)
 	hmin <- hnaive/3
 	# tt <- seq(-1, 8, length.out = tt.length)
 	tt <- seq(-1/hmin, 1/hmin, length.out = tt.length)
