@@ -196,8 +196,8 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 	}
 
 	if (algorithm == "SIMEX") {
-		output <- hSIMEXUknown(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, 
-							   deltat, tt, n_cores, seed)
+		output <- hSIMEXUknown(W, Y, errortype, sd_U, phiU, kernel_type, 
+							   n_cores, seed)
 	}
 
 	if (algorithm == "PI" & errors == "het") {
@@ -253,7 +253,7 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 		
 		# Actually find bandwidth
 		sd_X <- max(!is.na(sqrt(stats::var(W) - sd_U^2)), 1 / n)
-		output <- plugin_bandwidth(W, phi_U_splined, sd_X, "default")
+		output <- plugin_bandwidth(W, phi_U_splined, sd_X, kernel_type)
 	}
 
 	output

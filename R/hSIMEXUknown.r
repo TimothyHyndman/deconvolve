@@ -21,8 +21,15 @@
 # sd_U: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter.
 
-hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt,
-						 n_cores, seed){
+hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, kernel_type, n_cores, 
+						 seed){
+
+	kernel_list <- kernel(kernel_type)
+	phiK <- kernel_list$phik
+	muK2 <- kernel_list$muk2
+	RK <- kernel_list$rk
+	tt <- kernel_list$tt
+	deltat <- tt[2] - tt[1]
 
 	if (is.null(n_cores)){
 		n_cores <- parallel::detectCores()
@@ -54,7 +61,7 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, phiK, muK2, RK, deltat, tt
 	# 							RK = RK, deltat = deltat, tt = tt)
 	
 	sd_X <- max( !is.na(sqrt(stats::var(as.vector(W)) - sd_U^2)), 1/n)
-	hPIfX <- plugin_bandwidth(as.vector(W), phiU, sd_X, "default")
+	hPIfX <- plugin_bandwidth(as.vector(W), phiU, sd_X, kernel_type)
 
 	a <- hPIfX / 2
 	b <- 2 * hPIfX

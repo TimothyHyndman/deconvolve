@@ -1,4 +1,9 @@
-DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale, h){
+DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, kernel_type, rescale, h){
+
+	kernel_list <- kernel(kernel_type)
+	phiK <- kernel_list$phik
+	muK2 <- kernel_list$muk2
+	t <- kernel_list$tt
 
 	theta <- X.pmf$support
 	p <- X.pmf$probweights
@@ -28,7 +33,7 @@ DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, phiK, muK2, t, rescale, h){
 	# Find Plug-In Bandwidth ---------------------------------------------------
 	if (is.null(h)) {
 		sd_X <- max(!is.na(sqrt(stats::var(W) - sd_U^2)), 1 / n)
-		h.PIc <- plugin_bandwidth(W, phi_U_splined, sd_X, "default")
+		h.PIc <- plugin_bandwidth(W, phi_U_splined, sd_X, kernel_type)
 	} else {
 		h.PIc <- h
 	}
