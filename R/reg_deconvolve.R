@@ -124,6 +124,8 @@ reg_deconvolve <- function(W, Y, xx = seq(min(W), max(W), length.out = 100),
     # Compute estimate for m(X) ------------------------------------------------
     y <- NWDecUknown(xx, W, Y, phiU, bw, rho, phiK, tt, deltat)
 
-    list(y = y, bw = bw, rho = rho)
+    structure(list(pdf = y, bw = bw, rho = rho, x = xx), 
+                   class = c("deconvolve", "list"))
+
 
 }

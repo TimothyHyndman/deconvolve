@@ -238,6 +238,6 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 	}
 
 	# Output object of class "deconvolve" --------------------------------------
-	class(output) <- "deconvolve"
+	class(output) <- c("deconvolve", "list")
 	output
 }
