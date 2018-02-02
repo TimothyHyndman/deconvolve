@@ -28,8 +28,9 @@
 #' characteristic function \eqn{(1-t^2)^3}.
 #' @param seed Set seed for SIMEX. Otherwise a default seed will be automatically set.
 #'
-#' @return Regression estimator, bandwidth and ridge parameter rho. Using SIMEX
-#' to choose smoothing-parameters. See Delaigle and Hall 2008.
+#' @return An object of class deconvolve containing the regression estimator, 
+#' as well as the bandwidth and ridge parameter rho. Using SIMEX to choose 
+#' smoothing-parameters. See Delaigle and Hall 2008.
 #'
 #' @section Warnings:
 #' \itemize{

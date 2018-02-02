@@ -46,8 +46,9 @@ characteristic function \eqn{(1-t^2)^3}.}
 \item{seed}{Set seed for SIMEX. Otherwise a default seed will be automatically set.}
 }
 \value{
-Regression estimator, bandwidth and ridge parameter rho. Using SIMEX
-to choose smoothing-parameters. See Delaigle and Hall 2008.
+An object of class deconvolve containing the regression estimator, 
+as well as the bandwidth and ridge parameter rho. Using SIMEX to choose 
+smoothing-parameters. See Delaigle and Hall 2008.
 }
 \description{
 Estimates \eqn{m} from data \eqn{(W, Y)} where \eqn{Y = m(X) + \epsilon} and
