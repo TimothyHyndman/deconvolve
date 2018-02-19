@@ -1,6 +1,8 @@
 library(deconvolve)
 context("Bandwidth")
 
+load("sym_error_test_result.RData")
+
 set.seed(1)
 n <- 50
 sd_X <- 1
