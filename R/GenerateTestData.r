@@ -14,16 +14,19 @@
 #' of U.
 #' @param create_Y If true, \code{GenerateTestData} also returns a vector of Y 
 #' values for use in regression problems.
+#' @param replicates If true, \code{GenerateTestData} returns a vector 
 #' 
 #' @return Returns W as a length n vector. If \code{create_Y} is true, returns a 
-#' list with elements 'W' and 'Y'.
+#' list with elements 'W' and 'Y'. If \code{replicates} is true, returns a list 
+#' with elements 'W1' and 'W2'.
 #' 
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #' 
 #' @export
 
 GenerateTestData <- function(n, sd_X = 1, sd_U = 0.2, dist_type = "chi", 
-							 error_type = "norm", create_Y = FALSE){
+							 error_type = "norm", create_Y = FALSE, 
+							 replicates = FALSE){
 	
 	error_types <- c("normal", "laplace")
     error_type <- error_types[pmatch(tolower(error_type), error_types)]
@@ -71,10 +74,13 @@ GenerateTestData <- function(n, sd_X = 1, sd_U = 0.2, dist_type = "chi",
 	if (error_type == "normal"){
 		if (length(sd_U) == 1){
 			U <- stats::rnorm(n, sd = sd_U)
+			U2 <- stats::rnorm(n, sd = sd_U)
 		} else {
 			U <- numeric(n)
+			U2 <- numeric(n)
 			for (i in 1:n) {
 				U[i] <- stats::rnorm(1, 0, sd_U[i])
+				U2[i] <- stats::rnorm(1, 0, sd_U[i])
 			}
 		}
 	}
@@ -83,21 +89,27 @@ GenerateTestData <- function(n, sd_X = 1, sd_U = 0.2, dist_type = "chi",
 		if (length(sd_U) == 1) {
 			sigLap <- sd_U / sqrt(2)
 			U <- rlap(sigLap, 1, n)
+			U2 <- rlap(sigLap, 1, n)
 		} else {
 			sigLap <- sd_U / sqrt(2)
 			U <- numeric(n)
+			U2 <- numeric(n)
 			for (i in 1:n) {
 				U[i] <- rlap(sigLap[i], 1, 1)
+				U2[i] <- rlap(sigLap[i], 1, 1)
 			}
 		}
 	}
 
 	# Combine samples ----------------------------------------------------------
 	W <- X + U
+	W2 <- X + U2
 
 	if (create_Y) {
 		Y <- 2*X
 		output <- list("W" = W, "Y" = Y)
+	} else if (replicates) {
+		output <- list("W1" = W, "W2" = W2)
 	} else {
 		output <- W
 	}

@@ -110,7 +110,7 @@ Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1,
 
 \examples{
 # CV bandwidth -----------------------------------------------------------------
-n <- 200
+n <- 50
 sd_X <- 1
 sd_U <- 0.2
 W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
@@ -119,17 +119,12 @@ bw <- bandwidth(W, errortype = "norm", sd_U = sd_U, algorithm = "CV")
 
 
 # PI bandwidth with heteroscedastic errors -------------------------------------
-n <- 200
-sd_X <- 1
 sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
 
 bw <- bandwidth(W, errortype = "norm", sd_U = sd_U_vec)
 
 # SIMEX bandwidth --------------------------------------------------------------
-n <- 200
-sd_X <- 1
-sd_U <- 0.2
 data <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm", 
 						 create_Y = TRUE)
 output <- bandwidth(data$W, errortype = "norm", sd_U = sd_U, Y = data$Y, 
@@ -137,8 +132,6 @@ output <- bandwidth(data$W, errortype = "norm", sd_U = sd_U, Y = data$Y,
 bw <- output$h
 
 # PI bandwidth with heteroscedastic errors supplied using phiU -----------------
-n <- 200
-sd_X <- 1
 sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 phiU <- c()
 for (sigUk in sd_U_vec){

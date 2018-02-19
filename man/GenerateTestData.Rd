@@ -5,7 +5,7 @@
 \title{Generate convolved data for use in deconvolve examples}
 \usage{
 GenerateTestData(n, sd_X = 1, sd_U = 0.2, dist_type = "chi",
-  error_type = "norm", create_Y = FALSE)
+  error_type = "norm", create_Y = FALSE, replicates = FALSE)
 }
 \arguments{
 \item{n}{The size of the generated data}
@@ -23,10 +23,13 @@ of U.}
 
 \item{create_Y}{If true, \code{GenerateTestData} also returns a vector of Y 
 values for use in regression problems.}
+
+\item{replicates}{If true, \code{GenerateTestData} returns a vector}
 }
 \value{
 Returns W as a length n vector. If \code{create_Y} is true, returns a 
-list with elements 'W' and 'Y'.
+list with elements 'W' and 'Y'. If \code{replicates} is true, returns a list 
+with elements 'W1' and 'W2'.
 }
 \description{
 A convenience function for the package `deconvolve' that generates 
