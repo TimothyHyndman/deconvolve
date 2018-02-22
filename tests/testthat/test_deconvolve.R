@@ -6,6 +6,7 @@ n <- 50
 W <- GenerateTestData(n, dist_type = "chi", error_type = "norm")
 
 test_that("symmetric error case gives expected result", {
+	skip_on_cran()
 	d_test <- deconvolve(W)
 	load("sym_error_test_result.RData")
 	expect_equal(d_test, d)
@@ -22,6 +23,7 @@ sd_U <- 0.2
 W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
 
 test_that("hom error gives expected result", {
+	skip_on_cran()
 	yy_test <- deconvolve(W, errortype = "norm", sd_U = sd_U)
 	load("hom_error_test_result.RData")
 	expect_equal(yy_test, yy)
@@ -42,6 +44,7 @@ for(k in 1:n) {
 
 
 test_that("het error gives expected result", {
+	skip_on_cran()
 	yy_test <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
 	load("het_error_test_result.RData")
 	expect_equal(yy_test, yy)

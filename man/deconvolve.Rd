@@ -129,8 +129,15 @@ deconvolution. \emph{Statistics and Computing}, 17, 349-355.
 }
 
 \examples{
-# Symmetric Errors -------------------------------------------------------------
+# Homoscedastic Errors ---------------------------------------------------------
 n <- 50
+sd_X <- 1
+sd_U <- 0.2
+W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
+yy <- deconvolve(W, errortype = "norm", sd_U = sd_U)
+
+\dontrun{
+# Symmetric Errors -------------------------------------------------------------
 W <- GenerateTestData(n, dist_type = "chi", error_type = "norm")
 d <- deconvolve(W)
 plot(d)
@@ -140,13 +147,6 @@ print(d)
 d <- deconvolve(W, pmf = TRUE)
 plot(d)
 print(d)
-
-# Homoscedastic Errors ---------------------------------------------------------
-sd_X <- 1
-sd_U <- 0.2
-W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
-
-yy <- deconvolve(W, errortype = "norm", sd_U = sd_U)
 
 # Heteroscedastic Errors -------------------------------------------------------
 sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
@@ -173,6 +173,7 @@ yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
 data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", 
 		replicates = TRUE)
 yy <- deconvolve(data$W1, data$W2)
+}
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

@@ -109,6 +109,7 @@ Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1,
 }
 
 \examples{
+\dontrun{
 # CV bandwidth -----------------------------------------------------------------
 n <- 50
 sd_X <- 1
@@ -148,6 +149,7 @@ bw <- bandwidth(W, sd_U = sd_U_vec, phiU = phiU)
 # Error estimated from replicates
 data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", replicates = TRUE)
 bw <- bandwidth(data$W1, data$W2)
+}
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang
