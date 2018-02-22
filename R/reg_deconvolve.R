@@ -126,7 +126,7 @@ reg_deconvolve <- function(W, Y, xx = seq(min(W), max(W), length.out = 100),
     y <- NWDecUknown(xx, W, Y, phiU, bw, rho, phiK, tt, deltat)
 
     structure(list(pdf = y, bw = bw, rho = rho, x = xx), 
-                   class = c("deconvolve", "list"))
+                   class = c("reg_deconvolve", "list"))
 
 
 }

@@ -56,3 +56,34 @@ plot.deconvolve <- function(x, ...){
 
 	final_plot
 }
+
+#' @export
+plot.reg_deconvolve <- function(x, ...){
+	final_plot <- ggplot2::ggplot()
+	text_col = "darkslategrey"
+	dens_col = "black"
+
+	#Plot distribution --------------------------------------------------------
+	if ("pdf" %in% names(x)) {
+		xvec <- x$x
+		yvec <- x$pdf
+		df_pdf <- data.frame(xvec,yvec)
+		plot_pdf <- ggplot2::geom_path(data = df_pdf, ggplot2::aes(xvec,yvec), 
+								   color = dens_col, size = 1)
+		final_plot <- final_plot + plot_pdf
+	}
+
+	title <- 'Regression Estimator'
+
+	final_plot <- final_plot + ggplot2::ggtitle(title) + 
+				  ggplot2::theme(plot.title = ggplot2::element_text(size=20, face="bold",
+				  				 hjust = 0.5, color = text_col))
+
+	# X and Y labels
+	final_plot <- final_plot + ggplot2::labs(x = "x", y = "m(x)") + 
+				  ggplot2::theme(
+				  	axis.title.x = ggplot2::element_text(color = text_col, vjust=-0.35), 
+				  	axis.title.y = ggplot2::element_text(color = text_col, vjust=0.35))
+
+	final_plot
+}
