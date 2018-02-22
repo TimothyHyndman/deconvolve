@@ -51,7 +51,7 @@ as well as the bandwidth and ridge parameter rho. Using SIMEX to choose
 smoothing-parameters. See Delaigle and Hall 2008.
 }
 \description{
-Estimates \eqn{m} from data \eqn{(W, Y)} where \eqn{Y = m(X) + \epsilon} and
+Estimates \eqn{m(x) = E[Y | X = x]} from data \eqn{(W, Y)} where 
 \eqn{W = X + U}. See Fan and Truong 1993.
 }
 \section{Warnings}{

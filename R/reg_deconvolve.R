@@ -1,7 +1,7 @@
 #' Compute the measurement error version of the Nadaraya-Watson regression
 #' estimator
 #'
-#' Estimates \eqn{m} from data \eqn{(W, Y)} where \eqn{Y = m(X) + \epsilon} and
+#' Estimates \eqn{m(x) = E[Y | X = x]} from data \eqn{(W, Y)} where 
 #' \eqn{W = X + U}. See Fan and Truong 1993.
 #'
 #' @param W A vector of the univariate contaminated data W_1, ..., W_n.
