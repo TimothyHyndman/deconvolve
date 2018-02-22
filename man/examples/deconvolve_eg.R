@@ -37,3 +37,8 @@ for(k in 1:n) {
 }
 
 yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
+
+# Error estimated from replicates ----------------------------------------------
+data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", 
+		replicates = TRUE)
+yy <- deconvolve(data$W1, data$W2)

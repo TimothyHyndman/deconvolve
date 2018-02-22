@@ -73,7 +73,7 @@ data \eqn{W = X + U} when the distribution of \eqn{U} is known,
 heteroscedastic, or symmetric.
 }
 \details{
-The function \code{deconvolve} chooses from one of three different methods 
+The function \code{deconvolve} chooses from one of four different methods 
 depending on how the error distribution is defined.
 
 \strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied
@@ -168,6 +168,11 @@ for(k in 1:n) {
 }
 
 yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
+
+# Error estimated from replicates ----------------------------------------------
+data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", 
+		replicates = TRUE)
+yy <- deconvolve(data$W1, data$W2)
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

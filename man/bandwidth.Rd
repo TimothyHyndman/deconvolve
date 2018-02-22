@@ -54,7 +54,7 @@ bandwidth for use in deconvolution regression of data \eqn{(W, Y)}  where
 \eqn{Y = g(X) + V} and \eqn{W = X + U}.
 }
 \details{
-The function \code{bandwidth} chooses from one of five different methods
+The function \code{bandwidth} chooses from one of six different methods
 depending on how the error distribution is defined and which algorithm is
 selected.
 
@@ -144,6 +144,10 @@ for (sigUk in sd_U_vec){
 W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
 
 bw <- bandwidth(W, sd_U = sd_U_vec, phiU = phiU)
+
+# Error estimated from replicates
+data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", replicates = TRUE)
+bw <- bandwidth(data$W1, data$W2)
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang
