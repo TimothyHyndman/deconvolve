@@ -4,7 +4,7 @@
 #' data \eqn{W = X + U} when the distribution of \eqn{U} is known,
 #' heteroscedastic, or symmetric.
 #' 
-#' The function \code{deconvolve} chooses from one of three different methods 
+#' The function \code{deconvolve} chooses from one of four different methods 
 #' depending on how the error distribution is defined.
 #' 
 #' \strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied

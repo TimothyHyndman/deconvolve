@@ -5,7 +5,7 @@
 #' bandwidth for use in deconvolution regression of data \eqn{(W, Y)}  where
 #' \eqn{Y = g(X) + V} and \eqn{W = X + U}.
 #'
-#' The function \code{bandwidth} chooses from one of five different methods
+#' The function \code{bandwidth} chooses from one of six different methods
 #' depending on how the error distribution is defined and which algorithm is
 #' selected.
 #'
