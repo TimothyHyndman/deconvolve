@@ -12,7 +12,7 @@ deconvolve(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
 
-\item{W2}{A vector of replicate measurements. If supplied, then the erorr 
+\item{W2}{A vector of replicate measurements. If supplied, then the error 
 will be estimated using replicates.}
 
 \item{xx}{A vector of x values on which to compute the density. This can be
@@ -69,8 +69,8 @@ are assumed symmetric}
 }
 \description{
 Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-data \eqn{W = X + U} when the distribution of \eqn{U} is known,
-heteroscedastic, or symmetric.
+data \eqn{W = X + U} when the distribution of \eqn{U} is known, unknown, or
+estimated from replicates, \eqn{W_2 = X + U_2}.
 }
 \details{
 The function \code{deconvolve} chooses from one of four different methods 

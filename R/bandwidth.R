@@ -123,6 +123,12 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 		stop("You must provide sd_U along with the errors.")
 	}
 
+	if (errors == "rep"){
+		if (!(length(W) == length(W2))) {
+			stop("W and W2 must be the same length.")
+		}
+	}
+
 	# if ((algorithm == "CV" | algorithm == "PI" | algorithm == "SIMEX") == FALSE) {
 	# 	stop("algorithm must be one of: 'PI', 'CV', or 'SIMEX'.")
 	# }

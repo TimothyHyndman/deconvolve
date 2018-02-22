@@ -1,8 +1,8 @@
 #' Deconvolution Kernel Density Estimator
 #' 
 #' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-#' data \eqn{W = X + U} when the distribution of \eqn{U} is known,
-#' heteroscedastic, or symmetric.
+#' data \eqn{W = X + U} when the distribution of \eqn{U} is known, unknown, or
+#' estimated from replicates, \eqn{W_2 = X + U_2}.
 #' 
 #' The function \code{deconvolve} chooses from one of four different methods 
 #' depending on how the error distribution is defined.
@@ -30,7 +30,7 @@
 #' function(s) of the errors (\code{phiU}). 
 #' 
 #' @param W A vector of the univariate contaminated data.
-#' @param W2 A vector of replicate measurements. If supplied, then the erorr 
+#' @param W2 A vector of replicate measurements. If supplied, then the error 
 #' will be estimated using replicates.
 #' @param xx A vector of x values on which to compute the density. This can be
 #' missing if \code{pmf = TRUE}.
@@ -168,6 +168,12 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 
 	if (pmf & !(errors == "sym")){
 		stop("Option pmf cannot be used when the error is provided.")
+	}
+
+	if (errors == "rep"){
+		if (!(length(W) == length(W2))) {
+			stop("W and W2 must be the same length.")
+		}
 	}
 
 	if (kernel_type == "normal") {

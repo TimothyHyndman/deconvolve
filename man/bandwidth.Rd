@@ -11,7 +11,7 @@ bandwidth(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL,
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
 
-\item{W2}{A vector of replicate measurements. If supplied, then the erorr 
+\item{W2}{A vector of replicate measurements. If supplied, then the error 
 will be estimated using replicates.}
 
 \item{errortype}{The distribution type of \eqn{U}. Either "laplace" or 
