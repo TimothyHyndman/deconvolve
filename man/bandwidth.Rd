@@ -49,9 +49,10 @@ list containing the bandwidth 'h' and ridge parameter 'rho'.
 }
 \description{
 Computes a bandwidth for use in deconvolution kernel density estimation of
-\eqn{X} from data \eqn{W = X + U}. If 'SIMEX' algorithm used, computes a
-bandwidth for use in deconvolution regression of data \eqn{(W, Y)}  where
-\eqn{Y = g(X) + V} and \eqn{W = X + U}.
+\eqn{X} from data \eqn{W = X + U} when the distribution of \eqn{U} is known,
+unknown, or estimated from replicates, \eqn{W_2 = X + U_2}. If 'SIMEX' 
+algorithm used, computes a bandwidth for use in deconvolution regression of 
+data \eqn{(W, Y)}  where \eqn{Y = g(X) + V} and \eqn{W = X + U}.
 }
 \details{
 The function \code{bandwidth} chooses from one of six different methods
