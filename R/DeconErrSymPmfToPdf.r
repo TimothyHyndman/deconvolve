@@ -1,80 +1,48 @@
-DeconErrSymPmfToPdf <- function(X.pmf, W, phi.W, xx, kernel_type, rescale, h){
+DeconErrSymPmfToPdf <- function(X_pmf, W, phi_W, xx, kernel_type, rescale, h){
 
-	kernel_list <- kernel(kernel_type)
-	phiK <- kernel_list$phik
-	muK2 <- kernel_list$muk2
-	t <- kernel_list$tt
-
-	theta <- X.pmf$support
-	p <- X.pmf$probweights
-	dt <- t[2] - t[1]
-	tt <- phi.W$t.values
+	theta <- X_pmf$support
+	p <- X_pmf$probweights
+	tt <- phi_W$t.values
 	n <- length(W)
-	
-	if(is.null(phiK)){
-		phiK <- phiK2
-	}
 
 	# Estimate sd_U ------------------------------------------------------------
-	tt.BB.length <- 200		# Use a finer grid than tt
-	tt.BB <- seq(tt[1], tt[length(tt)], length.out = tt.BB.length)
-	sd_U <- sqrt(estimate_var_u(W, tt.BB, theta, p))
+	tt_BB_length <- 200		# Use a finer grid than tt
+	tt_BB <- seq(tt[1], tt[length(tt)], length.out = tt_BB_length)
+	sd_U <- sqrt(estimate_var_u(W, tt_BB, theta, p))
 
 	# Estimate PhiX and PhiU ---------------------------------------------------
-	phi.X <- ComputePhiPmf(theta, p, tt)
-	phi.U <- phi.W$norm / Mod(phi.X)
+	phi_X <- ComputePhiPmf(theta, p, tt)
+	phi_U <- phi_W$norm / Mod(phi_X)
 
 	t_cutoff <- tt[length(tt)]	# We have already found t_cutoff earlier when
 								# calculating phiW
 	phi_U_splined <- function(t) {
-		phiU_spline(t, sd_U, t_cutoff, tt, phi.U)
+		phiU_spline(t, sd_U, t_cutoff, tt, phi_U)
 	}
 	
 	# Find Plug-In Bandwidth ---------------------------------------------------
 	if (is.null(h)) {
 		sd_X <- max(!is.na(sqrt(stats::var(W) - sd_U^2)), 1 / n)
-		h.PIc <- plugin_bandwidth(W, phi_U_splined, sd_X, kernel_type)
-	} else {
-		h.PIc <- h
+		h <- plugin_bandwidth(W, phi_U_splined, sd_X, kernel_type)
 	}
 	
 	# --------------------------------------------------------------------------
-	phi.U.PI <- phi_U_splined(t/h.PIc)
-	phi.W.PI <- ComputePhiEmp(W, t/h.PIc)
-
-	phi.X.re <- phi.W.PI$re / phi.U.PI
-	phi.X.im <- phi.W.PI$im / phi.U.PI
-
-	xt <- outer(t/h.PIc, xx)
-
-	fX <- cos(xt) * matrix( rep(phi.X.re, length(xx)), ncol = length(xx)) + 
-	sin(xt) * matrix( rep(phi.X.im, length(xx)), ncol = length(xx))
-
-	fX <- colSums(fX * matrix( rep(phiK(t), length(xx)), ncol = length(xx))) / 
-	(2 * pi) * dt / h.PIc
-
-	fX[fX < 0] <- 0
-
-	if (rescale) {
-		dx <- xx[2] - xx[1]
-		fX <- fX / sum(fX) / dx	
-	}
-	
-	fX
+	fX <- DeconErrKnownPdf(xx, W, h, phi_U_splined, kernel_type, rescale)
 }
 
-estimate_var_u <- function(W, tt.BB, theta, p){
+estimate_var_u <- function(W, tt_BB, theta, p){
 	#---------------------------------------------------------------------------
-	# Estimate var(U): approximate phi.U by poly of degree 2, and estimate varU 
+	# Estimate var(U): approximate phi_U by poly of degree 2, and estimate varU 
 	# by -2 * second order coefficient
 	#---------------------------------------------------------------------------
-	phi.W.BB <- ComputePhiEmp(W, tt.BB)
-	phi.X.BB <- ComputePhiPmf(theta, p, tt.BB)
-	phi.U.BB <- phi.W.BB$norm / Mod(phi.X.BB)
+	phi_W_BB <- ComputePhiEmp(W, tt_BB)
+	phi_X_BB <- ComputePhiPmf(theta, p, tt_BB)
+	phi_U_BB <- phi_W_BB$norm / Mod(phi_X_BB)
 
-	t_vec <- 		  tt.BB[ phi.U.BB >= 0.95 ]
-	phi.U.t_vec <- phi.U.BB[ phi.U.BB >= 0.95 ]
+	t_vec <- 		  tt_BB[ phi_U_BB >= 0.95 ]
+	phi_U_t_vec <- phi_U_BB[ phi_U_BB >= 0.95 ]
 
-	pp <- stats::lm(phi.U.t_vec ~ stats::poly(t_vec, 2, raw = TRUE))
-	hat.var.U <- -2 * pp$coefficients[[3]]
+	pp <- stats::lm(phi_U_t_vec ~ stats::poly(t_vec, 2, raw = TRUE))
+	
+	-2 * pp$coefficients[[3]]
 }
