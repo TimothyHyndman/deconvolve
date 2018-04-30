@@ -47,12 +47,24 @@
 #' 
 #' @export
 
-hom_deconvolve_U_known <- function(W, 
-								   x, 
-								   phiU, 
+hom_deconvolve_U_known <- function(W,
+								   phiU,
 								   h,
+								   x = seq(min(W), max(W), length.out = 100), 
 								   kernel_type = c("default", "normal", "sinc"), 
 								   rescale = FALSE) {
+
+	kernel_type <- match.arg(kernel_type)
+
+	if (kernel_type == "normal") {
+		warning("You should only use the 'normal' kernel when the errors are 
+			Laplace or convolutions of Laplace.")
+	}
+
+	if (kernel_type == "sinc") {
+		warning("You should ensure that you are not using a plug-in bandwidth 
+			method for the bandwidth when using the sinc kernel.")
+	}
 
 	kernel_list <- kernel(kernel_type)
 	phiK <- kernel_list$phik
@@ -84,5 +96,8 @@ hom_deconvolve_U_known <- function(W,
 		fXdecUK <- fXdecUK / sum(fXdecUK) / dx
 	}
 
-	fXdecUK
+	# Construct final output object --------------------------------------------
+	output <- list("x" = x, "pdf" = fXdecUK, "W" = W)
+	class(output) <- c("deconvolve", "list")
+	output
 }

@@ -50,11 +50,27 @@
 #' @export
 
 het_deconvolve_U_known <- function(W,
-								   x,
 								   phiUkvec,
 								   h,
+								   x = seq(min(W), max(W), length.out = 100),
 								   kernel_type = c("default", "normal", "sinc"),
 								   rescale = FALSE) {
+
+	kernel_type <- match.arg(kernel_type)
+
+	if ((length(phiUkvec) == length(W)) == FALSE) {
+		stop("phiUkvec must have the same length as W")
+	}
+
+	if (kernel_type == "normal") {
+		warning("You should only use the 'normal' kernel when the errors are 
+			Laplace or convolutions of Laplace.")
+	}
+
+	if (kernel_type == "sinc") {
+		warning("You should ensure that you are not using a plug-in bandwidth 
+			method for the bandwidth when using the sinc kernel.")
+	}
 
 	kernel_list <- kernel(kernel_type)
 	phiK <- kernel_list$phik
@@ -63,7 +79,6 @@ het_deconvolve_U_known <- function(W,
 
 	n <- length(W)
 
-	# Convert vector of functions to single function ---------------------------
 	phiUk <- function(tt,k) {
 		phiUkvec[[k]](tt)
 	}
@@ -77,8 +92,6 @@ het_deconvolve_U_known <- function(W,
 		matphiU[, k] <- phiUk(tt / h, k)
 	}
 
-	# Sum by rows of the matrix. This produces a vector of size equal to that of 
-	# tt
 	phiUsqth <- apply(matphiU^2, 1, sum)
 
 	# Estimate real and imaginary parts of empirical characteristic function of 
@@ -101,5 +114,8 @@ het_deconvolve_U_known <- function(W,
 		fXdecUK <- fXdecUK / sum(fXdecUK) / dx
 	}
 
-	fXdecUK
+	# Construct final output object --------------------------------------------
+	output <- list("x" = x, "pdf" = fXdecUK, "W" = W)
+	class(output) <- c("deconvolve", "list")
+	output
 }

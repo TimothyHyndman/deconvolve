@@ -5,18 +5,18 @@
 \title{Deconvolution Kernel Density Estimator when the errors are known and 
 heteroscedastic}
 \usage{
-het_deconvolve_U_known(W, x, phiUkvec, h, kernel_type = c("default", "normal",
-  "sinc"), rescale = FALSE)
+het_deconvolve_U_known(W, phiUkvec, h, x = seq(min(W), max(W), length.out =
+  100), kernel_type = c("default", "normal", "sinc"), rescale = FALSE)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
-
-\item{x}{A vector of x values on which to compute the density.}
 
 \item{phiUkvec}{A vector of functions giving the characteristic functions of 
 \eqn{U}. Must have the same length as \code{W}.}
 
 \item{h}{The bandwidth to use.}
+
+\item{x}{A vector of x values on which to compute the density.}
 
 \item{kernel_type}{The deconvolution kernel to use. The default kernel has
 characteristic function \eqn{(1-t^2)^3}.}

@@ -4,17 +4,17 @@
 \alias{hom_deconvolve_U_known}
 \title{Deconvolution Kernel Density Estimator when the error is known}
 \usage{
-hom_deconvolve_U_known(W, x, phiU, h, kernel_type = c("default", "normal",
-  "sinc"), rescale = FALSE)
+hom_deconvolve_U_known(W, phiU, h, x = seq(min(W), max(W), length.out = 100),
+  kernel_type = c("default", "normal", "sinc"), rescale = FALSE)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
 
-\item{x}{A vector of x values on which to compute the density.}
-
 \item{phiU}{A function giving the characteristic function of \eqn{U}.}
 
 \item{h}{The bandwidth to use.}
+
+\item{x}{A vector of x values on which to compute the density.}
 
 \item{kernel_type}{The deconvolution kernel to use. The default kernel has
 characteristic function \eqn{(1-t^2)^3}.}

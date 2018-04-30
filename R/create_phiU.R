@@ -1,3 +1,5 @@
+#' @export
+#' 
 create_phiU <- function(errors, errortype, sd_U){
 
 	if(errortype == 'laplace' & errors == "hom") {
