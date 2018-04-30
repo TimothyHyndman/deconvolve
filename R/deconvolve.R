@@ -115,8 +115,6 @@
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #' 
 #' @example man/examples/deconvolve_eg.R
-#' 
-#' @export
 
 deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100), 
 					   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, 
