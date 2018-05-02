@@ -77,7 +77,7 @@
 #' 
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #' 
-##' @example man/examples/hom_deconvolve_eg.R
+#' @example man/examples/hom_deconvolve_eg.R
 #' 
 #' @export
 

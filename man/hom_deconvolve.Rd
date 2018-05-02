@@ -98,6 +98,18 @@ integrals and optimizing objective functions: a case study in density
 deconvolution. \emph{Statistics and Computing}, 17, 349-355.
 }
 
+\examples{
+\dontrun{
+# Symmetric Errors -------------------------------------------------------------
+output <- hom_deconvolve(framingham$SBP21)
+
+# Error estimated from replicates ----------------------------------------------
+W1 <- framingham$SBP21
+W2 <- framingham$SBP22
+
+yy <- hom_deconvolve(W1, W2)
+}
+}
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang
 }

@@ -45,6 +45,8 @@
 #' 
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #' 
+#' @example man/examples/hom_deconvolve_U_known_eg.R
+#' 
 #' @export
 
 hom_deconvolve_U_known <- function(W,
