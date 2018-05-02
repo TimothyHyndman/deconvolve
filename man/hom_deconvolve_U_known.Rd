@@ -2,7 +2,7 @@
 % Please edit documentation in R/hom_deconvolve_U_known.r
 \name{hom_deconvolve_U_known}
 \alias{hom_deconvolve_U_known}
-\title{Deconvolution Kernel Density Estimator when the error is known}
+\title{Deconvolution KDE when the error is known}
 \usage{
 hom_deconvolve_U_known(W, phiU, h, x = seq(min(W), max(W), length.out = 100),
   kernel_type = c("default", "normal", "sinc"), rescale = FALSE)

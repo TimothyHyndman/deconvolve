@@ -1,4 +1,4 @@
-#' Deconvolution Kernel Density Estimator when the error is known
+#' Deconvolution KDE when the error is known
 #' 
 #' Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
 #' data \eqn{W = X + U} when the distribution of \eqn{U} is known and 
