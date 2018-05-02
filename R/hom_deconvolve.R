@@ -35,10 +35,10 @@ hom_deconvolve <- function(W1,
 		}
 		W <- c(W1, W2)
 		output <- hom_deconvolve_U_known(W, phiU_splined, h, x, kernel_type, rescale)
-		# output <- list("x" = x, "pdf" = pdf, "W1" = W1, "W2" = W2)
+		output <- list("x" = x, "pdf" = output$pdf, "W1" = W1, "W2" = W2)
 	}
 
 
 	# class(output) <- c("deconvolve", "list")
-	# output
+	output
 }

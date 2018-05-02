@@ -26,7 +26,8 @@ test_that("replicates gives expected result", {
 	data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", 
 		replicates = TRUE)
 	yy_test <- hom_deconvolve(data$W1, data$W2)
-	expect_equal(1, 1)	#FINISH THIS
+	load("hom_error_rep_test_result.RData")
+	expect_equal(yy_test, yy)
 })
 
 set.seed(1)
