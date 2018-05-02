@@ -39,6 +39,6 @@ hom_deconvolve <- function(W1,
 	}
 
 
-	# class(output) <- c("deconvolve", "list")
+	class(output) <- c("deconvolve", "list")
 	output
 }
