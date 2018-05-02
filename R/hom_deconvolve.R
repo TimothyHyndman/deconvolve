@@ -50,6 +50,12 @@
 #' 
 #' @section Warnings:
 #' \itemize{
+#' 	\item The method for deconvolution when the error is unknown and assumed
+#' 	symmetric (as described in Delaigle and Hall (2016)) requires solving a 
+#' 	non-linear objective function with both linear and non-linear constraints. 
+#' 	We are yet to find a package in R that can perform this reliably. We instead
+#' 	recommend using the MATLAB code found at <URL> as it is both faster, and 
+#' 	more reliable.
 #'	\item If you supply your own bandwidth, then you should ensure that the
 #' 	kernel used here matches the one you used to calculate your bandwidth.
 #'	\item The DKDE can also be computed using the Fast Fourier Transform, which 
@@ -105,6 +111,7 @@ hom_deconvolve <- function(W1,
 		errors <- "rep"
 	} else {
 		errors <- "sym"
+		warning("The method for deconvolution when the error is unknown and assumed symmetric is slow and unreliable in R. Consider instead using the MATLAB code found at <URL>.")
 	}
 
 	if (is.null(h) & !(errors == "sym")) {
