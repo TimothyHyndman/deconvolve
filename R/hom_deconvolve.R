@@ -5,8 +5,10 @@ hom_deconvolve <- function(W1,
 						   x = seq(min(W1), max(W1), length.out = 100),
 						   h = NULL,
 						   kernel_type = c("default", "normal", "sinc"),
-						   rescale = FALSE
-						   ) {
+						   rescale = FALSE,
+						   pmf = FALSE,
+						   m = 20) {
+
 	kernel_type <- match.arg(kernel_type)
 
 	kernel_list <- kernel(kernel_type)
@@ -36,6 +38,23 @@ hom_deconvolve <- function(W1,
 		W <- c(W1, W2)
 		output <- hom_deconvolve_U_known(W, phiU_splined, h, x, kernel_type, rescale)
 		output <- list("x" = x, "pdf" = output$pdf, "W1" = W1, "W2" = W2)
+	}
+
+	if (errors == "sym") {
+		W <- W1
+		out <- DeconErrSymPmf(W, m, kernel_type)
+		h <- NULL
+
+		if (!pmf) {
+			phi_W <- out$phi.W
+			pdf <- DeconErrSymPmfToPdf(out, W, phi_W, x, kernel_type, rescale, h)
+			output <- list("x" = x, "pdf" = pdf, "support" = out$support, 
+						   "probweights" = out$probweights, "W" = W)
+		} else {
+			output <- list("support" = out$support,
+						   "probweights" = out$probweights,
+						   "W" = W)
+		}
 	}
 
 

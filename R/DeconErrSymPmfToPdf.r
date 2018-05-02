@@ -27,7 +27,9 @@ DeconErrSymPmfToPdf <- function(X_pmf, W, phi_W, xx, kernel_type, rescale, h){
 	}
 	
 	# --------------------------------------------------------------------------
-	fX <- DeconErrKnownPdf(xx, W, h, phi_U_splined, kernel_type, rescale)
+	# fX <- DeconErrKnownPdf(xx, W, h, phi_U_splined, kernel_type, rescale)
+	output <- hom_deconvolve_U_known(W, phi_U_splined, h, xx, kernel_type, rescale)
+	fX <- output$pdf
 }
 
 estimate_var_u <- function(W, tt_BB, theta, p){
