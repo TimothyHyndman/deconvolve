@@ -131,10 +131,9 @@ hom_deconvolve <- function(W1,
 	if (errors == "sym") {
 		W <- W1
 		out <- DeconErrSymPmf(W, m, kernel_type)
-		h <- NULL
 
 		if (!pmf) {
-			phi_W <- out$phi.W
+			phi_W <- out$phi_W
 			pdf <- DeconErrSymPmfToPdf(out, W, phi_W, x, kernel_type, rescale, h)
 			output <- list("x" = x, "pdf" = pdf, "support" = out$support, 
 						   "probweights" = out$probweights, "W" = W)
