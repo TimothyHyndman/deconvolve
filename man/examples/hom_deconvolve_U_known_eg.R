@@ -3,10 +3,10 @@ n <- 100
 sd_U <- 0.2
 X <- stats::rchisq(n, df = 3)
 U <- stats::rnorm(n, sd = sd_U)
-phiU <- function(t) {
-	exp(-sd_U^2 * t^2 / 2)
-}
 W <- X + U
+
+# Create phiU
+phiU <- create_phiU(sd_U, "norm")
 
 # Calculate a bandwidth
 h <- bandwidth(W, sd_U = sd_U, phiU = phiU)

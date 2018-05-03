@@ -1,20 +1,29 @@
 #' @export
 #' 
-create_phiU <- function(errors, errortype, sd_U){
+create_phiU <- function(sd_U, 
+						error_type = c("normal", "laplace")) {
 
-	if(errortype == 'laplace' & errors == "hom") {
+	error_type <- match.arg(error_type)
+
+	if (length(sd_U) == 1){
+		errors = "hom"
+	} else {
+		errors = "het"
+	}
+
+	if(error_type == 'laplace' & errors == "hom") {
 		phiU <- function(tt) {
 			1 / (1 + sd_U^2 * tt^2 / 2)
 		}
 	}
 
-	if(errortype == 'normal' & errors == "hom") {
+	if(error_type == 'normal' & errors == "hom") {
 		phiU <- function(tt) {
 			exp(-sd_U^2 * tt^2 / 2)
 		}
 	}
 
-	if(errortype == 'laplace' & errors == "het") {
+	if(error_type == 'laplace' & errors == "het") {
 		phiU <- c()
 		for (sigUk in sd_U){
 			phiUk <- function(tt) {
@@ -24,7 +33,7 @@ create_phiU <- function(errors, errortype, sd_U){
 		}
 	}
 
-	if(errortype == 'normal' & errors == "het") {
+	if(error_type == 'normal' & errors == "het") {
 		phiU <- c()
 		for (sigUk in sd_U){
 			phiUk <- function(tt) {

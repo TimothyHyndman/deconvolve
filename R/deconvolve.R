@@ -200,7 +200,7 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 	# Convert errortype to phiU ------------------------------------------------
 	if ((errors == "hom") | (errors == "het")){
 		if(is.null(phiU)) {
-			phiU <- create_phiU(errors, errortype, sd_U)
+			phiU <- create_phiU(errortype, sd_U)
 		}
 	}
 

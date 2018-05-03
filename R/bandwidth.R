@@ -192,7 +192,7 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 	# Convert errortype to phiU ------------------------------------------------
 	if ((errors == 'hom') | (errors == 'het') ) {
 		if(is.null(phiU)) {
-			phiU <- create_phiU(errors, errortype, sd_U)
+			phiU <- create_phiU(errortype, sd_U)
 		}
 	}
 
