@@ -110,7 +110,7 @@ reg_deconvolve <- function(W, Y, xx = seq(min(W), max(W), length.out = 100),
 
     # Convert errortype to phiU ------------------------------------------------
     if (is.null(phiU)){
-        phiU <- create_phiU(errortype, sd_U)
+        phiU <- create_phiU(sd_U, errortype)
     }
 
     # Calculate bandwidth ------------------------------------------------------

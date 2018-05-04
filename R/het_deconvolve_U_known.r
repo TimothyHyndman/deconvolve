@@ -9,7 +9,7 @@
 #' 
 #' @param W A vector of the univariate contaminated data.
 #' @param x A vector of x values on which to compute the density.
-#' @param phiUkvec A vector of functions giving the characteristic functions of 
+#' @param phiU A vector of functions giving the characteristic functions of 
 #' \eqn{U}. Must have the same length as \code{W}.
 #' @param h The bandwidth to use.
 #' @param rescale If \code{TRUE}, estimator is rescaled so that it 
@@ -52,7 +52,7 @@
 #' @export
 
 het_deconvolve_U_known <- function(W,
-								   phiUkvec,
+								   phiU,
 								   h,
 								   x = seq(min(W), max(W), length.out = 100),
 								   kernel_type = c("default", "normal", "sinc"),
@@ -60,8 +60,8 @@ het_deconvolve_U_known <- function(W,
 
 	kernel_type <- match.arg(kernel_type)
 
-	if ((length(phiUkvec) == length(W)) == FALSE) {
-		stop("phiUkvec must have the same length as W")
+	if ((length(phiU) == length(W)) == FALSE) {
+		stop("phiU must have the same length as W")
 	}
 
 	if (kernel_type == "normal") {
@@ -82,7 +82,7 @@ het_deconvolve_U_known <- function(W,
 	n <- length(W)
 
 	phiUk <- function(tt,k) {
-		phiUkvec[[k]](tt)
+		phiU[[k]](tt)
 	}
 
 	OO <- outer(tt / h, W)
