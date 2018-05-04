@@ -55,6 +55,10 @@ hom_regression_U_known <- function(W,
     kernel_type <- match.arg(kernel_type)
 
     # Check inputs -------------------------------------------------------------
+    if (!(length(W) == length(Y))) {
+        stop("W and Y must be vectors of the same length.")
+    }
+
     if (kernel_type == "normal") {
         warning("You should only use the 'normal' kernel when the errors are 
             Laplace or convolutions of Laplace.")

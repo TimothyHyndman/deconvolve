@@ -1,0 +1,55 @@
+#' Compute the measurement error version of the Nadaraya-Watson regression
+#' estimator when the errors are estimated from replicates.
+#'
+#' Estimates \eqn{m(x) = E[Y | X = x]} from data \eqn{(W, Y)} where 
+#' \eqn{W = X + U} and the \eqn{U} are homoscedastic and known. See Fan and 
+#' Truong 1993.
+#'
+#' @param W1 A vector of the univariate contaminated data W_1, ..., W_n.
+#' @param W2 A vector of replicate measurements
+#' @param Y A vector of the response data Y_1, ..., Y_n.
+#' @param xx A vector of x values on which to compute the regression estimator.
+#' @param h The bandwidth to use.
+#' @param rho The ridge parameter to use.
+#' @param kernel_type The deconvolution kernel to use. The default kernel has
+#' characteristic function \eqn{(1-t^2)^3}.
+#'
+#' @return An object of class reg_deconvolve containing the regression estimator, 
+#' as well as the bandwidth and ridge parameter rho. Using SIMEX to choose 
+#' smoothing-parameters. See Delaigle and Hall 2008.
+#'
+#' @section Warnings:
+#' \itemize{
+#' \item The bandwidth \code{h} and ridge parameter \code{rho} need to be 
+#' consistent. You can calculate these using the function \code{bandwidth}.
+#' \item The estimator can also be computed using the Fast Fourier Transform,
+#' which is faster, but more complex. See Delaigle and Gijbels 2007.
+#' }
+#'
+#' @section References:
+#' Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
+#' in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
+#'
+#' Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
+#' in errors-in-variables problems. \emph{Journal of the American Statistical
+#' Association}, 103, 481, 280-287
+#'
+#' Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
+#' integrals and optimizing objective functions: a case study in density
+#' deconvolution. \emph{Statistics and Computing}, 17, 349 - 355.
+#' 
+#' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
+#'
+#' @export
+
+hom_regression <- function(W1,
+                           W2,
+                           Y, 
+                           h, 
+                           rho,
+                           xx = seq(min(W), max(W), length.out = 100),  
+                           kernel_type = c("default", "normal", "sinc")) {
+
+
+
+}
