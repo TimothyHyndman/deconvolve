@@ -1,21 +1,17 @@
-
-# Heteroscedastic Errors -------------------------------------------------------
-sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
-W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
-
-yy <- deconvolve(W, errortype = "norm", sd_U = sd_U_vec)
-
-# Heteroscedastic Errors provided using a vector of phiUs ----------------------
-W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
-
-phiU_vec=c()
-phiU <- function(k) {
-	function(tt){
-		exp(-sd_U_vec[k]^2 * tt^2 / 2)
-	}
+# Generate some data to work with
+n <- 100
+sd_U <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
+X <- stats::rchisq(n, df = 3)
+for (sd in sd_U) {
+	U[i] <- stats::rnorm(1, 0, sd)
 }
-for(k in 1:n) {	
-	phiU_vec <- c(phiU_vec, phiU(k))
-}
+W <- X + U
 
-yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
+# Create phiUs
+phiU <- create_phiU(sd_U, "norm")
+
+# Calculate a bandwidth
+h <- bandwidth(W, sd_U = sd_U, phiU = phiU)
+
+# Deconvolve
+yy <- deconvolve(W, phiU, h)
