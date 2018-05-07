@@ -7,7 +7,7 @@
 deconvolve(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
   rescale = FALSE, pmf = FALSE, kernel_type = c("default", "normal",
-  "sinc"), m = 20)
+  "sinc"), m = 20, show_diagnostics = FALSE)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -50,6 +50,8 @@ characteristic function \eqn{(1-t^2)^3}.}
 
 \item{m}{The number of point masses to use to estimate the distribution of 
 \eqn{X} when the error is not supplied.}
+
+\item{show_diagnostics}{For testing only, REMOVE IN FINAL PACKAGE}
 }
 \value{
 An object of class "\code{deconvolve}".

@@ -242,7 +242,7 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 		theta <- d$support
 		p <- d$probweights
 		t <- tt
-		tt <- d$phi.W$t.values
+		tt <- d$phi_W$t.values
 
 		# Estimate Var(U) ------------------------------------------------------
 		tt.BB.length <- 200		# Use a finer grid than tt
@@ -251,7 +251,7 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 
 		# Estimate PhiX and PhiU -----------------------------------------------
 		phi.X <- ComputePhiPmf(theta, p, tt)
-		phi.U <- d$phi.W$norm / Mod(phi.X)
+		phi.U <- d$phi_W$norm / Mod(phi.X)
 
 		t_cutoff <- tt[length(tt)]
 		phi_U_splined <- function(t) {

@@ -70,6 +70,7 @@
 #' characteristic function \eqn{(1-t^2)^3}.
 #' @param m The number of point masses to use to estimate the distribution of 
 #' \eqn{X} when the error is not supplied.
+#' @param show_diagnostics For testing only, REMOVE IN FINAL PACKAGE
 #' 
 #' @return An object of class "\code{deconvolve}".
 #' 
