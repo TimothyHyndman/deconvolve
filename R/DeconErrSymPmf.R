@@ -255,9 +255,9 @@ tp_objective <- function(x, phi_W, weight) {
 	phi_X <- ComputePhiPmf(support, probweights, tt)
 
 	tp <- calculate_tp(phi_X, phi_W, weight)
-	# penalties <- calculate_penalties(phi_X, phi_W)
+	penalties <- calculate_penalties(phi_X, phi_W)
 
-	tp #+ sum(penalties)
+	tp + sum(penalties)
 }
 
 calculate_tp <- function(phi_X, phi_W, weight){
@@ -271,7 +271,7 @@ calculate_tp <- function(phi_X, phi_W, weight){
 }
 
 calculate_penalties <- function(phi_X, phi_W) {
-	penalty1 = sum(abs(phi_W$complex * Conj(phi_X)))
+	penalty1 = sum(abs(phi_W$complex * Conj(phi_X))) #MISTAKE, MAKE REAL, NOT ZERO
 	mod_phi_U = phi_W$norm / Mod(phi_X)
 	penalty2 = sum(mod_phi_U[mod_phi_U > 1])
 	c(penalty1, penalty2)
@@ -297,12 +297,12 @@ constraints <- function(x, phi_W, weight, tp_max, penalties_max){
 	tp <- calculate_tp(phi_X, phi_W, weight)
 	const1 <- tp - tp_max
 
-	# const23 <- calculate_penalties(phi_X, phi_W) - penalties_max
+	const23 <- calculate_penalties(phi_X, phi_W) - penalties_max
 	# list(ceq = NULL, c = c(const1, penalties[1]))
 	# Constraints are always inconsistent when I try this :(
 
-	# list(ceq = NULL, c = c(const1, const23))
-	list(ceq = NULL, c = c(const1))
+	list(ceq = NULL, c = c(const1, const23))
+	# list(ceq = NULL, c = c(const1))
 }
 
 simplify_pmf <- function(theta, p, zero_tol = 1e-3, adj_tol = 1e-3){

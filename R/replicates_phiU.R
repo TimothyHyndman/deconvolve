@@ -12,13 +12,7 @@ replicates_phiU <- function(t, W1, W2, t_search) {
 	phiU <- sqrt(phiU)
 
 	# Find range of t for which phiU is reliable
-	tmp <- t_search[phiU < n_diff^(-1/4)]
-	if (length(tmp) > 1) {
-		t_cutoff <- min(tmp[tmp > 0])	
-	} else {
-		t_cutoff <- Inf
-	}
-	
+	t_cutoff <- find_t_cutoff(phiU, t_search, n_diff)
 
 	phiU_spline(t, sd_U, t_cutoff, t_search, phiU)
 
