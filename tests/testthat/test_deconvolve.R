@@ -17,6 +17,18 @@ test_that("symmetric error case gives expected result", {
 	expect_equal(d_test, d)
 })
 
+test_that("replicates gives expected result", {
+  skip_on_cran()
+  set.seed(1)
+  sd_X <- 1
+  sd_U <- 0.2
+  n <- 50
+  data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", 
+    replicates = TRUE)
+  yy_test <- deconvolve(data$W1, data$W2)
+  load("hom_error_rep_test_result.RData")
+  expect_equal(yy_test, yy)
+})
 set.seed(1)
 sd_X <- 1
 sd_U <- 0.2

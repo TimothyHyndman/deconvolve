@@ -223,8 +223,8 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 		phiU_splined <- function(t){
 			replicates_phiU(t, W, W2, t_search)
 		}
-		W <- c(W, W2)
-		pdf <- DeconErrKnownPdf(xx, W, bw, phiU_splined, kernel_type, rescale)
+		W_full <- c(W, W2)
+		pdf <- DeconErrKnownPdf(xx, W_full, bw, phiU_splined, kernel_type, rescale)
 		output <- list("x" = xx, "pdf" = pdf, "W1" = W, "W2" = W2)
 	}
 
