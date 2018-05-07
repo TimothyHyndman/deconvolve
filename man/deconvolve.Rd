@@ -78,8 +78,10 @@ estimated from replicates, \eqn{W_2 = X + U_2}.
 The function \code{deconvolve} chooses from one of four different methods 
 depending on how the error distribution is defined.
 
-\strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied
-then the error is calculated using replicates.
+\strong{Error from Replicates:} If both \code{W1} and \code{W2} are supplied 
+then the error is calculated using replicates. This method was prototyped in  
+Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
+Hall 2016, and Camirand, Carroll, and Delaigle 2018.
 
 \strong{Symmetric Error:} If none of \code{errortype}, \code{phiU}, or 
 \code{W2} are supplied then the error is assumed symmetric and the 
@@ -117,17 +119,24 @@ function(s) of the errors (\code{phiU}).
 Stefanski, L.A. and Carroll, R.J. (1990). Deconvolving kernel density
 estimators. \emph{Statistics}, 21, 2, 169-184.
 
+Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating 
+integrals and optimizing objective functions: a case study in density 
+deconvolution. \emph{Statistics and Computing}, 17, 349-355.
+
 Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
 error. \emph{Bernoulli}, 14, 2, 562-579.
+
+Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
+repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
 
 Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
 deconvolution when the error distribution is unknown. \emph{Journal of the 
 Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
 231-252.
 
-Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating 
-integrals and optimizing objective functions: a case study in density 
-deconvolution. \emph{Statistics and Computing}, 17, 349-355.
+Camirand, F., Carroll, R.J., and Delaigle, A. (2018). Estimating the  
+distribution of episodically consumed food measured with errors.  
+\emph{Manuscript.}
 }
 
 \examples{
