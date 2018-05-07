@@ -121,7 +121,9 @@
 deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100), 
 					   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, 
 					   rescale = FALSE, pmf = FALSE, 
-					   kernel_type = c("default", "normal", "sinc"), m = 20){
+					   kernel_type = c("default", "normal", "sinc"), 
+					   m = 20,
+					   show_diagnostics = FALSE){
 
 	# Partial matching ---------------------------------------------------------
 	dist_types <- c("normal", "laplace")
@@ -229,9 +231,9 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 	}
 
 	if (errors == "sym") {
-		out <- DeconErrSymPmf(W, m, kernel_type)
+		out <- DeconErrSymPmf(W, m, kernel_type, show_diagnostics = show_diagnostics)
 		if (!pmf) {
-			phi.W <- out$phi.W
+			phi.W <- out$phi_W
 			pdf <- DeconErrSymPmfToPdf(out, W, phi.W, xx, kernel_type, rescale, 
 									   bw)
 			output <- list("x" = xx, "pdf" = pdf, "support" = out$support, 

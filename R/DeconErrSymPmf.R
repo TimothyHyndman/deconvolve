@@ -1,8 +1,8 @@
-DeconErrSymPmf <- function(W, m, kernel_type, n.iter.tp = 5, n.iter.var = 2, 
-						   show.diagnostics = FALSE){
+DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2, 
+						   show_diagnostics = FALSE){
 
-	Diagnostic <- function(message){
-		PrintDiagnostic(message, show.diagnostics)
+	diagnostic <- function(message){
+		print_diagnostic(message, show_diagnostics)
 	}
 
 	kernel_list <- kernel(kernel_type)
@@ -19,30 +19,29 @@ DeconErrSymPmf <- function(W, m, kernel_type, n.iter.tp = 5, n.iter.var = 2,
 	#--------------------------------------------------------------------------#
 	# Pre-calculate PhiW and weight w(t)
 	#--------------------------------------------------------------------------#
-	# Calculate phi.W on [-8,8] so we can find t*
-	tt.length <- 100
+	# Calculate phi_W on [-8,8] so we can find t*
+	tt_length <- 100
 	hnaive <- ((8 * sqrt(pi) * RK/3/mu_K2^2)^0.2) * sqrt(stats::var(W)) * 
 		n^(-1/5)
 	hmin <- hnaive/3
-	# tt <- seq(-1, 8, length.out = tt.length)
-	tt <- seq(-1/hmin, 1/hmin, length.out = tt.length)
-	phi.W <- ComputePhiEmp(W, tt)
+	tt <- seq(-1/hmin, 1/hmin, length.out = tt_length)
+	phi_W <- ComputePhiEmp(W, tt)
 
 	# Calculate t*
-	tmp <- tt[phi.W$norm < n^(-0.25)]
+	tmp <- tt[phi_W$norm < n^(-0.25)]
 	if ( length( tmp[ tmp > 0] ) == 0 ){
-		t.star <- max(tt)
+		t_star <- max(tt)
 	} else {
-		t.star <- min( tmp[ tmp > 0 ] )
+		t_star <- min( tmp[ tmp > 0 ] )
 	}
 
-	# Calculate phi.W on [-t*,t*]
-	tt.new.length <- 100
-	tt.new <- seq(-t.star, t.star, length.out = tt.new.length)
-	phi.W <- ComputePhiEmp(W, tt.new)
+	# Calculate phi_W on [-t*,t*]
+	tt_new_length <- 100
+	tt_new <- seq(-t_star, t_star, length.out = tt_new_length)
+	phi_W <- ComputePhiEmp(W, tt_new)
 
 	# Calculate weight w(t) on [-t*, t*]
-	weight <- KernelWeight(tt.new)
+	weight <- KernelWeight(tt_new)
 
 	#--------------------------------------------------------------------------#
 	# Solve optimization problem to find PMF
@@ -54,21 +53,21 @@ DeconErrSymPmf <- function(W, m, kernel_type, n.iter.tp = 5, n.iter.var = 2,
 	# Set up constraints in form Ax \geq B
 	
 	# pj non-negative
-	A.tp <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
-	A.tp[1:m-1, 1:m-1] <- diag( m - 1 )   
-	B.tp = numeric(2 * m - 1)
+	A_tp <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	A_tp[1:m-1, 1:m-1] <- diag( m - 1 )   
+	B_tp = numeric(2 * m - 1)
 	# pj sum to less than 1
-	A.tp[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) 
-	B.tp[m] = -1
+	A_tp[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) 
+	B_tp[m] = -1
 	# thetaj are increasing
 	for (i in 1:(m-1)){
-		A.tp[m+i, (m+i-1):(m+i)] <- c(-1, 1)	
+		A_tp[m+i, (m+i-1):(m+i)] <- c(-1, 1)	
 	}
 	# min(W) < thetaj < max(W)
-	A.tp[2*m, m] <- 1
-	A.tp[2*m+1, 2*m-1] <- -1
-	B.tp[2*m] <- min(W)
-	B.tp[2*m+1] <- -max(W)
+	A_tp[2*m, m] <- 1
+	A_tp[2*m+1, 2*m-1] <- -1
+	B_tp[2*m] <- min(W)
+	B_tp[2*m+1] <- -max(W)
 
 	# ------------------
 	# Setup for Min Var
@@ -76,53 +75,97 @@ DeconErrSymPmf <- function(W, m, kernel_type, n.iter.tp = 5, n.iter.var = 2,
 	# Set up constraints in form Ax \leq B
 
 	# pj non-negative
-	A.var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
-	A.var[1:m-1, 1:m-1] <- -diag(m - 1)
-	B.var <- numeric(2 * m - 1)
+	A_var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	A_var[1:m-1, 1:m-1] <- -diag(m - 1)
+	B_var <- numeric(2 * m - 1)
 	# pj sum to less than 1
-	A.var[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
-	B.var[m] = 1
+	A_var[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
+	B_var[m] = 1
 	# thetaj are increasing
 	for (i in 1:(m-1)){
-		A.var[m+i, (m+i-1):(m+i)] <- c(1, -1)	
+		A_var[m+i, (m+i-1):(m+i)] <- c(1, -1)	
 	}
 	# min(W) < thetaj < max(W)
-	A.var[2*m, m] <- -1
-	A.var[2*m+1, 2*m-1] <- 1
-	B.var[2*m] <- -min(W)
-	B.var[2*m+1] <- max(W)
+	A_var[2*m, m] <- -1
+	A_var[2*m+1, 2*m-1] <- 1
+	B_var[2*m] <- -min(W)
+	B_var[2*m+1] <- max(W)
 
 	# ----------------------
 	# Perform Minimizations
 	# ----------------------
-	Diagnostic("Minimizing T(p)")
 
-	tp.min <- Inf
-	for (i in 1:n.iter.tp){
-		theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
-		p0 <- stats::runif(m, min = 0, max = 1)
-		p0 <- p0 / sum(p0)
+	tp_objective_NLC <- function(x) {
+		tp_objective(x, phi_W, weight)
+	}
+	diagnostic("Minimizing T(p)")
 
-		x0 <- c(p0[1:(m-1)], theta0)
+	tp_min <- Inf
+	for (i in 1:n_tp_iter){
+		# looping <- TRUE
+		# while (looping) {
+		# 	looping <- FALSE
 
-		min.tp.sol.test <- stats::constrOptim(x0, CalculateTp, NULL, A.tp, B.tp, 
-									 		  phi.W = phi.W, weight = weight)
-		if (min.tp.sol.test$value < tp.min){
-			tp.min <- min.tp.sol.test$value
-			min.tp.sol <- min.tp.sol.test
-			Diagnostic(tp.min)
+			theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
+			p0 <- stats::runif(m, min = 0, max = 1)
+			p0 <- p0 / sum(p0)
+
+			x0 <- c(p0[1:(m-1)], theta0)
+
+			test_min_tp_sol <- stats::constrOptim(x0, tp_objective, NULL, A_tp, B_tp, 
+										 		  phi_W = phi_W, weight = weight)
+		# 	test_min_tp_sol <- tryCatch({
+		# 		test_min_tp_sol <- NlcOptim::solnl(x0, tp_objective_NLC, NULL, A_var, 
+		# 											B_var, 
+		# 											maxIter = 400, 
+		# 											maxnFun = 100*(2*m-1), 
+		# 											tolX = 1e-6)
+		# 	}, error = function(e){
+		# 			error_message <- paste("ERROR :", conditionMessage(e))
+		# 			diagnostic(error_message)
+		# 			testt_min_tp_sol <- NULL						
+		# 	})
+
+		# 	if (is.null(testt_min_tp_sol)) {
+		# 			looping <- TRUE
+		# 	}
+		# }
+		if (test_min_tp_sol$value < tp_min){
+			tp_min <- test_min_tp_sol$value
+			min_tp_sol <- test_min_tp_sol
+			diagnostic(tp_min)
 		}
+		# if (test_min_tp_sol$fn < tp_min){
+		# 	tp_min <- test_min_tp_sol$fn
+		# 	min_tp_sol <- test_min_tp_sol
+		# 	diagnostic(tp_min)
+		# }
 	}
 
-	# ConFun(x) <= 0
-	ConFun <- function(x){
-		Constraints(x, phi.W, weight, min.tp.sol$value)
+	# con_fun(x) <= 0
+	diagnostic(tp_min)
+	diagnostic(min_tp_sol)
+
+	X_pmf <- x_to_pmf(min_tp_sol$par)
+	# X_pmf <- x_to_pmf(min_tp_sol$fn)
+	tt <- phi_W$t.values
+	# Calculate phi_X
+	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
+
+	tp_max <- calculate_tp(phi_X, phi_W, weight)
+	diagnostic(paste("tp_max = ", tp_max))
+	penalties_max <- calculate_penalties(phi_X, phi_W)
+	diagnostic(paste("penalties = ", penalties_max))
+
+	con_fun <- function(x){
+		# constraints(x, phi_W, weight, min_tp_sol$value)
+		constraints(x, phi_W, weight, tp_max, penalties_max)
 	}
 	
-	Diagnostic("Minimizing Variance")
+	diagnostic("Minimizing Variance")
 
-	var.min <- Inf
-	for (i in 1:n.iter.var){
+	var_min <- Inf
+	for (i in 1:n_var_iter){
 		looping <- TRUE
 		while (looping){			
 			# NlcOptim can't handle it if the Generated QP problem is infeasible
@@ -136,87 +179,105 @@ DeconErrSymPmf <- function(W, m, kernel_type, n.iter.tp = 5, n.iter.var = 2,
 			p0 <- p0 / sum(p0)
 			x0 <- c(p0[1:(m-1)], theta0)
 
-			min.var.sol.test <- tryCatch({
-	    		min.var.sol.test <- NlcOptim::solnl(x0, CalculateVar, ConFun, 
-	    											A.var, B.var, 
+			test_min_var_sol <- tryCatch({
+	    		test_min_var_sol <- NlcOptim::solnl(x0, var_objective, con_fun, 
+	    											A_var, B_var, 
 	    											maxIter = 400, 
 													maxnFun = 100*(2*m-1), 
 													tolX = 1e-6)
 			}, error = function(e){
-				err.mess <- paste("ERROR :", conditionMessage(e), sep = " ")
-				Diagnostic(err.mess)
-				min.var.sol.test <- NULL						
+				error_message <- paste("ERROR :", conditionMessage(e))
+				diagnostic(error_message)
+				test_min_var_sol <- NULL						
 			})
 
-			if (is.null(min.var.sol.test)) {
+			if (is.null(test_min_var_sol)) {
 				looping <- TRUE
 			}
 		}
 		
-		if (min.var.sol.test$fn < var.min){
-			var.min <- min.var.sol.test$fn
-			min.var.sol <- min.var.sol.test
-			Diagnostic(var.min)
+		if (test_min_var_sol$fn < var_min){
+			var_min <- test_min_var_sol$fn
+			min_var_sol <- test_min_var_sol
+			diagnostic(var_min)
 		}
 	}
 
-	Diagnostic(paste("Initial Variance was", CalculateVar(min.tp.sol$par), 
-				 	 sep  = " "))
-	Diagnostic(paste("Final Variance is", var.min, sep  = " "))
-
-	tp.diff <- tp.min - CalculateTp(min.var.sol$par, phi.W, weight)
-	Diagnostic(paste("T(p) decreased by", tp.diff, "while minimizing variance", 
-					 sep = " "))
+	diagnostic(paste("Initial Variance was", var_objective(min_tp_sol$par)))
+	diagnostic(paste("Final Variance is", var_min))
+	tp_diff <- tp_min - tp_objective(min_var_sol$par, phi_W, weight)
+	diagnostic(paste("T(p) decreased by", tp_diff, "while minimizing variance"))
 	
 	#--------------------------------------------------------------------------#
 	# Convert to nice formats and return results
 	#--------------------------------------------------------------------------#
 
 	# Convert back to normal vectors
-	x.sol <- min.var.sol$par
-	p.sol <- c( x.sol[1:m-1], 1 - sum(x.sol[1:m-1]))
-	theta.sol <- x.sol[m:(2 * m - 1)]
-	simple.sol <- SimplifyPmf(theta.sol, p.sol)
-	p.sol <- simple.sol$ProbWeights
-	theta.sol <- simple.sol$Support
+	x_sol <- min_var_sol$par
+	p_sol <- c( x_sol[1:m-1], 1 - sum(x_sol[1:m-1]))
+	theta_sol <- x_sol[m:(2 * m - 1)]
+	simple_sol <- simplify_pmf(theta_sol, p_sol)
+	p_sol <- simple_sol$ProbWeights
+	theta_sol <- simple_sol$Support
 
-	x.min.tp <- min.tp.sol$par
-	p.min.tp <- c( x.min.tp[1:m-1], 1 - sum(x.min.tp[1:m-1]))
-	theta.min.tp <- x.min.tp[m:(2 * m - 1)]
+	x_min_tp <- min_tp_sol$par
+	p_min_tp <- c( x_min_tp[1:m-1], 1 - sum(x_min_tp[1:m-1]))
+	theta_min_tp <- x_min_tp[m:(2 * m - 1)]
 
-	simple.min.tp <- SimplifyPmf(theta.min.tp, p.min.tp)
-	p.min.tp <- simple.min.tp$ProbWeights
-	theta.min.tp <- simple.min.tp$Support
+	simple_min_tp <- simplify_pmf(theta_min_tp, p_min_tp)
+	p_min_tp <- simple_min_tp$ProbWeights
+	theta_min_tp <- simple_min_tp$Support
 
-	return(list("support" = theta.sol, 
-				"probweights" = p.sol, 
-				"support.min.tp" = theta.min.tp,
-				"probweights.min.tp" = p.min.tp,
-				"phi.W" = phi.W,
-				"var.opt.results" = min.var.sol,
-				"tp.opt.results" = min.tp.sol))
+	list("support" = theta_sol, 
+		 "probweights" = p_sol, 
+		 "support_min_tp" = theta_min_tp,
+		 "probweights_min_tp" = p_min_tp,
+		 "phi_W" = phi_W,
+		 "var_opt_results" = min_var_sol,
+		 "tp_opt_results" = min_tp_sol)
 }
 
-CalculateTp <- function(x, phi.W, weight){
+x_to_pmf <- function(x) {
 	m <- (length(x) + 1) / 2
+	probweights <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
+	support <- x[ m:(2 * m - 1) ]
 
-	p <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
-	theta <- x[ m:(2 * m - 1) ]
-	tt <- phi.W$t.values
+	list(support = support, prob_weights = probweights)
+}
 
-	# Calculate phi.ptheta
-	phi.ptheta <- ComputePhiPmf(theta, p, tt)	
+tp_objective <- function(x, phi_W, weight) {
+	m <- (length(x) + 1) / 2
+	probweights <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
+	support <- x[ m:(2 * m - 1) ]
+	tt <- phi_W$t.values
 
-	# Calculate integral
-	fred <- phi.W$complex - phi.W$norm * phi.ptheta / Mod(phi.ptheta)
-	integrand <- abs(fred)^2 * weight
+	# Calculate phi_X
+	phi_X <- ComputePhiPmf(support, probweights, tt)
+
+	tp <- calculate_tp(phi_X, phi_W, weight)
+	# penalties <- calculate_penalties(phi_X, phi_W)
+
+	tp #+ sum(penalties)
+}
+
+calculate_tp <- function(phi_X, phi_W, weight){
+	
+	tt <- phi_W$t.values
 	dt <- tt[2] - tt[1]
+	integrand <- abs(phi_W$complex - phi_W$norm * phi_X / Mod(phi_X))^2 * weight
 	tp <- dt * sum(integrand)
 
-	return(tp)
+	tp
 }
 
-CalculateVar <- function(x){
+calculate_penalties <- function(phi_X, phi_W) {
+	penalty1 = sum(abs(phi_W$complex * Conj(phi_X)))
+	mod_phi_U = phi_W$norm / Mod(phi_X)
+	penalty2 = sum(mod_phi_U[mod_phi_U > 1])
+	c(penalty1, penalty2)
+}
+
+var_objective <- function(x){
 	m <- (length(x) + 1) / 2
 	p <- c( x[ 1:(m - 1) ], 1 - sum( x[ 1:(m - 1) ] ) )
 	theta <- x[ m:(2 * m - 1) ]
@@ -225,18 +286,30 @@ CalculateVar <- function(x){
 	return(var)
 }
 
-Constraints <- function(x, phi.W, weight, tp.max){
-	tp <- CalculateTp(x, phi.W, weight)
-	lambda <- 1.0
-	const1 <- tp - lambda*tp.max
-	return(list(ceq = NULL, c = const1))
+constraints <- function(x, phi_W, weight, tp_max, penalties_max){
+	m <- (length(x) + 1) / 2
+	probweights <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
+	support <- x[ m:(2 * m - 1) ]
+	tt <- phi_W$t.values
+	# Calculate phi_X
+	phi_X <- ComputePhiPmf(support, probweights, tt)
+
+	tp <- calculate_tp(phi_X, phi_W, weight)
+	const1 <- tp - tp_max
+
+	# const23 <- calculate_penalties(phi_X, phi_W) - penalties_max
+	# list(ceq = NULL, c = c(const1, penalties[1]))
+	# Constraints are always inconsistent when I try this :(
+
+	# list(ceq = NULL, c = c(const1, const23))
+	list(ceq = NULL, c = c(const1))
 }
 
-SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
+simplify_pmf <- function(theta, p, zero_tol = 1e-3, adj_tol = 1e-3){
 	
 	# Remove ps that are too small
-	theta <- theta[p > zero.tol]
-	p <- p[p > zero.tol]
+	theta <- theta[p > zero_tol]
+	p <- p[p > zero_tol]
 	p <- p / sum(p)
 
 	# Combine thetas that are too close together
@@ -248,7 +321,7 @@ SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
 
 	i <- 1
 	while (looping){
-		if (theta[i+1] - theta[i] > adj.tol){
+		if (theta[i+1] - theta[i] > adj_tol){
 			i <- i + 1
 		} else {
 			theta[i] <- (p[i] * theta[i] + p[i + 1] * theta[i + 1]) / 
@@ -266,8 +339,8 @@ SimplifyPmf <- function(theta, p, zero.tol = 1e-3, adj.tol = 1e-3){
 	return(list("Support" = theta, "ProbWeights" = p))
 }
 
-PrintDiagnostic <- function(message, show.diagnostics){
-	if (show.diagnostics){
+print_diagnostic <- function(message, show_diagnostics){
+	if (show_diagnostics){
 		print(message)
 	}
 }
