@@ -28,12 +28,15 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	phi_W <- ComputePhiEmp(W, tt)
 
 	# Calculate t*
-	tmp <- tt[phi_W$norm < n^(-0.25)]
-	if ( length( tmp[ tmp > 0] ) == 0 ){
-		t_star <- max(tt)
-	} else {
-		t_star <- min( tmp[ tmp > 0 ] )
-	}
+
+	t_star <- find_t_cutoff(phi_W$norm, tt)
+
+	# tmp <- tt[phi_W$norm < n^(-0.25)]
+	# if ( length( tmp[ tmp > 0] ) == 0 ){
+	# 	t_star <- max(tt)
+	# } else {
+	# 	t_star <- min( tmp[ tmp > 0 ] )
+	# }
 
 	# Calculate phi_W on [-t*,t*]
 	tt_new_length <- 100
@@ -102,9 +105,9 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 
 	tp_min <- Inf
 	for (i in 1:n_tp_iter){
-		# looping <- TRUE
-		# while (looping) {
-		# 	looping <- FALSE
+		looping <- TRUE
+		while (looping) {
+			looping <- FALSE
 
 			theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
 			p0 <- stats::runif(m, min = 0, max = 1)
@@ -112,42 +115,42 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 
 			x0 <- c(p0[1:(m-1)], theta0)
 
-			test_min_tp_sol <- stats::constrOptim(x0, tp_objective, NULL, A_tp, B_tp, 
-										 		  phi_W = phi_W, weight = weight)
-		# 	test_min_tp_sol <- tryCatch({
-		# 		test_min_tp_sol <- NlcOptim::solnl(x0, tp_objective_NLC, NULL, A_var, 
-		# 											B_var, 
-		# 											maxIter = 400, 
-		# 											maxnFun = 100*(2*m-1), 
-		# 											tolX = 1e-6)
-		# 	}, error = function(e){
-		# 			error_message <- paste("ERROR :", conditionMessage(e))
-		# 			diagnostic(error_message)
-		# 			testt_min_tp_sol <- NULL						
-		# 	})
+			# test_min_tp_sol <- stats::constrOptim(x0, tp_objective, NULL, A_tp, B_tp, 
+			# 							 		  phi_W = phi_W, weight = weight, outer.iterations = 10000)
+			test_min_tp_sol <- tryCatch({
+				test_min_tp_sol <- NlcOptim::solnl(x0, tp_objective_NLC, NULL, A_var, 
+													B_var, 
+													maxIter = 400, 
+													maxnFun = 100*(2*m-1), 
+													tolX = 1e-6)
+			}, error = function(e){
+					error_message <- paste("ERROR :", conditionMessage(e))
+					diagnostic(error_message)
+					test_min_tp_sol <- NULL						
+			})
 
-		# 	if (is.null(testt_min_tp_sol)) {
-		# 			looping <- TRUE
-		# 	}
-		# }
-		if (test_min_tp_sol$value < tp_min){
-			tp_min <- test_min_tp_sol$value
-			min_tp_sol <- test_min_tp_sol
-			diagnostic(tp_min)
+			if (is.null(test_min_tp_sol)) {
+					looping <- TRUE
+			}
 		}
-		# if (test_min_tp_sol$fn < tp_min){
-		# 	tp_min <- test_min_tp_sol$fn
+
+		# if (test_min_tp_sol$value < tp_min){
+		# 	tp_min <- test_min_tp_sol$value
 		# 	min_tp_sol <- test_min_tp_sol
 		# 	diagnostic(tp_min)
 		# }
+		if (test_min_tp_sol$fn < tp_min){
+			tp_min <- test_min_tp_sol$fn
+			min_tp_sol <- test_min_tp_sol
+			diagnostic(tp_min)
+		}
 	}
 
 	# con_fun(x) <= 0
-	diagnostic(tp_min)
-	diagnostic(min_tp_sol)
+	# diagnostic(tp_min)
+	# diagnostic(min_tp_sol)
 
 	X_pmf <- x_to_pmf(min_tp_sol$par)
-	# X_pmf <- x_to_pmf(min_tp_sol$fn)
 	tt <- phi_W$t.values
 	# Calculate phi_X
 	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
@@ -205,8 +208,17 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 
 	diagnostic(paste("Initial Variance was", var_objective(min_tp_sol$par)))
 	diagnostic(paste("Final Variance is", var_min))
-	tp_diff <- tp_min - tp_objective(min_var_sol$par, phi_W, weight)
-	diagnostic(paste("T(p) decreased by", tp_diff, "while minimizing variance"))
+	# tp_diff <- tp_min - tp_objective(min_var_sol$par, phi_W, weight)
+	# diagnostic(paste("T(p) decreased by", tp_diff, "while minimizing variance"))
+
+	X_pmf <- x_to_pmf(min_var_sol$par)
+	# Calculate phi_X
+	tt <- phi_W$t.values
+	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
+
+	diagnostic(paste("T(p) =", calculate_tp(phi_X, phi_W, weight)))
+	diagnostic(paste("Penalties", calculate_penalties(phi_X, phi_W)))
+
 	
 	#--------------------------------------------------------------------------#
 	# Convert to nice formats and return results
@@ -246,13 +258,11 @@ x_to_pmf <- function(x) {
 }
 
 tp_objective <- function(x, phi_W, weight) {
-	m <- (length(x) + 1) / 2
-	probweights <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
-	support <- x[ m:(2 * m - 1) ]
-	tt <- phi_W$t.values
+	X_pmf <- x_to_pmf(x)
 
 	# Calculate phi_X
-	phi_X <- ComputePhiPmf(support, probweights, tt)
+	tt <- phi_W$t.values
+	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
 
 	tp <- calculate_tp(phi_X, phi_W, weight)
 	penalties <- calculate_penalties(phi_X, phi_W)
@@ -271,9 +281,11 @@ calculate_tp <- function(phi_X, phi_W, weight){
 }
 
 calculate_penalties <- function(phi_X, phi_W) {
-	penalty1 = sum(abs(phi_W$complex * Conj(phi_X))) #MISTAKE, MAKE REAL, NOT ZERO
+	penalty1 = sum(abs(Re(phi_X * phi_W$im - Im(phi_X) * phi_W$re)))
+
 	mod_phi_U = phi_W$norm / Mod(phi_X)
 	penalty2 = sum(mod_phi_U[mod_phi_U > 1])
+
 	c(penalty1, penalty2)
 }
 
