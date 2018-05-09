@@ -12,7 +12,7 @@ replicates_phiU <- function(t, W1, W2, t_search) {
 	phiU <- sqrt(phiU)
 
 	# Find range of t for which phiU is reliable
-	t_cutoff <- find_t_cutoff(phiU, t_search, n_diff)
+	t_cutoff <- find_t_cutoff(phiU, t_search)
 
 	phiU_spline(t, sd_U, t_cutoff, t_search, phiU)
 
@@ -27,7 +27,10 @@ phiU_spline <- function(t, sd_U, t_cutoff, t_phiU, phiU) {
 	}
 
 	y <- 0*t
-	y[ind1] <- stats::spline(t_phiU, phiU, xout = t[ind1])$y 	
+
+	if (any(ind1)) {
+		y[ind1] <- stats::spline(t_phiU, phiU, xout = t[ind1])$y 	
+	}
 	y[ind2] <- phiU_lap(t[ind2])
 
 	y
