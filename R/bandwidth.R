@@ -229,12 +229,9 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 			sqrt(stats::var(c(W, W2))) * n^(-1/5)
 		h_min <- hnaive / 3
 		t_search <- tt/h_min
+		phi_U <- create_replicates_phi_U(W, W2, t_search)
 
-		phiU <- function(t) {
-			replicates_phiU(t, W, W2, t_search)
-		}
-
-		output <- plugin_bandwidth(c(W, W2), phiU, sd_X, kernel_type)
+		output <- plugin_bandwidth(c(W, W2), phi_U, sd_X, kernel_type)
 	}
 
 	if (algorithm == "PI" & errors == "sym") {

@@ -1,5 +1,4 @@
-replicates_phiU <- function(t, W1, W2, t_search) {
-	
+create_replicates_phi_U  <- function(W1, W2, t_search) {
 	# Estimate phiU from replicates
 	diff <- W1 - W2
 	diff <- diff[(W1 != 0) & (W2 != 0)]
@@ -7,15 +6,18 @@ replicates_phiU <- function(t, W1, W2, t_search) {
 
 	n_diff <- length(diff)
 	tout <- outer(t_search, diff)
-	phiU <- rowSums(cos(tout))/n_diff
-	phiU[phiU < 0] <- 0
-	phiU <- sqrt(phiU)
+	phi_U_rep <- rowSums(cos(tout))/n_diff
+	phi_U_rep[phi_U_rep < 0] <- 0
+	phi_U_rep <- sqrt(phi_U_rep)
 
-	# Find range of t for which phiU is reliable
-	t_cutoff <- find_t_cutoff(phiU, t_search)
+	# Find range of t for which phi_U_rep is reliable
+	t_cutoff <- find_t_cutoff(phi_U_rep, t_search)
 
-	phiU_spline(t, sd_U, t_cutoff, t_search, phiU)
+	phi_U <- function(t) {
+		phiU_spline(t, sd_U, t_cutoff, t_search, phi_U_rep)
+	}
 
+	phi_U
 }
 
 phiU_spline <- function(t, sd_U, t_cutoff, t_phiU, phiU) {
