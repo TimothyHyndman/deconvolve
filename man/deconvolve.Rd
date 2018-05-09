@@ -179,10 +179,10 @@ yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
 W1 <- framingham$SBP21
 W2 <- framingham$SBP22
 
-yy <- hom_deconvolve(W1, W2)
+yy <- deconvolve(W1, W2)
 
 # Symmetric Errors -------------------------------------------------------------
-output <- hom_deconvolve(framingham$SBP21)
+output <- deconvolve(framingham$SBP21)
 }
 }
 \author{

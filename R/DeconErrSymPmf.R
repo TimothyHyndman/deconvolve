@@ -107,6 +107,10 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	for (i in 1:n_tp_iter){
 		looping <- TRUE
 		while (looping) {
+			# NlcOptim can't handle it if the Generated QP problem is infeasible
+			# However, this error only pops up some of the time. For now, a 
+			# dirty solution is to keep running the code with different starting
+			# values and ignore everything until we get no error
 			looping <- FALSE
 
 			theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))

@@ -11,10 +11,10 @@ test_that("symmetric error case gives expected result", {
 	load("sym_error_test_result.RData")
 	expect_equal(d_test, d)
 
-	set.seed(1)
-	d_test <- deconvolve(W, pmf = TRUE)
-	load("sym_error_pmf_test_result.RData")
-	expect_equal(d_test, d)
+	# set.seed(1)
+	# d_test <- deconvolve(W, pmf = TRUE)
+	# load("sym_error_pmf_test_result.RData")
+	# expect_equal(d_test, d)
 })
 
 test_that("replicates gives expected result", {
