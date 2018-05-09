@@ -9,11 +9,6 @@ sd_X <- 1
 sd_U <- 0.2
 W <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm")
 
-test_that("no error case gives expected result", {
-	skip_on_cran()
-	expect_equal(bandwidth(W), 0.166332, tolerance = 0.0000001)
-})
-
 set.seed(1)
 test_that("homoscedastic errors case gives expected result", {
 	skip_on_cran()
@@ -35,7 +30,16 @@ test_that("replicates case gives expected result", {
 	expect_equal(bandwidth(data$W1, data$W2), 0.1253582, tolerance = 0.0000001)
 })
 
+set.seed(2)
+n <- 500
+test_that("no error case gives expected result", {
+	skip_on_cran()
+	W <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm")
+	expect_equal(bandwidth(W), 0.1171458, tolerance = 0.0000001)
+})
+
 set.seed(1)
+n <- 50
 W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
 test_that("CV case gives expected result", {
 	skip_on_cran()

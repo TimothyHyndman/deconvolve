@@ -235,6 +235,7 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 	}
 
 	if (algorithm == "PI" & errors == "sym") {
+		warning("The plug-in bandwidth method when the error is unknown and assumed symmetric is slow and unreliable in R. Consider instead using the MATLAB code found at <URL>.")
 		d <- DeconErrSymPmf(W, 10, kernel_type)
 		theta <- d$support
 		p <- d$probweights
