@@ -8,7 +8,7 @@ estimator}
 reg_deconvolve(W, Y, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, rho = NULL,
   n_cores = NULL, kernel_type = c("default", "normal", "sinc"),
-  seed = NULL)
+  seed = NULL, use_alt_SIMEX_rep_opt = FALSE)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
@@ -47,6 +47,11 @@ also provide \code{bw}.}
 characteristic function \eqn{(1-t^2)^3}.}
 
 \item{seed}{Set seed for SIMEX. Otherwise a default seed will be automatically set.}
+
+\item{use_alt_SIMEX_rep_opt}{Only used with SIMEX using replicates. If 
+\code{TRUE}, performs SIMEX on \eqn{W = (W1 + W2)/2} and samples \eqn{U*} 
+from (W1 - W2). The default performs SIMEX on \eqn{W = (W1, W2)} and 
+and samples \eqn{U*} from \eqn{(W1 - W2)/\sqrt 2}.}
 }
 \value{
 An object of class deconvolve containing the regression estimator, 
