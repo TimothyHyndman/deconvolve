@@ -41,6 +41,10 @@
 #' @param kernel_type The deconvolution kernel to use. The default kernel has
 #' characteristic function \eqn{(1-t^2)^3}.
 #' @param seed Set seed for SIMEX. Otherwise a default seed will be automatically set.
+#' @param use_alt_SIMEX_rep_opt Only used with SIMEX using replicates. If 
+#' \code{TRUE}, performs SIMEX on \eqn{W = (W1 + W2)/2} and samples \eqn{U*} 
+#' from (W1 - W2). The default performs SIMEX on \eqn{W = (W1, W2)} and 
+#' and samples \eqn{U*} from \eqn{(W1 - W2)/\sqrt 2}.
 #'
 #' @return An object of class deconvolve containing the regression estimator, 
 #' as well as the bandwidth and ridge parameter rho. Using SIMEX to choose 
@@ -84,11 +88,19 @@
 #'
 #' @export
 
-reg_deconvolve <- function(W, Y, W2 = NULL, xx = seq(min(W), max(W), length.out = 100), 
-                           errortype = NULL, sd_U = NULL, phiU = NULL, 
-                           bw = NULL, rho = NULL, n_cores = NULL, 
+reg_deconvolve <- function(W, 
+                           Y, 
+                           W2 = NULL, 
+                           xx = seq(min(W), max(W), length.out = 100), 
+                           errortype = NULL, 
+                           sd_U = NULL, 
+                           phiU = NULL, 
+                           bw = NULL, 
+                           rho = NULL, 
+                           n_cores = NULL, 
                            kernel_type = c("default", "normal", "sinc"), 
-                           seed = NULL) {
+                           seed = NULL,
+                           use_alt_SIMEX_rep_opt = FALSE) {
 
     # Partial matching ---------------------------------------------------------
     dist_types <- c("normal", "laplace")
@@ -126,6 +138,12 @@ reg_deconvolve <- function(W, Y, W2 = NULL, xx = seq(min(W), max(W), length.out 
         }
     }
 
+    if (errors == "rep"){
+        if (!(length(W) == length(W2))) {
+            stop("W and W2 must be the same length.")
+        }
+    }
+
     if (kernel_type == "normal") {
         warning("You should only use the 'normal' kernel when the errors are 
             Laplace or convolutions of Laplace.")
@@ -140,10 +158,12 @@ reg_deconvolve <- function(W, Y, W2 = NULL, xx = seq(min(W), max(W), length.out 
     kernel_list <- kernel(kernel_type)
     phiK <- kernel_list$phik
     tt <- kernel_list$tt
+    RK <- kernel_list$rk
+    muK2 <- kernel_list$muk2
     deltat <- tt[2] - tt[1]
 
     # Convert errortype to phiU ------------------------------------------------
-    if (is.null(phiU)){
+    if (is.null(phiU) & errors == "hom"){
         phiU <- create_phiU(errors = "hom", errortype, sd_U)
     }
 
@@ -158,13 +178,35 @@ reg_deconvolve <- function(W, Y, W2 = NULL, xx = seq(min(W), max(W), length.out 
                                  algorithm = "SIMEX", 
                                  n_cores = n_cores, 
                                  kernel_type = kernel_type, 
-                                 seed = seed)
+                                 seed = seed,
+                                 use_alt_SIMEX_rep_opt = use_alt_SIMEX_rep_opt)
         bw <- outcome_tmp$h
         rho <- outcome_tmp$rho
     }
 
     # Compute estimate for m(X) ------------------------------------------------
-    y <- NWDecUknown(xx, W, Y, phiU, bw, rho, phiK, tt, deltat)
+    if (errors == "rep") {
+        diff <- W - W2
+        diff <- diff[(W != 0) & (W2 != 0)]
+        sd_U <- sqrt(stats::var(diff)/2)
+        n <- length(W)
+        hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
+            sqrt(stats::var(W)) * n^(-1/5)
+        h_min <- hnaive / 3
+        t_search <- tt/h_min
+        phi_U <- create_replicates_phi_U(W, W2, t_search)
+
+        if (use_alt_SIMEX_rep_opt) {
+            W_bar <- (W + W2)/2
+            y <- NWDecUknown(xx, W_bar, Y, phi_U, bw, rho, phiK, tt, deltat)
+        } else {
+            W_full <- c(W, W2)
+            Y_full <- c(Y, Y)
+            y <- NWDecUknown(xx, W_full, Y_full, phi_U, bw, rho, phiK, tt, deltat)
+        }
+    } else {
+        y <- NWDecUknown(xx, W, Y, phiU, bw, rho, phiK, tt, deltat)    
+    }
 
     structure(list(pdf = y, bw = bw, rho = rho, x = xx), 
                    class = c("reg_deconvolve", "list"))

@@ -15,3 +15,13 @@ test_that("reg_deconvolve gives expected result", {
 	load("reg_deconvolve_test_result.RData")
 	expect_equal(output_test, output)
 })
+
+test_that("replicates re_deconvolve", {
+	skip_on_cran()
+	set.seed(1)
+	data <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm", replicates = TRUE)
+	Y <- 2*data$W1
+	output_test <- reg_deconvolve(data$W1, Y, W2 = data$W2, bw = 0.06, rho = 0.09)
+	load("reg_deconvolve_rep_test_result.RData")
+	expect_equal(output_test, output)
+})

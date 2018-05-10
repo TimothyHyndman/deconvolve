@@ -83,6 +83,7 @@ NWDecUknown <- function(xx, W, Y, phiU, h, rho, phiK, t, dt) {
 	rm(xt)
 
 	phiUth <- phiU(t / h)
+
 	matphiKU <- phiK(t) / phiUth
 	dim(matphiKU) <- c(1, longt)
 

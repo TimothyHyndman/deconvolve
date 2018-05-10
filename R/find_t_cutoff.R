@@ -9,8 +9,8 @@ find_t_cutoff <- function(phi_U, t_phi_U){
 		t_cutoff <- t_phi_U[length(t_phi_U)]
 	} else {
 		first_min_ind <- ind[min(which(d_phi_U >= 0))]
-		phi_U_threshold <- max(phi_U[ind[ind>first_min_ind]])
-		tmp <- t_phi_U[phi_U < phi_U_threshold]
+		phi_U_threshold <- max(phi_U[ind[ind>=first_min_ind]])
+		tmp <- t_phi_U[phi_U <= phi_U_threshold]
 		t_cutoff <- min(tmp[tmp > 0])	
 	}	
 
