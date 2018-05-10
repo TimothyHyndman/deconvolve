@@ -7,7 +7,7 @@
 #' The function \code{deconvolve} chooses from one of four different methods 
 #' depending on how the error distribution is defined.
 #' 
-#' \strong{Error from Replicates:} If both \code{W1} and \code{W2} are supplied 
+#' \strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied 
 #' then the error is calculated using replicates. This method was prototyped in  
 #' Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
 #' Hall 2016, and Camirand, Carroll, and Delaigle 2018. 

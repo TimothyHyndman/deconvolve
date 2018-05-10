@@ -21,7 +21,7 @@
 # sd_U: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter.
 
-hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, kernel_type, n_cores, 
+hSIMEXUknown <- function(W, Y, W2, errortype, sd_U, phiU, kernel_type, n_cores, 
 						 seed){
 
 	kernel_list <- kernel(kernel_type)
@@ -38,15 +38,15 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, kernel_type, n_cores,
 	cl <- parallel::makeCluster(n_cores)
 	doParallel::registerDoParallel(cl)
 
-	W <- as.vector(W)
+	# W <- as.vector(W)
 	n <- length(W)
 
 	# --------------------------------------------------------
 	# Preliminary calculations and initialisation of functions
 	# --------------------------------------------------------
 
-	dim(W) <- c(1, n)
-	dim(Y) <- c(1, n)
+	# dim(W) <- c(1, n)
+	# dim(Y) <- c(1, n)
 
 	# number of bins used to compute CV in each SIMEX world
 	nbin <- min(100, n)
@@ -77,7 +77,7 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, kernel_type, n_cores,
 	# Estimator of fW(q_{0.05}) and fW(q_{0.95}) using standard (error-free) KDE
 	# and normal reference bandwidth, where q_{alpha} denotes the alpha
 	# empirical quantile of the W_i's.
-	W <- as.vector(W)
+	# W <- as.vector(W)
 	hW <- 1.06 * sqrt(stats::var(W)) * n^(-1 / 5)
 	ab <- stats::quantile(W, probs = c(0.05, 0.95))
 	xout <- outer(ab, W, "-")
@@ -90,8 +90,6 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, kernel_type, n_cores,
 	lh <- length(gridh)
 	lrho <- length(gridrho)
 
-
-
 	#---------------------------------------------------------------------
 	# Step 1: find the ridge parameter using only the first level of SIMEX
 	#---------------------------------------------------------------------
@@ -101,20 +99,17 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, kernel_type, n_cores,
 	indbin <- matrix(unlist(BinData(W, nbin)[2]), nrow = n)
 
 	bb <- NULL
+
 	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
 	    #set seed
-	    if (!is.null(seed)){
+	    if (!is.null(seed)) {
 	        set.seed(seed + bb)
-	    }else{
-	    set.seed(bb+1000)}
+	    } else {
+	    	set.seed(bb+1000)
+		}
 		CVrho <- matrix(0, lh, lrho)
 		# Generate SIMEX data Wstar
-		if (errortype == "laplace") {
-			Wstar <- W + rlap(sd_U/sqrt(2), 1, n)
-		}
-		if (errortype == "normal") {
-			Wstar <- W + stats::rnorm(n, 0, sd_U)
-		}
+		Wstar <- W + generate_U_star(W, W2, errortype, sd_U)
 
 		# For each h in the grid of h-candidates, compute the CV criterion for
 		# the data Wstar (this will automatically consider all rho candiates)
@@ -158,14 +153,8 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, kernel_type, n_cores,
 
 		CVhstar_tmp <- 0 * gridh
 		# Generate SIMEX data Wstar2
-		if (errortype == "laplace"){
-			Wstar <- W + rlap(sd_U/sqrt(2), 1, n)
-			Wstar2 <- Wstar + rlap(sd_U/sqrt(2), 1, n)
-		}
-		if (errortype == "normal") {
-			Wstar <- W + stats::rnorm(n, 0, sd_U)
-			Wstar2 <- Wstar + stats::rnorm(n, 0, sd_U)
-		}
+		Wstar <- W + generate_U_star(W, W2, errortype, sd_U)
+		Wstar2 <- Wstar + generate_U_star(W, W2, errortype, sd_U)
 
 		# Bin the Wstar data to speed up the computations
 		midbin <- unlist(BinData(Wstar, nbin)[1])
@@ -200,6 +189,27 @@ hSIMEXUknown <- function(W, Y, errortype, sd_U, phiU, kernel_type, n_cores,
 	outcome
 }
 
+generate_U_star <- function(W, W2, errortype, sd_U) {
+	# Generates vector of length n with same distribution as U
+	n <- length(W)
+
+	if (!is.null(W2)) {
+		U_star <- sample((W - W2)/sqrt(2), replace = TRUE)
+	}
+
+	if (!is.null(errortype)) {
+		if (errortype == "laplace") {
+			U_star <- rlap(sd_U/sqrt(2), 1, n)
+		}
+
+		if (errortype == "normal") {
+			U_star <- stats::rnorm(n, 0, sd_U)	
+		}
+	}
+
+	U_star
+	
+}
 
 BinData <- function(W, nbin){
 	# Author: Aurore Delaigle

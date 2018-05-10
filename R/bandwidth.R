@@ -157,8 +157,8 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 			stop("Algorithm type 'SIMEX' can only be used with homoscedastic
 				 errors.")
 		}
-		if (is.null(sd_U) | is.null(errortype)) {
-			stop("Algorithm 'SIMEX' requires that the errors are provided using errortype and sd_U.")
+		if ((is.null(sd_U) | is.null(errortype)) & is.null(W2)) {
+			stop("Algorithm 'SIMEX' requires that the errors are provided using either W2 or errortype and sd_U.")
 		}
 	}
 
@@ -202,8 +202,23 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 		output <- CVdeconv(n, W, phiU, phiK, muK2, RK, deltat, tt)
 	}
 
-	if (algorithm == "SIMEX") {
-		output <- hSIMEXUknown(W, Y, errortype, sd_U, phiU, kernel_type, 
+	if (algorithm == "SIMEX" & errors == "hom") {
+		output <- hSIMEXUknown(W, Y, W2, errortype, sd_U, phiU, kernel_type, 
+							   n_cores, seed)
+	}
+
+	if (algorithm == "SIMEX" & errors == "rep") {
+		diff <- W - W2
+		diff <- diff[(W != 0) & (W2 != 0)]
+		sd_U <- sqrt(stats::var(diff)/2)
+		n <- length(W)
+		hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
+			sqrt(stats::var(W)) * n^(-1/5)
+		h_min <- hnaive / 3
+		t_search <- tt/h_min
+		phi_U <- create_replicates_phi_U(W, W2, t_search)
+
+		output <- hSIMEXUknown(W, Y, W2, errortype, sd_U, phi_U, kernel_type, 
 							   n_cores, seed)
 	}
 
