@@ -21,7 +21,7 @@
 # sd_U: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter.
 
-hSIMEXUknown <- function(W, Y, W2, errortype, sd_U, phiU, kernel_type, n_cores, 
+hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores, 
 						 seed){
 
 	kernel_list <- kernel(kernel_type)
@@ -109,7 +109,7 @@ hSIMEXUknown <- function(W, Y, W2, errortype, sd_U, phiU, kernel_type, n_cores,
 		}
 		CVrho <- matrix(0, lh, lrho)
 		# Generate SIMEX data Wstar
-		Wstar <- W + generate_U_star(W, W2, errortype, sd_U)
+		Wstar <- W + generate_U_star()
 
 		# For each h in the grid of h-candidates, compute the CV criterion for
 		# the data Wstar (this will automatically consider all rho candiates)
@@ -153,8 +153,8 @@ hSIMEXUknown <- function(W, Y, W2, errortype, sd_U, phiU, kernel_type, n_cores,
 
 		CVhstar_tmp <- 0 * gridh
 		# Generate SIMEX data Wstar2
-		Wstar <- W + generate_U_star(W, W2, errortype, sd_U)
-		Wstar2 <- Wstar + generate_U_star(W, W2, errortype, sd_U)
+		Wstar <- W + generate_U_star()
+		Wstar2 <- Wstar + generate_U_star()
 
 		# Bin the Wstar data to speed up the computations
 		midbin <- unlist(BinData(Wstar, nbin)[1])
@@ -187,28 +187,6 @@ hSIMEXUknown <- function(W, Y, W2, errortype, sd_U, phiU, kernel_type, n_cores,
 	names(outcome) <- c('h', 'rho')
 
 	outcome
-}
-
-generate_U_star <- function(W, W2, errortype, sd_U) {
-	# Generates vector of length n with same distribution as U
-	n <- length(W)
-
-	if (!is.null(W2)) {
-		U_star <- sample((W - W2)/sqrt(2), replace = TRUE)
-	}
-
-	if (!is.null(errortype)) {
-		if (errortype == "laplace") {
-			U_star <- rlap(sd_U/sqrt(2), 1, n)
-		}
-
-		if (errortype == "normal") {
-			U_star <- stats::rnorm(n, 0, sd_U)	
-		}
-	}
-
-	U_star
-	
 }
 
 BinData <- function(W, nbin){

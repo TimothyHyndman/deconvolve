@@ -5,7 +5,7 @@
 \title{Compute the measurement error version of the Nadaraya-Watson regression
 estimator}
 \usage{
-reg_deconvolve(W, Y, xx = seq(min(W), max(W), length.out = 100),
+reg_deconvolve(W, Y, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, rho = NULL,
   n_cores = NULL, kernel_type = c("default", "normal", "sinc"),
   seed = NULL)
@@ -14,6 +14,9 @@ reg_deconvolve(W, Y, xx = seq(min(W), max(W), length.out = 100),
 \item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
 
 \item{Y}{A vector of the response data Y_1, ..., Y_n.}
+
+\item{W2}{A vector of replicate measurements. If supplied, then the error 
+will be estimated using replicates.}
 
 \item{xx}{A vector of x values on which to compute the regression estimator.}
 
@@ -52,7 +55,20 @@ smoothing-parameters. See Delaigle and Hall 2008.
 }
 \description{
 Estimates \eqn{m(x) = E[Y | X = x]} from data \eqn{(W, Y)} where 
-\eqn{W = X + U}. See Fan and Truong 1993.
+\eqn{W = X + U}.
+}
+\details{
+#' The function \code{reg_deconvolve} chooses from one of two different 
+methods depending on how the error distribution is defined.
+
+\strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied 
+then the error is calculated using replicates. This method was prototyped in  
+Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
+Hall 2016, and Camirand, Carroll, and Delaigle 2018.
+
+\strong{Homoscedastic Error:} If the errors are defined by either a single 
+function \code{phiU}, or a single value \code{sd_U} along with its 
+\code{errortype} then the method used is as described in Fan and Truong 1993.
 }
 \section{Warnings}{
 
@@ -69,13 +85,25 @@ which is faster, but more complex. See Delaigle and Gijbels 2007.
 Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
 in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 
+Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
+integrals and optimizing objective functions: a case study in density
+deconvolution. \emph{Statistics and Computing}, 17, 349 - 355.
+
 Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
 in errors-in-variables problems. \emph{Journal of the American Statistical
 Association}, 103, 481, 280-287
 
-Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
-integrals and optimizing objective functions: a case study in density
-deconvolution. \emph{Statistics and Computing}, 17, 349 - 355.
+Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
+repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
+
+Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
+deconvolution when the error distribution is unknown. \emph{Journal of the 
+Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
+231-252.
+
+Camirand, F., Carroll, R.J., and Delaigle, A. (2018). Estimating the  
+distribution of episodically consumed food measured with errors.  
+\emph{Manuscript.}
 }
 
 \examples{

@@ -78,7 +78,7 @@ estimated from replicates, \eqn{W_2 = X + U_2}.
 The function \code{deconvolve} chooses from one of four different methods 
 depending on how the error distribution is defined.
 
-\strong{Error from Replicates:} If both \code{W1} and \code{W2} are supplied 
+\strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied 
 then the error is calculated using replicates. This method was prototyped in  
 Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
 Hall 2016, and Camirand, Carroll, and Delaigle 2018.
@@ -176,14 +176,18 @@ for(k in 1:n) {
 yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
 
 # Error estimated from replicates ----------------------------------------------
-W1 <- framingham$SBP21
-W2 <- framingham$SBP22
+M1 <- (framingham$SBP21 + framingham$SBP22)/2
+M2 <- (framingham$SBP31 + framingham$SBP32)/2
+
+# W1 <- log(50 - M1)
+# W2 <- log(50 - M2)
 
 yy <- deconvolve(W1, W2)
 
 # Symmetric Errors -------------------------------------------------------------
 output <- deconvolve(framingham$SBP21)
 }
+
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang

@@ -6,7 +6,8 @@
 \usage{
 bandwidth(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL,
   Y = NULL, algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
-  kernel_type = c("default", "normal", "sinc"), seed = NULL)
+  kernel_type = c("default", "normal", "sinc"), seed = NULL,
+  use_alt_SIMEX_rep_opt = FALSE)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -41,7 +42,12 @@ must be homoscedastic.}
 \item{kernel_type}{The deconvolution kernel to use. The default kernel has
 characteristic function \eqn{(1-t^2)^3}.}
 
-\item{seed}{Set seed for SIMEX only.}
+\item{seed}{Set seed for SIMEX. Allows for reproducible results using SIMEX.}
+
+\item{use_alt_SIMEX_rep_opt}{Only used with SIMEX using replicates. If 
+\code{TRUE}, performs SIMEX on \eqn{W = (W1 + W2)/2} and samples \eqn{U*} 
+from (W1 - W2). The default performs SIMEX on \eqn{W = (W1, W2)} and 
+and samples \eqn{U*} from \eqn{(W1 - W2)/\sqrt 2}.}
 }
 \value{
 The bandwidth estimator. If using 'SIMEX' algorithm then returns a
@@ -82,6 +88,11 @@ in Stefanski and Carroll 1990, and Delaigle and Gijbels 2004.
 
 \strong{SIMEX:} If \code{algorithm = "SIMEX"} then the method used is as
 described in Delaigle and Hall 2008.
+
+\strong{SIMEX for Replicates:} If \code{algorithm = "SIMEX"} and a 
+replicate vector \code{W2} is supplied, then \eqn{phi_U} is calculated using 
+replicates and SIMEX is performed as according to 
+\code{use_alt_SIMEX_rep_opt}.
 }
 \section{References}{
 
@@ -102,6 +113,9 @@ estimators. \emph{Statistics}, 21, 2, 169-184.
 Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
 in errors-in-variables problems. \emph{Journal of the American Statistical
 Association}, 103, 481, 280-287
+
+Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
+repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
 
 Delaigle, A. and Hall, P. (2016). Methodology for non-parametric
 deconvolution when the error distribution is unknown. \emph{Journal of the

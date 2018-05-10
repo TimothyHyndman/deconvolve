@@ -33,6 +33,11 @@
 #'
 #' \strong{SIMEX:} If \code{algorithm = "SIMEX"} then the method used is as
 #' described in Delaigle and Hall 2008.
+#' 
+#' \strong{SIMEX for Replicates:} If \code{algorithm = "SIMEX"} and a 
+#' replicate vector \code{W2} is supplied, then \eqn{phi_U} is calculated using 
+#' replicates and SIMEX is performed as according to 
+#' \code{use_alt_SIMEX_rep_opt}.
 #'
 #' @inheritParams deconvolve
 #' @param algorithm One of \code{"PI"} for plug-in estimator, \code{"CV"} for
@@ -45,7 +50,11 @@
 #' @param sd_U The standard deviations of \eqn{U}. A single value for
 #' homoscedastic errors and a vector having the same length as \code{W} for
 #' heteroscedastic errors.
-#' @param seed Set seed for SIMEX only.
+#' @param seed Set seed for SIMEX. Allows for reproducible results using SIMEX.
+#' @param use_alt_SIMEX_rep_opt Only used with SIMEX using replicates. If 
+#' \code{TRUE}, performs SIMEX on \eqn{W = (W1 + W2)/2} and samples \eqn{U*} 
+#' from (W1 - W2). The default performs SIMEX on \eqn{W = (W1, W2)} and 
+#' and samples \eqn{U*} from \eqn{(W1 - W2)/\sqrt 2}.
 #'
 #' @return The bandwidth estimator. If using 'SIMEX' algorithm then returns a
 #' list containing the bandwidth 'h' and ridge parameter 'rho'.
@@ -68,6 +77,9 @@
 #' Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
 #' in errors-in-variables problems. \emph{Journal of the American Statistical
 #' Association}, 103, 481, 280-287
+#' 
+#' Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
+#' repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
 #'
 #' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric
 #' deconvolution when the error distribution is unknown. \emph{Journal of the
@@ -80,9 +92,17 @@
 #'
 #' @export
 
-bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, Y = NULL,
-					  algorithm = c("PI", "CV", "SIMEX"), n_cores = NULL,
-					  kernel_type = c("default", "normal", "sinc"), seed = NULL){
+bandwidth <- function(W, 
+					  W2 = NULL, 
+					  errortype = NULL, 
+					  sd_U = NULL, 
+					  phiU = NULL, 
+					  Y = NULL,
+					  algorithm = c("PI", "CV", "SIMEX"), 
+					  n_cores = NULL,
+					  kernel_type = c("default", "normal", "sinc"), 
+					  seed = NULL,
+					  use_alt_SIMEX_rep_opt = FALSE){
 
 	# Determine error type provided --------------------------------------------
 	if (!is.null(W2)) {
@@ -203,7 +223,8 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 	}
 
 	if (algorithm == "SIMEX" & errors == "hom") {
-		output <- hSIMEXUknown(W, Y, W2, errortype, sd_U, phiU, kernel_type, 
+		generate_U_star <- create_generate_U_star(W, W2, errortype, sd_U)
+		output <- hSIMEXUknown(W, Y, generate_U_star, sd_U, phiU, kernel_type, 
 							   n_cores, seed)
 	}
 
@@ -217,9 +238,18 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 		h_min <- hnaive / 3
 		t_search <- tt/h_min
 		phi_U <- create_replicates_phi_U(W, W2, t_search)
+		generate_U_star <- create_generate_U_star(W, W2, errortype, sd_U, use_alt_SIMEX_rep_opt)
 
-		output <- hSIMEXUknown(W, Y, W2, errortype, sd_U, phi_U, kernel_type, 
-							   n_cores, seed)
+		if (use_alt_SIMEX_rep_opt) {
+			W_bar <- (W + W2)/2
+			output <- hSIMEXUknown(W_bar, Y, generate_U_star, sd_U, phi_U, kernel_type, 
+								   n_cores, seed)
+		} else {
+			W_full <- c(W, W2)
+			Y_full <- c(Y, Y)
+			output <- hSIMEXUknown(W_full, Y_full, generate_U_star, sd_U, phi_U, kernel_type, 
+								   n_cores, seed)
+		}
 	}
 
 	if (algorithm == "PI" & errors == "het") {
@@ -277,4 +307,39 @@ bandwidth <- function(W, W2 = NULL, errortype = NULL, sd_U = NULL, phiU = NULL, 
 	}
 
 	output
+}
+
+create_generate_U_star <- function(W, W2, errortype, sd_U, use_alt_SIMEX_rep_opt) {
+	# Generates vector of length n with same distribution as U
+	n <- length(W)
+
+	if (!is.null(W2)) {
+		if (use_alt_SIMEX_rep_opt) {
+			generate_U_star <- function() {
+				U_star <- sample((W - W2), replace = TRUE)
+				U_star	
+			}
+		} else {
+			generate_U_star <- function() {
+				U_star <- sample((W - W2)/sqrt(2), size = 2*n, replace = TRUE)
+				U_star	
+			}
+		}
+	}
+
+	if (!is.null(errortype)) {
+		if (errortype == "laplace") {
+			generate_U_star <- function() {
+				U_star <- rlap(sd_U/sqrt(2), 1, n)	
+			}
+		}
+
+		if (errortype == "normal") {
+			generate_U_star <- function() {
+				U_star <- stats::rnorm(n, 0, sd_U)	
+			}
+		}
+	}
+
+	generate_U_star
 }
