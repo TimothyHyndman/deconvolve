@@ -260,7 +260,7 @@ bandwidth <- function(W,
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		sd_X <- max( !is.na(sqrt(stats::var(W) - sd_U^2)), 1/n)
+		sd_X <- max( sqrt(stats::var(W) - sd_U^2), 1/n)
 		output <- plugin_bandwidth(W, phiU, sd_X, kernel_type)
 	}
 
@@ -269,7 +269,7 @@ bandwidth <- function(W,
 		diff <- diff[(W != 0) & (W2 != 0)]
 		sd_U <- sqrt(stats::var(diff)/2)
 		n <- length(c(W, W2))
-		sd_X <- max( !is.na(sqrt(stats::var(c(W, W2)) - sd_U^2)), 1/n)
+		sd_X <- max(sqrt(stats::var(c(W, W2)) - sd_U^2), 1/n)
 		hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
 			sqrt(stats::var(c(W, W2))) * n^(-1/5)
 		h_min <- hnaive / 3
@@ -302,7 +302,7 @@ bandwidth <- function(W,
 		}
 		
 		# Actually find bandwidth
-		sd_X <- max(!is.na(sqrt(stats::var(W) - sd_U^2)), 1 / n)
+		sd_X <- max(sqrt(stats::var(W) - sd_U^2), 1 / n)
 		output <- plugin_bandwidth(W, phi_U_splined, sd_X, kernel_type)
 	}
 

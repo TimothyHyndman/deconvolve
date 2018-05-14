@@ -28,11 +28,8 @@ for(k in 1:n) {
 yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
 
 # Error estimated from replicates ----------------------------------------------
-M1 <- (framingham$SBP21 + framingham$SBP22)/2
-M2 <- (framingham$SBP31 + framingham$SBP32)/2
-
-# W1 <- log(50 - M1)
-# W2 <- log(50 - M2)
+W1 <- (framingham$SBP21 + framingham$SBP22)/2
+W2 <- (framingham$SBP31 + framingham$SBP32)/2
 
 yy <- deconvolve(W1, W2)
 

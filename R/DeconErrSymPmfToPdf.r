@@ -22,7 +22,7 @@ DeconErrSymPmfToPdf <- function(X_pmf, W, phi_W, xx, kernel_type, rescale, h){
 	
 	# Find Plug-In Bandwidth ---------------------------------------------------
 	if (is.null(h)) {
-		sd_X <- max(!is.na(sqrt(stats::var(W) - sd_U^2)), 1 / n)
+		sd_X <- max(sqrt(stats::var(W) - sd_U^2), 1 / n)
 		h <- plugin_bandwidth(W, phi_U_splined, sd_X, kernel_type)
 	}
 	
