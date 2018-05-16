@@ -162,8 +162,10 @@ W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
 bw <- bandwidth(W, sd_U = sd_U_vec, phiU = phiU)
 
 # Error estimated from replicates
-data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", replicates = TRUE)
-bw <- bandwidth(data$W1, data$W2)
+W1 <- (framingham$SBP21 + framingham$SBP22)/2
+W2 <- (framingham$SBP31 + framingham$SBP32)/2
+
+bw <- bandwidth(W1, W2)
 }
 }
 \author{

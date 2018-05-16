@@ -182,7 +182,7 @@ W2 <- (framingham$SBP31 + framingham$SBP32)/2
 yy <- deconvolve(W1, W2)
 
 # Symmetric Errors -------------------------------------------------------------
-output <- deconvolve(framingham$SBP21)
+output <- deconvolve((framingham$SBP21 + framingham$SBP22)/2)
 }
 
 }
