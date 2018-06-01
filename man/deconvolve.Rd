@@ -7,7 +7,7 @@
 deconvolve(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
   rescale = FALSE, pmf = FALSE, kernel_type = c("default", "normal",
-  "sinc"), m = 20, show_diagnostics = FALSE)
+  "sinc"), m = 20, show_diagnostics = FALSE, het_replicates = FALSE)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -52,6 +52,9 @@ characteristic function \eqn{(1-t^2)^3}.}
 \eqn{X} when the error is not supplied.}
 
 \item{show_diagnostics}{For testing only, REMOVE IN FINAL PACKAGE}
+
+\item{het_replicates}{If \code{TRUE}, then a method more appropriate for 
+heteroscedastic errors is used. Only applicable if \code{W2} is supplied.}
 }
 \value{
 An object of class "\code{deconvolve}".
@@ -82,6 +85,11 @@ depending on how the error distribution is defined.
 then the error is calculated using replicates. This method was prototyped in  
 Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
 Hall 2016, and Camirand, Carroll, and Delaigle 2018.
+
+\strong{Heteroscedastic Error from Replicates}: If both \code{W} and 
+\code{W2} are supplied then the error is caculated as described in Delaigle
+and Meister 2008, using the alternative estimator for when the errors are 
+heteroscedastic.
 
 \strong{Symmetric Error:} If none of \code{errortype}, \code{phiU}, or 
 \code{W2} are supplied then the error is assumed symmetric and the 

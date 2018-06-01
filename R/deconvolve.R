@@ -12,6 +12,11 @@
 #' Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
 #' Hall 2016, and Camirand, Carroll, and Delaigle 2018. 
 #' 
+#' \strong{Heteroscedastic Error from Replicates}: If both \code{W} and 
+#' \code{W2} are supplied then the error is caculated as described in Delaigle
+#' and Meister 2008, using the alternative estimator for when the errors are 
+#' heteroscedastic.
+#' 
 #' \strong{Symmetric Error:} If none of \code{errortype}, \code{phiU}, or 
 #' \code{W2} are supplied then the error is assumed symmetric and the 
 #' deconvolution method is based on the method described in Delaigle and Hall 
@@ -73,6 +78,8 @@
 #' @param m The number of point masses to use to estimate the distribution of 
 #' \eqn{X} when the error is not supplied.
 #' @param show_diagnostics For testing only, REMOVE IN FINAL PACKAGE
+#' @param het_replicates If \code{TRUE}, then a method more appropriate for 
+#' heteroscedastic errors is used. Only applicable if \code{W2} is supplied.
 #' 
 #' @return An object of class "\code{deconvolve}".
 #' 
@@ -139,7 +146,8 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 					   rescale = FALSE, pmf = FALSE, 
 					   kernel_type = c("default", "normal", "sinc"), 
 					   m = 20,
-					   show_diagnostics = FALSE){
+					   show_diagnostics = FALSE,
+					   het_replicates = FALSE){
 
 	# Partial matching ---------------------------------------------------------
 	dist_types <- c("normal", "laplace")
@@ -154,7 +162,11 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 
 	# Determine error type provided --------------------------------------------
 	if (!is.null(W2)) {
-		errors <- "rep"
+		if (het_replicates) {
+			errors <- "het_rep"
+		} else {
+			errors <- "rep"
+		}
 	} else if (is.null(errortype) & is.null(phiU)) {
 		errors <- "sym"
 		warning("The method for deconvolution when the error is unknown and assumed symmetric is slow and unreliable in R. Consider instead using the MATLAB code found at <URL>.")
@@ -240,6 +252,11 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 	if (errors == "rep") {
 		phi_U <- create_replicates_phi_U(W, W2, tt/bw)
 		pdf <- DeconErrKnownPdf(xx, c(W, W2), bw, phi_U, kernel_type, rescale)
+		output <- list("x" = xx, "pdf" = pdf, "W1" = W, "W2" = W2)
+	}
+
+	if (errors == "het_rep") {
+		pdf <- decon_err_het_replicates(xx, W1, W2, kernel_type, bw, rescale)
 		output <- list("x" = xx, "pdf" = pdf, "W1" = W, "W2" = W2)
 	}
 
