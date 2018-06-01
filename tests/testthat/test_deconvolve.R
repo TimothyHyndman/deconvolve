@@ -29,6 +29,16 @@ test_that("replicates gives expected result", {
   load("hom_error_rep_test_result.RData")
   expect_equal(yy_test, yy)
 })
+
+test_that("het_replicates", {
+	skip_on_cran()
+	set.seed(1)
+	yy_test <- deconvolve(data$W1, data$W2, het_replicates = TRUE)
+	load("het_error_rep_test_result.RData")
+	expect_equal(yy_test, yy)
+})
+
+
 set.seed(1)
 sd_X <- 1
 sd_U <- 0.2

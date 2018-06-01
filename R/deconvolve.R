@@ -257,7 +257,7 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 	}
 
 	if (errors == "het_rep") {
-		pdf <- decon_err_het_replicates(xx, W1, W2, kernel_type, bw, rescale)
+		pdf <- decon_err_het_replicates(xx, W, W2, kernel_type, bw, rescale)
 		output <- list("x" = xx, "pdf" = pdf, "W1" = W, "W2" = W2)
 	}
 
