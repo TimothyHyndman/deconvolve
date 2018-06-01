@@ -1,4 +1,5 @@
 \dontrun{
+output <- reg_deconvolve(Y, W1, W2)
 n <- 50
 sd_X <- 1
 sd_U <- 0.2

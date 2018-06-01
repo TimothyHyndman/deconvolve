@@ -88,8 +88,8 @@
 #'
 #' @export
 
-reg_deconvolve <- function(W, 
-                           Y, 
+reg_deconvolve <- function(Y, 
+                           W, 
                            W2 = NULL, 
                            xx = seq(min(W), max(W), length.out = 100), 
                            errortype = NULL, 

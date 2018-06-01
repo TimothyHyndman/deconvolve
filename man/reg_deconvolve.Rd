@@ -5,15 +5,15 @@
 \title{Compute the measurement error version of the Nadaraya-Watson regression
 estimator}
 \usage{
-reg_deconvolve(W, Y, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
+reg_deconvolve(Y, W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, rho = NULL,
   n_cores = NULL, kernel_type = c("default", "normal", "sinc"),
   seed = NULL, use_alt_SIMEX_rep_opt = FALSE)
 }
 \arguments{
-\item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
-
 \item{Y}{A vector of the response data Y_1, ..., Y_n.}
+
+\item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
 
 \item{W2}{A vector of replicate measurements. If supplied, then the error 
 will be estimated using replicates.}
@@ -113,6 +113,7 @@ distribution of episodically consumed food measured with errors.
 
 \examples{
 \dontrun{
+output <- reg_deconvolve(Y, W1, W2)
 n <- 50
 sd_X <- 1
 sd_U <- 0.2

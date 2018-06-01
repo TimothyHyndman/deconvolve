@@ -19,7 +19,7 @@ decon_err_het_replicates <- function(xx, W1, W2, kernel_type, h, rescale) {
 	phiU_lap <- function(t){
 		1 / (1 + sd_U^2 / 2 * t^2)
 	}
-	den[lap_ind] <- phiU_lap(t[lap_ind])
+	den[lap_ind] <- phiU_lap(t[lap_ind]/2)
 
 
 	phi_X <- num/den

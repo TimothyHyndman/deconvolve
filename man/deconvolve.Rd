@@ -155,6 +155,15 @@ distribution of episodically consumed food measured with errors.
 }
 
 \examples{
+# Error estimated from replicates ----------------------------------------------
+W1 <- (framingham$SBP21 + framingham$SBP22)/2
+W2 <- (framingham$SBP31 + framingham$SBP32)/2
+
+yy <- deconvolve(W1, W2)
+
+# Symmetric Errors -------------------------------------------------------------
+output <- deconvolve((framingham$SBP21 + framingham$SBP22)/2)
+
 # Homoscedastic Errors ---------------------------------------------------------
 n <- 50
 sd_X <- 1
@@ -162,7 +171,7 @@ sd_U <- 0.2
 W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
 yy <- deconvolve(W, errortype = "norm", sd_U = sd_U)
 
-\dontrun{
+
 # Heteroscedastic Errors -------------------------------------------------------
 sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
 W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
@@ -183,17 +192,7 @@ for(k in 1:n) {
 }
 
 yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
-
-# Error estimated from replicates ----------------------------------------------
-W1 <- (framingham$SBP21 + framingham$SBP22)/2
-W2 <- (framingham$SBP31 + framingham$SBP32)/2
-
-yy <- deconvolve(W1, W2)
-
-# Symmetric Errors -------------------------------------------------------------
-output <- deconvolve((framingham$SBP21 + framingham$SBP22)/2)
 }
-
 }
 \author{
 Aurore Delaigle, Timothy Hyndman, Tianying Wang
