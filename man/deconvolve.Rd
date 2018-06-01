@@ -89,7 +89,8 @@ Hall 2016, and Camirand, Carroll, and Delaigle 2018.
 \strong{Heteroscedastic Error from Replicates}: If both \code{W} and 
 \code{W2} are supplied then the error is caculated as described in Delaigle
 and Meister 2008, using the alternative estimator for when the errors are 
-heteroscedastic.
+heteroscedastic. Refinements have been made based on Delaigle and Hall 2016, 
+and Camirand, Carroll, and Delaigle 2018.
 
 \strong{Symmetric Error:} If none of \code{errortype}, \code{phiU}, or 
 \code{W2} are supplied then the error is assumed symmetric and the 
