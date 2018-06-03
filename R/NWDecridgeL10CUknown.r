@@ -22,8 +22,10 @@ NWDecridgeL1OCUknown <- function(n, W, Y, phiU, h, rhogrid, midbin,
 	snO <- sin(OO)
 	rm(OO)
 
-	rehatphiW <- apply(csO, 2, sum)
-	imhatphiW <- apply(snO, 2, sum)
+	# rehatphiW <- apply(csO, 2, sum)
+	rehatphiW <- colSums(csO)
+	# imhatphiW <- apply(snO, 2, sum)
+	imhatphiW <- colSums(snO)
 
 	# Compute \sum_j Y_j e^{itW_j/h}
 	dim(Y) <- c(1, n)

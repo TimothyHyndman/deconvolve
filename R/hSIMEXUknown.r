@@ -101,6 +101,7 @@ hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores
 	bb <- NULL
 
 	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
+	# for (bb in 1:BB) {
 	    #set seed
 	    if (!is.null(seed)) {
 	        set.seed(seed + bb)
@@ -120,6 +121,7 @@ hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores
 		}
 		CVrho
 	}
+	# outcome_SIMEX1 <- CVrho
 
 	CVrho <- matrix(0, lh, lrho)
 	for (i in 1:BB)
