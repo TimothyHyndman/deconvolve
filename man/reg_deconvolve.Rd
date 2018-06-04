@@ -117,8 +117,8 @@ distribution of episodically consumed food measured with errors.
 W1 <- (framingham$SBP21 + framingham$SBP22)/2
 W2 <- (framingham$SBP31 + framingham$SBP32)/2
 Y <- framingham$FIRSTCHD
-h <- 2
-rho <- 1
+h <- 1.120537 #Precalculated using SIMEX option from bandwidth()
+rho <- 0.0103959 #Precalculated using SIMEX option from bandwidth()
 output <- reg_deconvolve(Y, W1, W2, bw = h, rho = rho)
 
 # Error known ------------------------------------------------------------------

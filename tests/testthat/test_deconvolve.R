@@ -33,6 +33,11 @@ test_that("replicates gives expected result", {
 test_that("het_replicates", {
 	skip_on_cran()
 	set.seed(1)
+	sd_X <- 1
+	sd_U <- 0.2
+	n <- 50
+	data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", 
+	replicates = TRUE)
 	yy_test <- deconvolve(data$W1, data$W2, het_replicates = TRUE)
 	load("het_error_rep_test_result.RData")
 	expect_equal(yy_test, yy)

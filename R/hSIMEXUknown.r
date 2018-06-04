@@ -78,6 +78,7 @@ hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores
 	indbin <- matrix(unlist(BinData(W, nbin)[2]), nrow = n)
 
 	BB <- 20
+	bb <- NULL	# This is here to remove a note from check
 	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
 	# for (bb in 1:BB) {
 	    #set seed
