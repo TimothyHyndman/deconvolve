@@ -24,13 +24,6 @@
 hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores, 
 						 seed){
 
-	kernel_list <- kernel(kernel_type)
-	phiK <- kernel_list$phik
-	muK2 <- kernel_list$muk2
-	RK <- kernel_list$rk
-	tt <- kernel_list$tt
-	deltat <- tt[2] - tt[1]
-
 	if (is.null(n_cores)){
 		n_cores <- parallel::detectCores()
 		n_cores <- max(n_cores - 1, 1)
@@ -38,34 +31,20 @@ hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores
 	cl <- parallel::makeCluster(n_cores)
 	doParallel::registerDoParallel(cl)
 
-	# W <- as.vector(W)
-	n <- length(W)
-
-	# --------------------------------------------------------
+	# --------------------------------------------------------------------------
 	# Preliminary calculations and initialisation of functions
-	# --------------------------------------------------------
-
-	# dim(W) <- c(1, n)
-	# dim(Y) <- c(1, n)
-
+	# --------------------------------------------------------------------------
+	n <- length(W)
 	# number of bins used to compute CV in each SIMEX world
 	nbin <- min(100, n)
-
-	# Number of SIMEX samples
-	BB <- 20
 
 	# Define a grid where to search for the SIMEX bandwidth. By default we take
 	# [h/2,2h], where h=PI bandwidth for density estimation.
 	# Increase the grid if too small
-	# hPIfX <- PI_deconvUknownth4(n, W, sd_U, phiU = phiU, phiK = phiK, muK2 = muK2,
-	# 							RK = RK, deltat = deltat, tt = tt)
 	
 	sd_X <- max( !is.na(sqrt(stats::var(as.vector(W)) - sd_U^2)), 1/n)
-	hPIfX <- plugin_bandwidth(as.vector(W), phiU, sd_X, kernel_type)
-
-	a <- hPIfX / 2
-	b <- 2 * hPIfX
-	gridh <- seq(a, b, (b - a) / 20)
+	hPIfX <- plugin_bandwidth(W, phiU, sd_X, kernel_type)
+	gridh <- seq(hPIfX / 2, 2 * hPIfX, length.out = 21)
 
 
 	# Define a defaul grid where to search for rho.
@@ -90,16 +69,15 @@ hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores
 	lh <- length(gridh)
 	lrho <- length(gridrho)
 
-	#---------------------------------------------------------------------
+	#---------------------------------------------------------------------------
 	# Step 1: find the ridge parameter using only the first level of SIMEX
-	#---------------------------------------------------------------------
+	#---------------------------------------------------------------------------
 
 	# Bin the W data to speed up the computations
 	midbin <- unlist(BinData(W, nbin)[1])
 	indbin <- matrix(unlist(BinData(W, nbin)[2]), nrow = n)
 
-	bb <- NULL
-
+	BB <- 20
 	outcome_SIMEX1 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
 	# for (bb in 1:BB) {
 	    #set seed
@@ -117,7 +95,7 @@ hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores
 		for (kh in 1:lh){
 			h <- gridh[kh]
 			CVrho[kh, ] <- NWDecridgeL1OCUknown(n, Wstar, Y,
-						   phiU, h, gridrho, midbin, indbin, nbin, phiK, deltat, tt)
+						   phiU, h, gridrho, midbin, indbin, nbin, kernel_type)
 		}
 		CVrho
 	}
@@ -141,9 +119,9 @@ hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores
 	h1 <- gridh[indh]
 
 
-	#----------------------------------------
+	#---------------------------------------------------------------------------
 	# Step 2: Keep rho fixed and find h SIMEX
-	#----------------------------------------
+	#---------------------------------------------------------------------------
 
 
 	outcome_SIMEX2 <- foreach::foreach(bb = 1:BB, .packages = c("stats")) %dopar% {
@@ -166,7 +144,7 @@ hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores
 		for (kh in 1:lh){
 			h <- gridh[kh]
 			CVhstar_tmp[kh] <- NWDecridgeL1OCUknown(n, Wstar2, Y,
-							   phiU, h, rho, midbin, indbin, nbin, phiK, deltat, tt)
+							   phiU, h, rho, midbin, indbin, nbin, kernel_type)
 		}
 		CVhstar_tmp
 	}
@@ -196,7 +174,6 @@ BinData <- function(W, nbin){
 	# This program bins the data W into nbins
 
 	n <- length(W)
-	dim(W) <- c(n, 1)
 
 	# Compute extremities of the bins
 	ab <- stats::quantile(W, c(0.05, 0.95))
