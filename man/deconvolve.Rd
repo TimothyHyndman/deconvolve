@@ -155,6 +155,7 @@ distribution of episodically consumed food measured with errors.
 }
 
 \examples{
+\dontrun{
 # Error estimated from replicates ----------------------------------------------
 W1 <- (framingham$SBP21 + framingham$SBP22)/2
 W2 <- (framingham$SBP31 + framingham$SBP32)/2
