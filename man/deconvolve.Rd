@@ -138,11 +138,11 @@ Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
 integrals and optimizing objective functions: a case study in density 
 deconvolution. \emph{Statistics and Computing}, 17, 349-355.
 
-Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
-error. \emph{Bernoulli}, 14, 2, 562-579.
-
 Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
 repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
+
+Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
+error. \emph{Bernoulli}, 14, 2, 562-579.
 
 Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
 deconvolution when the error distribution is unknown. \emph{Journal of the 

@@ -96,8 +96,8 @@ replicates and SIMEX is performed as according to
 }
 \section{References}{
 
-Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic
-error. \emph{Bernoulli}, 14, 2, 562-579.
+Stefanski, L. and Carroll, R.J. (1990). Deconvoluting kernel density
+estimators. \emph{Statistics}, 21, 2, 169-184.
 
 Delaigle, A. and Gijbels, I. (2002). Estimation of integrated squared density
 derivatives from a contaminated sample. \emph{Journal of the Royal
@@ -107,15 +107,15 @@ Delaigle, A. and Gijbels, I. (2004). Practical bandwidth selection in
 deconvolution kernel density estimation. \emph{Computational Statistics and
 Data Analysis}, 45, 2, 249 - 267.
 
-Stefanski, L. and Carroll, R.J. (1990). Deconvoluting kernel density
-estimators. \emph{Statistics}, 21, 2, 169-184.
-
 Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
 in errors-in-variables problems. \emph{Journal of the American Statistical
 Association}, 103, 481, 280-287
 
 Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
 repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
+
+Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic
+error. \emph{Bernoulli}, 14, 2, 562-579.
 
 Delaigle, A. and Hall, P. (2016). Methodology for non-parametric
 deconvolution when the error distribution is unknown. \emph{Journal of the

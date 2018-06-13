@@ -15,6 +15,10 @@
 #' Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
 #' in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 #' 
+#' Carroll, R. J., Ruppert, D., and Stefanski, L. A. (1995). Measurement Error 
+#' in Nonlinear Models: A Modern Perspective, Second Edition. Chapman Hall, New
+#' York.
+#' 
 #' Delaigle, A. and Gijbels, I. (2002). Estimation of integrated squared density
 #' derivatives from a contaminated sample. \emph{Journal of the Royal
 #' Statistical Society, B}, 64, 4, 869-886.
@@ -26,18 +30,25 @@
 #' Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating 
 #' integrals and optimizing objective functions: a case study in density 
 #' deconvolution. \emph{Statistics and Computing}, 17, 349-355.
-#' 
-#' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic
-#' error. \emph{Bernoulli}, 14, 2, 562-579.
+#'
+#' Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
+#' repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
 #'
 #' Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
 #' in errors-in-variables problems. \emph{Journal of the American Statistical
 #' Association}, 103, 481, 280-287
+#' 
+#' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic
+#' error. \emph{Bernoulli}, 14, 2, 562-579.
 #'
 #' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric
 #' deconvolution when the error distribution is unknown. \emph{Journal of the
 #' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1,
 #' 231-252.
+#' 
+#' Camirand, F., Carroll, R.J., and Delaigle, A. (2018). Estimating the  
+#' distribution of episodically consumed food measured with errors.  
+#' \emph{Manuscript.} 
 #' 
 #' @keywords package
 #' 
