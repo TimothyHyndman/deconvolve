@@ -8,7 +8,7 @@ Authors@R: c(
 Maintainer: Timothy Hyndman <timothy.hyndman@gmail.com>
 Description: This package provides tools for performing non-parametric
 	deconvolution on measurement error problems.
-Depends: R (>= 3.4.2)
+Depends: R (>= 3.5.0)
 Imports:
 	stats,
 	NlcOptim,
