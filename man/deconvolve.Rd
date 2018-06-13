@@ -165,34 +165,43 @@ yy <- deconvolve(W1, W2)
 # Symmetric Errors -------------------------------------------------------------
 output <- deconvolve((framingham$SBP21 + framingham$SBP22)/2)
 
-# Homoscedastic Errors ---------------------------------------------------------
+# Generate homoscedastic data --------------------------------------------------
 n <- 50
-sd_X <- 1
-sd_U <- 0.2
-W <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm")
+X <- stats::rchisq(n, 3)
+
+sd_U = 0.2
+U <- stats::rnorm(n, sd = sd_U)
+
+W <- X + U
+
+# Homoscedastic Errors ---------------------------------------------------------
 yy <- deconvolve(W, errortype = "norm", sd_U = sd_U)
 
+# Generate heteroscedastic data ------------------------------------------------
+n <- 50
+X <- stats::rchisq(n, 3)
+
+sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
+U <- c()
+for (sigUk in sd_U_vec){
+	U <- c(U, stats::rnorm(1, 0, sigUk))
+}
+
+W <- X + U
 
 # Heteroscedastic Errors -------------------------------------------------------
-sd_U_vec <- 0.6 * sqrt(1 + (1:n) / n) * sqrt(0.5)
-W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
-
 yy <- deconvolve(W, errortype = "norm", sd_U = sd_U_vec)
 
 # Heteroscedastic Errors provided using a vector of phiUs ----------------------
-W <- GenerateTestData(n, sd_X, sd_U_vec, dist_type = "mix", error_type = "norm")
-
-phiU_vec=c()
-phiU <- function(k) {
-	function(tt){
-		exp(-sd_U_vec[k]^2 * tt^2 / 2)
+phiU <- c()
+for (sigUk in sd_U_vec){
+	phiUk <- function(tt) {
+		exp(-sigUk^2 * tt^2 / 2)
 	}
-}
-for(k in 1:n) {	
-	phiU_vec <- c(phiU_vec, phiU(k))
+	phiU <- c(phiU, phiUk)
 }
 
-yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
+yy <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU)
 }
 }
 \author{

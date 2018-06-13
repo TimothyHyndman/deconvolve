@@ -9,8 +9,13 @@ output <- reg_deconvolve(Y, W1, W2, bw = h, rho = rho)
 
 # Error known ------------------------------------------------------------------
 n <- 50
-sd_X <- 1
-sd_U <- 0.2
-data <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm", create_Y = TRUE)
-output <- reg_deconvolve(data$W, data$Y, errortype = "norm", sd_U = 0.2, n_cores = 2)
+X <- stats::rchisq(n, 3)
+Y <- 2*X
+
+sd_U = 0.2
+U <- stats::rnorm(n, sd = sd_U)
+
+W <- X + U
+
+output <- reg_deconvolve(W, Y, errortype = "norm", sd_U = 0.2, n_cores = 2)
 }
