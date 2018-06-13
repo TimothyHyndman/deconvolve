@@ -1,28 +1,4 @@
-#' Generate convolved data for use in deconvolve examples
-#' 
-#' A convenience function for the package `deconvolve' that generates 
-#' contaminated data of the form \eqn{W = X + U} which can be used to test 
-#' the function \code{deconvolve}.
-#' 
-#' @param n The size of the generated data
-#' @param sd_X The standard deviation of X
-#' @param sd_U The standard deviation(s) of U. For heteroscedastic errors,
-#' supply \code{sd_U} as a length n vector.
-#' @param dist_type One of \code{'chi'} or \code{'mix'}. The distribution type
-#' of X.
-#' @param error_type One of \code{'norm'} or \code{'Lap'}. The distribution type
-#' of U.
-#' @param create_Y If true, \code{GenerateTestData} also returns a vector of Y 
-#' values for use in regression problems.
-#' @param replicates If true, \code{GenerateTestData} returns a vector 
-#' 
-#' @return Returns W as a length n vector. If \code{create_Y} is true, returns a 
-#' list with elements 'W' and 'Y'. If \code{replicates} is true, returns a list 
-#' with elements 'W1' and 'W2'.
-#' 
-#' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
-#' 
-#' @export
+# Just used for convenience in unit testing
 
 GenerateTestData <- function(n, sd_X = 1, sd_U = 0.2, dist_type = "chi", 
 							 error_type = "norm", create_Y = FALSE, 
