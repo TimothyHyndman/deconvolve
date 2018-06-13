@@ -32,32 +32,34 @@ devtools::install_github("timothyhyndman/deconvolve")
 
 ```{r, eval=FALSE}
 library(deconvolve)
-
-n <- 200
-W <- GenerateTestData(n, dist_type = "chi", error_type = "norm")
-xx <- seq(min(W), max(W), length.out = 100)
-d <- deconvolve(W, xx)
+W <- (framingham$SBP21 + framingham$SBP22)/2
+d <- deconvolve(W)
 
 ```
+
 ## Available methods
 This is a list of every method that this package contains
 
 ##### Deconvolution
-- Homoscedastic Errors
-- Heteroscedastic Errors
-- Unknown Errors
-- *Unknown Errors with Replicates (coming soon)*
+- Homoscedastic errors estimated from replicates
+- Heteroscedastic errors estimated from replicates
+- Errors assumed symmetric when no errors are provided
+- Homoscedastic errors supplied
+- Heteroscedastic errors supplied
 
 ##### Bandwidth selection
-- Plug-in Estimator for Homoscedastic Errors
-- Plug-in Estimator for Heteroscedastic Errors
-- Plug-in Estimator for Unknown Errors
-- *Plug-in Estimator for Unknown Errors with Replicates (coming soon)*
-- CV
-- SIMEX
+- Plug-in estimator for homoscedastic errors estimated from replicates
+- Plug-in estimator for errors assumed symmetric when no errors are provided
+- Plug-in estimator for homoscedastic errors
+- Plug-in estimator for heteroscedastic errors
+- CV for homoscedastic errors
+- SIMEX for homoscedastic errors
+- SIMEX for homoscedastic errors estimated from replicates
 
 ##### Regression
-- Homoscedastic Errors
+- Homoscedastic errors estimated from replicates
+- Homoscedastic errors supplied
+
 
 ## License
 
