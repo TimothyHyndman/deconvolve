@@ -1,7 +1,6 @@
 create_replicates_phi_U  <- function(W1, W2, t_search) {
 	# Estimate phiU from replicates
 	diff <- W1 - W2
-	diff <- diff[(W1 != 0) & (W2 != 0)]
 	sd_U <- sqrt(stats::var(diff)/2)
 
 	n_diff <- length(diff)

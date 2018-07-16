@@ -230,7 +230,6 @@ bandwidth <- function(W,
 
 	if (algorithm == "SIMEX" & errors == "rep") {
 		diff <- W - W2
-		diff <- diff[(W != 0) & (W2 != 0)]
 		sd_U <- sqrt(stats::var(diff)/2)
 		n <- length(W)
 		hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
@@ -266,7 +265,6 @@ bandwidth <- function(W,
 
 	if (algorithm == "PI" & errors == "rep") {
 		diff <- W - W2
-		diff <- diff[(W != 0) & (W2 != 0)]
 		sd_U <- sqrt(stats::var(diff)/2)
 		n <- length(c(W, W2))
 		sd_X <- max(sqrt(stats::var(c(W, W2)) - sd_U^2), 1/n)

@@ -187,7 +187,6 @@ reg_deconvolve <- function(Y,
     # Compute estimate for m(X) ------------------------------------------------
     if (errors == "rep") {
         diff <- W - W2
-        diff <- diff[(W != 0) & (W2 != 0)]
         sd_U <- sqrt(stats::var(diff)/2)
         n <- length(W)
         hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 

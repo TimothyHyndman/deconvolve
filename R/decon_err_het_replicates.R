@@ -9,11 +9,10 @@ decon_err_het_replicates <- function(xx, W1, W2, kernel_type, h, rescale) {
 	OO_sum <- outer(tt / h, (W1 + W2)/2)
 
 	num <- rowSums(exp(1i*OO_sum))
-	den <- rowSums(exp(1i*OO_diff))
+	den <- rowSums(cos(OO_diff))
 
 	# Use laplace where den is too small
-	t_cutoff <- find_t_cutoff(Re(den), tt)		#Re() isn't meant to be there...
-												#How to fix with t_cutoff...?
+	t_cutoff <- find_t_cutoff(den, tt)
 	lap_ind <- (tt < t_cutoff) | (tt > t_cutoff)
 	sd_U <- sqrt(stats::var(W1 - W2)/2)
 	phiU_lap <- function(t){
