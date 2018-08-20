@@ -42,6 +42,7 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	tt_new_length <- 100
 	tt_new <- seq(-t_star, t_star, length.out = tt_new_length)
 	phi_W <- ComputePhiEmp(W, tt_new)
+	sqrt_psi_W <- compute_sqrt_psi_W(tt, W)
 
 	# Calculate weight w(t) on [-t*, t*]
 	weight <- KernelWeight(tt_new)
@@ -99,7 +100,7 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	# ----------------------
 
 	tp_objective_NLC <- function(x) {
-		tp_objective(x, phi_W, weight)
+		tp_objective(x, phi_W, sqrt_psi_W, weight)
 	}
 	diagnostic("Minimizing T(p)")
 
@@ -159,14 +160,14 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	# Calculate phi_X
 	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
 
-	tp_max <- calculate_tp(phi_X, phi_W, weight)
+	tp_max <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	diagnostic(paste("tp_max = ", tp_max))
 	penalties_max <- calculate_penalties(phi_X, phi_W)
 	diagnostic(paste("penalties = ", penalties_max))
 
 	con_fun <- function(x){
 		# constraints(x, phi_W, weight, min_tp_sol$value)
-		constraints(x, phi_W, weight, tp_max, penalties_max)
+		constraints(x, phi_W, sqrt_psi_W, weight, tp_max, penalties_max)
 	}
 	
 	diagnostic("Minimizing Variance")
@@ -261,24 +262,24 @@ x_to_pmf <- function(x) {
 	list(support = support, prob_weights = probweights)
 }
 
-tp_objective <- function(x, phi_W, weight) {
+tp_objective <- function(x, phi_W, sqrt_psi_W, weight) {
 	X_pmf <- x_to_pmf(x)
 
 	# Calculate phi_X
 	tt <- phi_W$t.values
 	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
 
-	tp <- calculate_tp(phi_X, phi_W, weight)
+	tp <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	penalties <- calculate_penalties(phi_X, phi_W)
 
 	tp + sum(penalties)
 }
 
-calculate_tp <- function(phi_X, phi_W, weight){
+calculate_tp <- function(phi_X, phi_W, sqrt_psi_W, weight){
 	
 	tt <- phi_W$t.values
 	dt <- tt[2] - tt[1]
-	integrand <- abs(phi_W$complex - phi_W$norm * phi_X / Mod(phi_X))^2 * weight
+	integrand <- abs(phi_W$complex - sqrt_psi_W * phi_X / Mod(phi_X))^2 * weight
 	tp <- dt * sum(integrand)
 
 	tp
@@ -302,7 +303,7 @@ var_objective <- function(x){
 	return(var)
 }
 
-constraints <- function(x, phi_W, weight, tp_max, penalties_max){
+constraints <- function(x, phi_W, sqrt_psi_W, weight, tp_max, penalties_max){
 	m <- (length(x) + 1) / 2
 	probweights <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
 	support <- x[ m:(2 * m - 1) ]
@@ -310,7 +311,7 @@ constraints <- function(x, phi_W, weight, tp_max, penalties_max){
 	# Calculate phi_X
 	phi_X <- ComputePhiPmf(support, probweights, tt)
 
-	tp <- calculate_tp(phi_X, phi_W, weight)
+	tp <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	const1 <- tp - tp_max
 
 	const23 <- calculate_penalties(phi_X, phi_W) - penalties_max
@@ -353,6 +354,22 @@ simplify_pmf <- function(theta, p, zero_tol = 1e-3, adj_tol = 1e-3){
 	}
 
 	return(list("Support" = theta, "ProbWeights" = p))
+}
+
+compute_sqrt_psi_W <- function(tt, W){
+	n <- length(W)
+
+	WW <- outer(W, W, "-")
+	WW <- c(WW[!(col(WW) == row(WW))])
+
+	OO <- W %o% tt
+
+	re_psi_W <- colSums(cos(OO)) / (n*(n-1))
+	im_psi_W <- colSums(sin(OO)) / (n*(n-1))
+
+	sqrt_psi_W <- sqrt(sqrt(re_psi_W^2 + im_psi_W^2))
+
+	sqrt_psi_W
 }
 
 print_diagnostic <- function(message, show_diagnostics){
