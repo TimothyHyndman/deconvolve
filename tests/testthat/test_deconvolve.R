@@ -9,13 +9,16 @@ test_that("symmetric error case gives expected result", {
 	skip_on_cran()
 	d_test <- deconvolve(W)
 
+	# NlcOptim works different on different OS (I think) so we need multiple tests
 	if (Sys.info()['sysname'] == "Windows"){
 		load("sym_error_test_result.RData")
 		expect_equal(d_test, d)
 	} else if (Sys.info()['sysname'] == "Darwin"){
 		# load("")
+		load("sym_error_test_result.RData")
 		expect_equal(d_test, d)
 	} else if (Sys.info()['sysname'] == "Linux"){
+		load("sym_error_test_result_linux.RData")
 		expect_equal(d_test, d)
 	} else {
 		warning("OS wasn't one of Windows, Darwin, or Linux and so test didn't work.")
