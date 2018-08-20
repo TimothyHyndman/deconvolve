@@ -44,7 +44,7 @@ estimate_var_u <- function(W, tt_BB, theta, p){
 
 	pp <- stats::lm(phi_U_t_vec ~ stats::poly(t_vec, 2, raw = TRUE))
 	
-	var_u <- 2 * pp$coefficients[[3]]
+	var_u <- -2 * pp$coefficients[[3]]
 	if (var_u < 0){
 		warning("Estimated variance for U is negative. Something probably went wrong with the deconvolution.")
 	}
