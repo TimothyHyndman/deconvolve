@@ -305,13 +305,9 @@ constraints <- function(x, phi_W, sqrt_psi_W, weight, tp_max, penalties_max){
 
 	tp <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	const1 <- tp - tp_max
-
 	const23 <- calculate_penalties(phi_X, phi_W) - penalties_max
-	# list(ceq = NULL, c = c(const1, penalties[1]))
-	# Constraints are always inconsistent when I try this :(
-
+	
 	list(ceq = NULL, c = c(const1, const23))
-	# list(ceq = NULL, c = c(const1))
 }
 
 simplify_pmf <- function(theta, p, zero_tol = 1e-3, adj_tol = 1e-3){
@@ -354,7 +350,7 @@ compute_sqrt_psi_W <- function(tt, W){
 	WW <- outer(W, W, "-")
 	WW <- c(WW[!(col(WW) == row(WW))])
 
-	OO <- W %o% tt
+	OO <- WW %o% tt
 
 	re_psi_W <- colSums(cos(OO)) / (n*(n-1))
 	im_psi_W <- colSums(sin(OO)) / (n*(n-1))
