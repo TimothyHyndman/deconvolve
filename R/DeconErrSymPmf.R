@@ -1,4 +1,4 @@
-DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 20, 
+DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 10, n_var_iter = 10, 
 						   show_diagnostics = FALSE){
 
 	diagnostic <- function(message){
@@ -53,7 +53,7 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 20,
 		p0 <- p0 / sum(p0)
 		x0 <- theta_p_to_x(theta0, p0)
 
-		control <- list(maxit = 5000)
+		control <- list(maxit = 100000000)
 		optim_result <- optim(x0,
 							  tp_objective, 
 							  control = control,
@@ -72,14 +72,15 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 20,
 		}
 	}
 
-	x_sol <- optim_result$par
+	tp_optim_result_min <- optim_result_min
+	x_sol <- tp_optim_result_min$par
 	theta_sol <- x_to_theta(x_sol)
 	p_sol <- x_to_p(x_sol)
 	
 	# ------------------
 	# Min Var
 	# ------------------
-	phi_X <- ComputePhiPmf(theta_sol, p_sol, tt)
+	phi_X <- ComputePhiPmf(theta_sol, p_sol, tt_new)
 	tp_max <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	penalties_max <- calculate_penalties(phi_X, phi_W)
 
@@ -93,7 +94,6 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 20,
 		p0 <- p0 / sum(p0)
 		x0 <- theta_p_to_x(theta0, p0)
 
-		control <- list(maxit = 5000)
 		optim_result <- optim(x0,
 							  var_objective, 
 							  control = control,
@@ -114,7 +114,7 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 20,
 		}
 	}
 
-	x_sol <- optim_result$par
+	x_sol <- optim_result_min$par
 	theta_sol <- x_to_theta(x_sol)
 	p_sol <- x_to_p(x_sol)
 
@@ -125,8 +125,8 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 20,
 	list("support" = theta_sol, 
 		 "probweights" = p_sol, 
 		 "phi_W" = phi_W,
-		 "var_opt_results" = NULL,
-		 "tp_opt_results" = optim_result_min)
+		 "var_opt_results" = optim_result_min,
+		 "tp_opt_results" = tp_optim_result_min)
 }
 
 x_to_theta <- function(x) {
@@ -161,6 +161,7 @@ tp_objective <- function(x, phi_W, sqrt_psi_W, weight, W) {
 	if (!is_valid_pmf(theta, p, W)) {
 		cliff = 1e20
 	}
+
 	tp + sum(penalties) + cliff
 }
 
