@@ -44,177 +44,26 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	#--------------------------------------------------------------------------#
 
 	# ------------------
-	# Setup for Min T(p)
+	# Min T(p)
 	# ------------------
-	# Set up constraints in form Ax \geq B
-	
-	# pj non-negative
-	A_tp <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
-	A_tp[1:m-1, 1:m-1] <- diag( m - 1 )   
-	B_tp = numeric(2 * m - 1)
-	# pj sum to less than 1
-	A_tp[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) 
-	B_tp[m] = -1
-	# thetaj are increasing
-	for (i in 1:(m-1)){
-		A_tp[m+i, (m+i-1):(m+i)] <- c(-1, 1)	
-	}
-	# min(W) < thetaj < max(W)
-	A_tp[2*m, m] <- 1
-	A_tp[2*m+1, 2*m-1] <- -1
-	B_tp[2*m] <- min(W)
-	B_tp[2*m+1] <- -max(W)
+
+	theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
+	p0 <- stats::runif(m, min = 0, max = 1)
+	p0 <- p0 / sum(p0)
+	x0 <- theta_p_to_x(theta0, p0)
+
+	optim_result <- optim(tp_objective, 
+						  phi_W = phi_W, 
+						  sqrt_psi_W = sqrt_psi_W, 
+						  weight = weight)
+
+	x_sol <- optim_result$par
+	diagnostic(optim_result$value)
+	diagnostic(x_sol)
 
 	# ------------------
-	# Setup for Min Var
+	# Min Var
 	# ------------------
-	# Set up constraints in form Ax \leq B
-
-	# pj non-negative
-	A_var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
-	A_var[1:m-1, 1:m-1] <- -diag(m - 1)
-	B_var <- numeric(2 * m - 1)
-	# pj sum to less than 1
-	A_var[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
-	B_var[m] = 1
-	# thetaj are increasing
-	for (i in 1:(m-1)){
-		A_var[m+i, (m+i-1):(m+i)] <- c(1, -1)	
-	}
-	# min(W) < thetaj < max(W)
-	A_var[2*m, m] <- -1
-	A_var[2*m+1, 2*m-1] <- 1
-	B_var[2*m] <- -min(W)
-	B_var[2*m+1] <- max(W)
-
-	# ----------------------
-	# Perform Minimizations
-	# ----------------------
-
-	tp_objective_NLC <- function(x) {
-		tp_objective(x, phi_W, sqrt_psi_W, weight)
-	}
-	diagnostic("Minimizing T(p)")
-
-	tp_min <- Inf
-	for (i in 1:n_tp_iter){
-		looping <- TRUE
-		while (looping) {
-			# NlcOptim can't handle it if the Generated QP problem is infeasible
-			# However, this error only pops up some of the time. For now, a 
-			# dirty solution is to keep running the code with different starting
-			# values and ignore everything until we get no error
-			looping <- FALSE
-
-			theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
-			p0 <- stats::runif(m, min = 0, max = 1)
-			p0 <- p0 / sum(p0)
-
-			x0 <- c(p0[1:(m-1)], theta0)
-
-			# test_min_tp_sol <- stats::constrOptim(x0, tp_objective, NULL, A_tp, B_tp, 
-			# 							 		  phi_W = phi_W, weight = weight, outer.iterations = 10000)
-			test_min_tp_sol <- tryCatch({
-				test_min_tp_sol <- NlcOptim::solnl(x0, tp_objective_NLC, NULL, A_var, 
-													B_var, 
-													maxIter = 400, 
-													maxnFun = 100*(2*m-1), 
-													tolX = 1e-6)
-			}, error = function(e){
-					error_message <- paste("ERROR :", conditionMessage(e))
-					diagnostic(error_message)
-					test_min_tp_sol <- NULL						
-			})
-
-			if (is.null(test_min_tp_sol)) {
-					looping <- TRUE
-			}
-		}
-
-		# if (test_min_tp_sol$value < tp_min){
-		# 	tp_min <- test_min_tp_sol$value
-		# 	min_tp_sol <- test_min_tp_sol
-		# 	diagnostic(tp_min)
-		# }
-		if (test_min_tp_sol$fn < tp_min){
-			tp_min <- test_min_tp_sol$fn
-			min_tp_sol <- test_min_tp_sol
-			diagnostic(tp_min)
-		}
-	}
-
-	# con_fun(x) <= 0
-	# diagnostic(tp_min)
-	# diagnostic(min_tp_sol)
-
-	X_pmf <- x_to_pmf(min_tp_sol$par)
-	tt <- phi_W$t.values
-	# Calculate phi_X
-	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
-
-	tp_max <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
-	diagnostic(paste("tp_max = ", tp_max))
-	penalties_max <- calculate_penalties(phi_X, phi_W)
-	diagnostic(paste("penalties = ", penalties_max))
-
-	con_fun <- function(x){
-		# constraints(x, phi_W, weight, min_tp_sol$value)
-		constraints(x, phi_W, sqrt_psi_W, weight, tp_max, penalties_max)
-	}
-	
-	diagnostic("Minimizing Variance")
-
-	var_min <- Inf
-	for (i in 1:n_var_iter){
-		looping <- TRUE
-		while (looping){			
-			# NlcOptim can't handle it if the Generated QP problem is infeasible
-			# However, this error only pops up some of the time. For now, a 
-			# dirty solution is to keep running the code with different starting
-			# values and ignore everything until we get no error
-			looping <- FALSE
-
-			theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
-			p0 <- stats::runif(m, min = 0, max = 1)
-			p0 <- p0 / sum(p0)
-			x0 <- c(p0[1:(m-1)], theta0)
-
-			test_min_var_sol <- tryCatch({
-	    		test_min_var_sol <- NlcOptim::solnl(x0, var_objective, con_fun, 
-	    											A_var, B_var, 
-	    											maxIter = 400, 
-													maxnFun = 100*(2*m-1), 
-													tolX = 1e-6)
-			}, error = function(e){
-				error_message <- paste("ERROR :", conditionMessage(e))
-				diagnostic(error_message)
-				test_min_var_sol <- NULL						
-			})
-
-			if (is.null(test_min_var_sol)) {
-				looping <- TRUE
-			}
-		}
-		
-		if (test_min_var_sol$fn < var_min){
-			var_min <- test_min_var_sol$fn
-			min_var_sol <- test_min_var_sol
-			diagnostic(var_min)
-		}
-	}
-
-	diagnostic(paste("Initial Variance was", var_objective(min_tp_sol$par)))
-	diagnostic(paste("Final Variance is", var_min))
-	# tp_diff <- tp_min - tp_objective(min_var_sol$par, phi_W, weight)
-	# diagnostic(paste("T(p) decreased by", tp_diff, "while minimizing variance"))
-
-	X_pmf <- x_to_pmf(min_var_sol$par)
-	# Calculate phi_X
-	tt <- phi_W$t.values
-	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
-
-	diagnostic(paste("T(p) =", calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)))
-	diagnostic(paste("Penalties", calculate_penalties(phi_X, phi_W)))
 
 	
 	#--------------------------------------------------------------------------#
@@ -246,25 +95,47 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 		 "tp_opt_results" = min_tp_sol)
 }
 
-x_to_pmf <- function(x) {
+x_to_theta <- function(x) {
 	m <- (length(x) + 1) / 2
-	probweights <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
-	support <- x[ m:(2 * m - 1) ]
+	
+	x[ m:(2 * m - 1) ]
+}
 
-	list(support = support, prob_weights = probweights)
+x_to_p <- function(x) {
+	m <- (length(x) + 1) / 2
+	
+	c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
+}
+
+theta_p_to_x <- function(theta, p) {
+	m <- length(theta)
+	c(p[1:m-1], theta)
 }
 
 tp_objective <- function(x, phi_W, sqrt_psi_W, weight) {
-	X_pmf <- x_to_pmf(x)
+	theta <- x_to_theta(x)
+	p <- x_to_p(x)
 
 	# Calculate phi_X
 	tt <- phi_W$t.values
-	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
+	phi_X <- ComputePhiPmf(theta, p, tt)
 
 	tp <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	penalties <- calculate_penalties(phi_X, phi_W)
 
-	tp + sum(penalties)
+	cliff = 0
+	if (!is_valid_pmf) {
+		cliff = 1e20
+	}
+	tp + sum(penalties) + cliff
+}
+
+is_valid_pmf <- function(p, theta) {
+	flag = TRUE
+
+	if (any(p <0)) {
+		flag = FALSE
+	}
 }
 
 calculate_tp <- function(phi_X, phi_W, sqrt_psi_W, weight){
