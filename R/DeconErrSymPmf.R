@@ -28,21 +28,13 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	phi_W <- ComputePhiEmp(W, tt)
 
 	# Calculate t*
-
 	t_star <- find_t_cutoff(phi_W$norm, tt)
-
-	# tmp <- tt[phi_W$norm < n^(-0.25)]
-	# if ( length( tmp[ tmp > 0] ) == 0 ){
-	# 	t_star <- max(tt)
-	# } else {
-	# 	t_star <- min( tmp[ tmp > 0 ] )
-	# }
 
 	# Calculate phi_W on [-t*,t*]
 	tt_new_length <- 100
 	tt_new <- seq(-t_star, t_star, length.out = tt_new_length)
 	phi_W <- ComputePhiEmp(W, tt_new)
-	sqrt_psi_W <- compute_sqrt_psi_W(tt, W)
+	sqrt_psi_W <- compute_sqrt_psi_W(tt_new, W)
 
 	# Calculate weight w(t) on [-t*, t*]
 	weight <- KernelWeight(tt_new)
@@ -221,7 +213,7 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	tt <- phi_W$t.values
 	phi_X <- ComputePhiPmf(X_pmf$support, X_pmf$prob_weights, tt)
 
-	diagnostic(paste("T(p) =", calculate_tp(phi_X, phi_W, weight)))
+	diagnostic(paste("T(p) =", calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)))
 	diagnostic(paste("Penalties", calculate_penalties(phi_X, phi_W)))
 
 	
@@ -286,7 +278,7 @@ calculate_tp <- function(phi_X, phi_W, sqrt_psi_W, weight){
 }
 
 calculate_penalties <- function(phi_X, phi_W) {
-	penalty1 = sum(abs(Re(phi_X * phi_W$im - Im(phi_X) * phi_W$re)))
+	penalty1 = sum(abs(Re(phi_X) * phi_W$im - Im(phi_X) * phi_W$re))
 
 	mod_phi_U = phi_W$norm / Mod(phi_X)
 	penalty2 = sum(mod_phi_U[mod_phi_U > 1])
