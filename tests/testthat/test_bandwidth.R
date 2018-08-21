@@ -42,7 +42,7 @@ test_that("no error case gives expected result", {
 	} else if (Sys.info()['sysname'] == "Darwin"){
 		expect_equal(bandwidth(W), 0.1104239, tolerance = 0.0000001)
 	} else if (Sys.info()['sysname'] == "Linux"){
-		expect_equal(bandwidth(W), 0.1037021, tolerance = 0.0000001)
+		expect_equal(bandwidth(W), 0.1104239, tolerance = 0.0000001)
 	} else {
 		warning("OS wasn't one of Windows, Darwin, or Linux and so test didn't work.")
 	}
