@@ -1,4 +1,4 @@
-DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2, 
+DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 20, 
 						   show_diagnostics = FALSE){
 
 	diagnostic <- function(message){
@@ -46,66 +46,87 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	# ------------------
 	# Min T(p)
 	# ------------------
-
+	tp_obj_min <- Inf
 	for (i in 1:n_tp_iter) {
 		theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
 		p0 <- stats::runif(m, min = 0, max = 1)
 		p0 <- p0 / sum(p0)
 		x0 <- theta_p_to_x(theta0, p0)
 
+		control <- list(maxit = 5000)
 		optim_result <- optim(x0,
 							  tp_objective, 
+							  control = control,
 							  phi_W = phi_W, 
 							  sqrt_psi_W = sqrt_psi_W, 
 							  weight = weight,
 							  W = W)
 
-		if (optim_result$value < tp_min) {
-			tp_min <- optim_result$value
-			x_sol <- optim_result$par
+		diagnostic(optim_result$convergence)
+
+		if (optim_result$value < tp_obj_min) {
+			optim_result_min <- optim_result
+			tp_obj_min <- optim_result$value
 
 			diagnostic(optim_result$value)
-			p_sol <- x_to_p(x_sol)
-			theta_sol <- x_to_theta(x_sol)
-
-			diagnostic(p_sol)
-			diagnostic(theta_sol)
 		}
 	}
-	
 
+	x_sol <- optim_result$par
+	theta_sol <- x_to_theta(x_sol)
+	p_sol <- x_to_p(x_sol)
+	
 	# ------------------
 	# Min Var
 	# ------------------
+	phi_X <- ComputePhiPmf(theta_sol, p_sol, tt)
+	tp_max <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
+	penalties_max <- calculate_penalties(phi_X, phi_W)
 
-	
+	diagnostic(tp_max)
+	diagnostic(penalties_max)
+
+	var_obj_min <- Inf
+	for (i in 1:n_var_iter) {
+		theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
+		p0 <- stats::runif(m, min = 0, max = 1)
+		p0 <- p0 / sum(p0)
+		x0 <- theta_p_to_x(theta0, p0)
+
+		control <- list(maxit = 5000)
+		optim_result <- optim(x0,
+							  var_objective, 
+							  control = control,
+							  phi_W = phi_W, 
+							  tp_max = tp_max,
+							  penalties_max = penalties_max,
+							  sqrt_psi_W = sqrt_psi_W, 
+							  weight = weight,
+							  W = W)
+
+		diagnostic(optim_result$convergence)
+
+		if (optim_result$value < var_obj_min) {
+			optim_result_min <- optim_result
+			var_obj_min <- optim_result$value
+
+			diagnostic(optim_result$value)
+		}
+	}
+
+	x_sol <- optim_result$par
+	theta_sol <- x_to_theta(x_sol)
+	p_sol <- x_to_p(x_sol)
+
 	#--------------------------------------------------------------------------#
 	# Convert to nice formats and return results
 	#--------------------------------------------------------------------------#
 
-	# Convert back to normal vectors
-	x_sol <- min_var_sol$par
-	p_sol <- c( x_sol[1:m-1], 1 - sum(x_sol[1:m-1]))
-	theta_sol <- x_sol[m:(2 * m - 1)]
-	simple_sol <- simplify_pmf(theta_sol, p_sol)
-	p_sol <- simple_sol$ProbWeights
-	theta_sol <- simple_sol$Support
-
-	x_min_tp <- min_tp_sol$par
-	p_min_tp <- c( x_min_tp[1:m-1], 1 - sum(x_min_tp[1:m-1]))
-	theta_min_tp <- x_min_tp[m:(2 * m - 1)]
-
-	simple_min_tp <- simplify_pmf(theta_min_tp, p_min_tp)
-	p_min_tp <- simple_min_tp$ProbWeights
-	theta_min_tp <- simple_min_tp$Support
-
 	list("support" = theta_sol, 
 		 "probweights" = p_sol, 
-		 "support_min_tp" = theta_min_tp,
-		 "probweights_min_tp" = p_min_tp,
 		 "phi_W" = phi_W,
-		 "var_opt_results" = min_var_sol,
-		 "tp_opt_results" = min_tp_sol)
+		 "var_opt_results" = NULL,
+		 "tp_opt_results" = optim_result_min)
 }
 
 x_to_theta <- function(x) {
@@ -143,24 +164,6 @@ tp_objective <- function(x, phi_W, sqrt_psi_W, weight, W) {
 	tp + sum(penalties) + cliff
 }
 
-is_valid_pmf <- function(theta, p, W) {
-	flag = TRUE
-
-	if (any(p < 0)) {
-		flag = FALSE
-	}
-
-	if (any(theta < min(W))) {
-		flag = FALSE
-	}
-
-	if (any(theta > max(W))) {
-		flag = FALSE
-	}
-
-	flag
-}
-
 calculate_tp <- function(phi_X, phi_W, sqrt_psi_W, weight){
 	
 	tt <- phi_W$t.values
@@ -180,28 +183,49 @@ calculate_penalties <- function(phi_X, phi_W) {
 	c(penalty1, penalty2)
 }
 
-var_objective <- function(x){
-	m <- (length(x) + 1) / 2
-	p <- c( x[ 1:(m - 1) ], 1 - sum( x[ 1:(m - 1) ] ) )
-	theta <- x[ m:(2 * m - 1) ]
+var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight, W){
+	p <- x_to_p(x)
+	theta <- x_to_theta(x)
+
 	mean <- sum(p*theta)
 	var <- sum(p*(theta - mean)^2)
-	return(var)
+
+	tt <- phi_W$t.values
+	phi_X <- ComputePhiPmf(theta, p, tt)
+	penalties <- max(0, calculate_penalties(phi_X, phi_W) - penalties_max)
+	tp_penalty <- max(0, calculate_tp(phi_X, phi_W, sqrt_psi_W, weight) - tp_max)
+
+	cliff <- 0
+
+	if (!is_valid_pmf(theta, p, W)) {
+		cliff <- 1e20
+	}
+
+	if (any(c(tp_penalty, penalties) > 0)) {
+		penalty_scale <- 1e3
+		penalty_height <- 1e3
+		cliff <- cliff + penalty_height + penalty_scale*(tp_penalty + sum(penalties))
+	}
+
+	var + cliff
 }
 
-constraints <- function(x, phi_W, sqrt_psi_W, weight, tp_max, penalties_max){
-	m <- (length(x) + 1) / 2
-	probweights <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
-	support <- x[ m:(2 * m - 1) ]
-	tt <- phi_W$t.values
-	# Calculate phi_X
-	phi_X <- ComputePhiPmf(support, probweights, tt)
+is_valid_pmf <- function(theta, p, W) {
+	flag = TRUE
 
-	tp <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
-	const1 <- tp - tp_max
-	const23 <- calculate_penalties(phi_X, phi_W) - penalties_max
-	
-	list(ceq = NULL, c = c(const1, const23))
+	if (any(p < 0)) {
+		flag = FALSE
+	}
+
+	if (any(theta < min(W))) {
+		flag = FALSE
+	}
+
+	if (any(theta > max(W))) {
+		flag = FALSE
+	}
+
+	flag
 }
 
 simplify_pmf <- function(theta, p, zero_tol = 1e-3, adj_tol = 1e-3){
