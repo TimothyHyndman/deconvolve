@@ -47,19 +47,32 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	# Min T(p)
 	# ------------------
 
-	theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
-	p0 <- stats::runif(m, min = 0, max = 1)
-	p0 <- p0 / sum(p0)
-	x0 <- theta_p_to_x(theta0, p0)
+	for (i in 1:n_tp_iter) {
+		theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
+		p0 <- stats::runif(m, min = 0, max = 1)
+		p0 <- p0 / sum(p0)
+		x0 <- theta_p_to_x(theta0, p0)
 
-	optim_result <- optim(tp_objective, 
-						  phi_W = phi_W, 
-						  sqrt_psi_W = sqrt_psi_W, 
-						  weight = weight)
+		optim_result <- optim(x0,
+							  tp_objective, 
+							  phi_W = phi_W, 
+							  sqrt_psi_W = sqrt_psi_W, 
+							  weight = weight,
+							  W = W)
 
-	x_sol <- optim_result$par
-	diagnostic(optim_result$value)
-	diagnostic(x_sol)
+		if (optim_result$value < tp_min) {
+			tp_min <- optim_result$value
+			x_sol <- optim_result$par
+
+			diagnostic(optim_result$value)
+			p_sol <- x_to_p(x_sol)
+			theta_sol <- x_to_theta(x_sol)
+
+			diagnostic(p_sol)
+			diagnostic(theta_sol)
+		}
+	}
+	
 
 	# ------------------
 	# Min Var
@@ -112,7 +125,7 @@ theta_p_to_x <- function(theta, p) {
 	c(p[1:m-1], theta)
 }
 
-tp_objective <- function(x, phi_W, sqrt_psi_W, weight) {
+tp_objective <- function(x, phi_W, sqrt_psi_W, weight, W) {
 	theta <- x_to_theta(x)
 	p <- x_to_p(x)
 
@@ -124,18 +137,28 @@ tp_objective <- function(x, phi_W, sqrt_psi_W, weight) {
 	penalties <- calculate_penalties(phi_X, phi_W)
 
 	cliff = 0
-	if (!is_valid_pmf) {
+	if (!is_valid_pmf(theta, p, W)) {
 		cliff = 1e20
 	}
 	tp + sum(penalties) + cliff
 }
 
-is_valid_pmf <- function(p, theta) {
+is_valid_pmf <- function(theta, p, W) {
 	flag = TRUE
 
-	if (any(p <0)) {
+	if (any(p < 0)) {
 		flag = FALSE
 	}
+
+	if (any(theta < min(W))) {
+		flag = FALSE
+	}
+
+	if (any(theta > max(W))) {
+		flag = FALSE
+	}
+
+	flag
 }
 
 calculate_tp <- function(phi_X, phi_W, sqrt_psi_W, weight){
