@@ -43,6 +43,8 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 10, n_var_iter = 10,
 	# Solve optimization problem to find PMF
 	#--------------------------------------------------------------------------#
 
+	matrices <- create_bound_matrix(W, m)
+
 	# ------------------
 	# Min T(p)
 	# ------------------
@@ -61,7 +63,8 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 10, n_var_iter = 10,
 							  phi_W = phi_W, 
 							  sqrt_psi_W = sqrt_psi_W, 
 							  weight = weight,
-							  W = W)
+							  A = matrices$A, 
+							  B = matrices$B)
 
 		diagnostic(optim_result$convergence)
 
@@ -88,7 +91,21 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 10, n_var_iter = 10,
 	diagnostic(tp_max)
 	diagnostic(penalties_max)
 
-	var_obj_min <- Inf
+	optim_result <- optim(x_sol,
+						  var_objective, 
+						  control = control,
+						  method = "Nelder-Mead",
+						  phi_W = phi_W, 
+						  tp_max = tp_max,
+						  penalties_max = penalties_max,
+						  sqrt_psi_W = sqrt_psi_W, 
+						  weight = weight,
+						  A = matrices$A, 
+						  B = matrices$B)
+
+	var_obj_min <- optim_result$value
+	diagnostic(var_obj_min)
+
 	for (i in 1:n_var_iter) {
 		theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
 		p0 <- stats::runif(m, min = 0, max = 1)
@@ -104,7 +121,8 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 10, n_var_iter = 10,
 							  penalties_max = penalties_max,
 							  sqrt_psi_W = sqrt_psi_W, 
 							  weight = weight,
-							  W = W)
+							  A = matrices$A, 
+							  B = matrices$B)
 
 		diagnostic(optim_result$convergence)
 
@@ -148,7 +166,7 @@ theta_p_to_x <- function(theta, p) {
 	c(p[1:m-1], theta)
 }
 
-tp_objective <- function(x, phi_W, sqrt_psi_W, weight, W) {
+tp_objective <- function(x, phi_W, sqrt_psi_W, weight, A, B) {
 	theta <- x_to_theta(x)
 	p <- x_to_p(x)
 
@@ -160,7 +178,7 @@ tp_objective <- function(x, phi_W, sqrt_psi_W, weight, W) {
 	penalties <- calculate_penalties(phi_X, phi_W)
 
 	cliff = 0
-	if (!is_valid_pmf(theta, p, W)) {
+	if (!is_valid_pmf(x, A, B)) {
 		cliff = 1e20
 	}
 
@@ -186,7 +204,7 @@ calculate_penalties <- function(phi_X, phi_W) {
 	c(penalty1, penalty2)
 }
 
-var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight, W){
+var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight, A, B){
 	p <- x_to_p(x)
 	theta <- x_to_theta(x)
 
@@ -200,7 +218,7 @@ var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight, W
 
 	cliff <- 0
 
-	if (!is_valid_pmf(theta, p, W)) {
+	if (!is_valid_pmf(x, A, B)) {
 		cliff <- 1e20
 	}
 
@@ -213,18 +231,10 @@ var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight, W
 	var + cliff
 }
 
-is_valid_pmf <- function(theta, p, W) {
+is_valid_pmf <- function(x, A, B) {
 	flag = TRUE
 
-	if (any(p < 0)) {
-		flag = FALSE
-	}
-
-	if (any(theta < min(W))) {
-		flag = FALSE
-	}
-
-	if (any(theta > max(W))) {
+	if (any(A %*% x - B > 0)) {
 		flag = FALSE
 	}
 
@@ -285,4 +295,27 @@ print_diagnostic <- function(message, show_diagnostics){
 	if (show_diagnostics){
 		print(message)
 	}
+}
+
+create_bound_matrix <- function(W, m) {
+	# Set up constraints in form Ax \geq B
+
+	# pj non-negative
+	A <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	A[1:m-1, 1:m-1] <- -diag(m - 1)
+	B <- numeric(2 * m - 1)
+	# pj sum to less than 1
+	A[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
+	B[m] = 1
+	# thetaj are increasing
+	for (i in 1:(m-1)){
+		A[m+i, (m+i-1):(m+i)] <- c(1, -1)	
+	}
+	# min(W) < thetaj < max(W)
+	A[2*m, m] <- -1
+	A[2*m+1, 2*m-1] <- 1
+	B[2*m] <- -min(W)
+	B[2*m+1] <- max(W)
+
+	list(A = A, B = B)
 }
