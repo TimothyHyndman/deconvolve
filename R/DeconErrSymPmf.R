@@ -48,23 +48,24 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 10, n_var_iter = 10,
 	# ------------------
 	# Min T(p)
 	# ------------------
+	control = list(maxit = 5000)
 	tp_obj_min <- Inf
+
 	for (i in 1:n_tp_iter) {
 		theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
 		p0 <- stats::runif(m, min = 0, max = 1)
 		p0 <- p0 / sum(p0)
 		x0 <- theta_p_to_x(theta0, p0)
 
-		control <- list(maxit = 100000000)
-		optim_result <- optim(x0,
+		optim_result <- constrOptim(x0,
 							  tp_objective, 
-							  control = control,
+							  ui = -matrices$A,
+							  ci = -matrices$B,
 							  method = "Nelder-Mead",
+							  control = control,
 							  phi_W = phi_W, 
 							  sqrt_psi_W = sqrt_psi_W, 
-							  weight = weight,
-							  A = matrices$A, 
-							  B = matrices$B)
+							  weight = weight)
 
 		diagnostic(optim_result$convergence)
 
@@ -91,17 +92,17 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 10, n_var_iter = 10,
 	diagnostic(tp_max)
 	diagnostic(penalties_max)
 
-	optim_result <- optim(x_sol,
-						  var_objective, 
-						  control = control,
+	optim_result <- constrOptim(x_sol,
+						  var_objective,
+						  ui = -matrices$A,
+						  ci = -matrices$B,
 						  method = "Nelder-Mead",
+						  control = control,
 						  phi_W = phi_W, 
 						  tp_max = tp_max,
 						  penalties_max = penalties_max,
 						  sqrt_psi_W = sqrt_psi_W, 
-						  weight = weight,
-						  A = matrices$A, 
-						  B = matrices$B)
+						  weight = weight)
 
 	var_obj_min <- optim_result$value
 	diagnostic(var_obj_min)
@@ -112,17 +113,17 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 10, n_var_iter = 10,
 		p0 <- p0 / sum(p0)
 		x0 <- theta_p_to_x(theta0, p0)
 
-		optim_result <- optim(x0,
-							  var_objective, 
-							  control = control,
+		optim_result <- constrOptim(x0,
+							  var_objective,
+							  ui = -matrices$A,
+							  ci = -matrices$B,
 							  method = "Nelder-Mead",
+							  control = control,
 							  phi_W = phi_W, 
 							  tp_max = tp_max,
 							  penalties_max = penalties_max,
 							  sqrt_psi_W = sqrt_psi_W, 
-							  weight = weight,
-							  A = matrices$A, 
-							  B = matrices$B)
+							  weight = weight)
 
 		diagnostic(optim_result$convergence)
 
@@ -166,7 +167,7 @@ theta_p_to_x <- function(theta, p) {
 	c(p[1:m-1], theta)
 }
 
-tp_objective <- function(x, phi_W, sqrt_psi_W, weight, A, B) {
+tp_objective <- function(x, phi_W, sqrt_psi_W, weight) {
 	theta <- x_to_theta(x)
 	p <- x_to_p(x)
 
@@ -177,12 +178,7 @@ tp_objective <- function(x, phi_W, sqrt_psi_W, weight, A, B) {
 	tp <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	penalties <- calculate_penalties(phi_X, phi_W)
 
-	cliff = 0
-	if (!is_valid_pmf(x, A, B)) {
-		cliff = 1e20
-	}
-
-	tp + sum(penalties) + cliff
+	tp + sum(penalties)
 }
 
 calculate_tp <- function(phi_X, phi_W, sqrt_psi_W, weight){
@@ -204,7 +200,7 @@ calculate_penalties <- function(phi_X, phi_W) {
 	c(penalty1, penalty2)
 }
 
-var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight, A, B){
+var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight){
 	p <- x_to_p(x)
 	theta <- x_to_theta(x)
 
@@ -218,10 +214,6 @@ var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight, A
 
 	cliff <- 0
 
-	if (!is_valid_pmf(x, A, B)) {
-		cliff <- 1e20
-	}
-
 	if (any(c(tp_penalty, penalties) > 0)) {
 		penalty_scale <- 1e3
 		penalty_height <- 1e3
@@ -231,15 +223,6 @@ var_objective <- function(x, phi_W, tp_max, penalties_max, sqrt_psi_W, weight, A
 	var + cliff
 }
 
-is_valid_pmf <- function(x, A, B) {
-	flag = TRUE
-
-	if (any(A %*% x - B > 0)) {
-		flag = FALSE
-	}
-
-	flag
-}
 
 simplify_pmf <- function(theta, p, zero_tol = 1e-3, adj_tol = 1e-3){
 	
