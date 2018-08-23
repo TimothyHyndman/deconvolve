@@ -20,5 +20,5 @@ ByteCompile: TRUE
 URL: https://github.com/TimothyHyndman/deconvolve
 BugReports: https://github.com/TimothyHyndman/deconvolve/issues
 License: GPL (>=2)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Suggests: testthat

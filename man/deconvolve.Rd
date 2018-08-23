@@ -7,7 +7,7 @@
 deconvolve(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
   rescale = FALSE, pmf = FALSE, kernel_type = c("default", "normal",
-  "sinc"), m = 20, show_diagnostics = FALSE, het_replicates = FALSE)
+  "sinc"), het_replicates = FALSE, m = 20, show_diagnostics = FALSE)
 }
 \arguments{
 \item{W}{A vector of the univariate contaminated data.}
@@ -15,8 +15,7 @@ deconvolve(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 \item{W2}{A vector of replicate measurements. If supplied, then the error 
 will be estimated using replicates.}
 
-\item{xx}{A vector of x values on which to compute the density. This can be
-missing if \code{pmf = TRUE}.}
+\item{xx}{A vector of x values on which to compute the density.}
 
 \item{errortype}{The distribution type of \eqn{U}. Either "laplace" or 
 "normal". If you define the errors this way then you must also provide 
@@ -48,13 +47,15 @@ this option, the errors must not be provided.}
 \item{kernel_type}{The deconvolution kernel to use. The default kernel has
 characteristic function \eqn{(1-t^2)^3}.}
 
+\item{het_replicates}{If \code{TRUE}, then a method more appropriate for 
+heteroscedastic errors is used. Only applicable if \code{W2} is supplied.}
+
 \item{m}{The number of point masses to use to estimate the distribution of 
 \eqn{X} when the error is not supplied.}
 
-\item{show_diagnostics}{For testing only, REMOVE IN FINAL PACKAGE}
-
-\item{het_replicates}{If \code{TRUE}, then a method more appropriate for 
-heteroscedastic errors is used. Only applicable if \code{W2} is supplied.}
+\item{show_diagnostics}{If \code{TRUE}, then diagnostic message are printed 
+displaying the results of the various optimizations performed when the error
+is not supplied. Intended to be used for developement only.}
 }
 \value{
 An object of class "\code{deconvolve}".

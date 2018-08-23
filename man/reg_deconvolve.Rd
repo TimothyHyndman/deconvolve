@@ -5,10 +5,10 @@
 \title{Compute the measurement error version of the Nadaraya-Watson regression
 estimator}
 \usage{
-reg_deconvolve(Y, W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
-  errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, rho = NULL,
-  n_cores = NULL, kernel_type = c("default", "normal", "sinc"),
-  seed = NULL, use_alt_SIMEX_rep_opt = FALSE)
+reg_deconvolve(Y, W, W2 = NULL, xx = seq(min(W), max(W), length.out =
+  100), errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
+  rho = NULL, n_cores = NULL, kernel_type = c("default", "normal",
+  "sinc"), seed = NULL, use_alt_SIMEX_rep_opt = FALSE)
 }
 \arguments{
 \item{Y}{A vector of the response data Y_1, ..., Y_n.}
