@@ -171,7 +171,7 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 		}
 	} else if (is.null(errortype) & is.null(phiU)) {
 		errors <- "sym"
-		warning("The method for deconvolution when the error is unknown and assumed symmetric is slow and unreliable in R. Consider instead using the MATLAB code found at <URL>.")
+		warning("The method for deconvolution when the error is unknown and assumed symmetric is slow and unreliable in R. Consider instead using the MATLAB code found at <github.com/TimothyHyndman/deconvolve-supp>.")
 	} else if ((length(sd_U) > 1) | length(phiU) > 1){
 		errors <- "het"
 	} else {
