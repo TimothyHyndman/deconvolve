@@ -40,8 +40,7 @@
 #' @param W A vector of the univariate contaminated data.
 #' @param W2 A vector of replicate measurements. If supplied, then the error 
 #' will be estimated using replicates.
-#' @param xx A vector of x values on which to compute the density. This can be
-#' missing if \code{pmf = TRUE}.
+#' @param xx A vector of x values on which to compute the density.
 #' @param errortype The distribution type of \eqn{U}. Either "laplace" or 
 #' "normal". If you define the errors this way then you must also provide 
 #' \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
@@ -78,7 +77,9 @@
 #' characteristic function \eqn{(1-t^2)^3}.
 #' @param m The number of point masses to use to estimate the distribution of 
 #' \eqn{X} when the error is not supplied.
-#' @param show_diagnostics For testing only, REMOVE IN FINAL PACKAGE
+#' @param show_diagnostics If \code{TRUE}, then diagnostic message are printed 
+#' displaying the results of the various optimizations performed when the error
+#' is not supplied. Intended to be used for developement only.
 #' @param het_replicates If \code{TRUE}, then a method more appropriate for 
 #' heteroscedastic errors is used. Only applicable if \code{W2} is supplied.
 #' 
@@ -146,9 +147,9 @@ deconvolve <- function(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
 					   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, 
 					   rescale = FALSE, pmf = FALSE, 
 					   kernel_type = c("default", "normal", "sinc"), 
+					   het_replicates = FALSE,
 					   m = 20,
-					   show_diagnostics = FALSE,
-					   het_replicates = FALSE){
+					   show_diagnostics = FALSE){
 
 	# Partial matching ---------------------------------------------------------
 	dist_types <- c("normal", "laplace")
