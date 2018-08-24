@@ -53,7 +53,7 @@ heteroscedastic errors is used. Only applicable if \code{W2} is supplied.}
 \item{m}{The number of point masses to use to estimate the distribution of 
 \eqn{X} when the error is not supplied.}
 
-\item{show_diagnostics}{If \code{TRUE}, then diagnostic message are printed 
+\item{show_diagnostics}{If \code{TRUE}, then diagnostic messages are printed 
 displaying the results of the various optimizations performed when the error
 is not supplied. Intended to be used for developement only.}
 }
@@ -116,11 +116,12 @@ function(s) of the errors (\code{phiU}).
 
 \itemize{
 \item The method for deconvolution when the error is unknown and assumed
-  symmetric (as described in Delaigle and Hall (2016)) requires solving a 
-  non-linear objective function with both linear and non-linear constraints. 
-  We are yet to find a package in R that can perform this reliably. We instead
-  recommend using the MATLAB code found at <URL> as it is both faster, and 
-  more reliable.
+  symmetric (as described in Delaigle and Hall (2016)) requires solving 
+	 multiple non-linear optimizations with both linear and non-linear 
+	 constraints. The currently implementation can be slow and unreliable. An 
+	 alternative MATLAB implementation can be found at 
+	 <github.com/TimothyHyndman/deconvolve-supp> which may work better in some 
+	 circumstances.
 \item If you supply your own bandwidth, then you should ensure that the
 	kernel used here matches the one you used to calculate your bandwidth.
 \item The DKDE can also be computed using the Fast Fourier Transform, which 
