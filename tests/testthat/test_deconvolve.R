@@ -7,28 +7,9 @@ W <- GenerateTestData(n, dist_type = "chi", error_type = "norm")
 
 test_that("symmetric error case gives expected result", {
 	skip_on_cran()
-	d_test <- deconvolve(W)
-
-	# NlcOptim works different on different OS (I think) so we need multiple tests
-	if (Sys.info()['sysname'] == "Windows"){
-		load("sym_error_test_result.RData")
-		expect_equal(d_test, d)
-	} else if (Sys.info()['sysname'] == "Darwin"){
-		# load("")
-		load("sym_error_test_result.RData")
-		expect_equal(d_test, d)
-	} else if (Sys.info()['sysname'] == "Linux"){
-		load("sym_error_test_result_linux.RData")
-		expect_equal(d_test, d)
-	} else {
-		warning("OS wasn't one of Windows, Darwin, or Linux and so test didn't work.")
-	}
-	
-
-	# set.seed(1)
-	# d_test <- deconvolve(W, pmf = TRUE)
-	# load("sym_error_pmf_test_result.RData")
-	# expect_equal(d_test, d)
+	d_test <- deconvolve(W, m = 2)
+	load("sym_error_pmf_test_result.RData")
+	expect_equal(d_test, d)
 })
 
 test_that("replicates gives expected result", {
