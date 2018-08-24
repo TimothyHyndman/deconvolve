@@ -43,52 +43,12 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	# Solve optimization problem to find PMF
 	#--------------------------------------------------------------------------#
 
-	# ------------------
-	# Setup for Min T(p)
-	# ------------------
-	# Set up constraints in form Ax \geq B
-	
-	# pj non-negative
-	A_tp <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
-	A_tp[1:m-1, 1:m-1] <- diag( m - 1 )   
-	B_tp = numeric(2 * m - 1)
-	# pj sum to less than 1
-	A_tp[m, 1:m-1] = matrix(-1, nrow=1, ncol = m-1) 
-	B_tp[m] = -1
-	# thetaj are increasing
-	for (i in 1:(m-1)){
-		A_tp[m+i, (m+i-1):(m+i)] <- c(-1, 1)	
-	}
-	# min(W) < thetaj < max(W)
-	A_tp[2*m, m] <- 1
-	A_tp[2*m+1, 2*m-1] <- -1
-	B_tp[2*m] <- min(W)
-	B_tp[2*m+1] <- -max(W)
-
-	# ------------------
-	# Setup for Min Var
-	# ------------------
-	# Set up constraints in form Ax \leq B
-
-	# pj non-negative
-	A_var <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
-	A_var[1:m-1, 1:m-1] <- -diag(m - 1)
-	B_var <- numeric(2 * m - 1)
-	# pj sum to less than 1
-	A_var[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
-	B_var[m] = 1
-	# thetaj are increasing
-	for (i in 1:(m-1)){
-		A_var[m+i, (m+i-1):(m+i)] <- c(1, -1)	
-	}
-	# min(W) < thetaj < max(W)
-	A_var[2*m, m] <- -1
-	A_var[2*m+1, 2*m-1] <- 1
-	B_var[2*m] <- -min(W)
-	B_var[2*m+1] <- max(W)
+	matrices <- create_bound_matrices(W, m)
+	A <- matrices$A
+	B <- matrices$B
 
 	# ----------------------
-	# Perform Minimizations
+	# Min T(p)
 	# ----------------------
 
 	tp_objective_NLC <- function(x) {
@@ -110,13 +70,13 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 			p0 <- stats::runif(m, min = 0, max = 1)
 			p0 <- p0 / sum(p0)
 
-			x0 <- c(p0[1:(m-1)], theta0)
+			x0 <- pmf_to_x(theta0, p0)
 
 			# test_min_tp_sol <- stats::constrOptim(x0, tp_objective, NULL, A_tp, B_tp, 
 			# 							 		  phi_W = phi_W, weight = weight, outer.iterations = 10000)
 			test_min_tp_sol <- tryCatch({
-				test_min_tp_sol <- NlcOptim::solnl(x0, tp_objective_NLC, NULL, A_var, 
-													B_var, 
+				test_min_tp_sol <- NlcOptim::solnl(x0, tp_objective_NLC, NULL, A, 
+													B, 
 													maxIter = 400, 
 													maxnFun = 100*(2*m-1), 
 													tolX = 1e-6)
@@ -177,11 +137,12 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 			theta0 <- sort(stats::runif(m, min = min(W), max = max(W)))
 			p0 <- stats::runif(m, min = 0, max = 1)
 			p0 <- p0 / sum(p0)
-			x0 <- c(p0[1:(m-1)], theta0)
+
+			x0 <- pmf_to_x(theta0, p0)
 
 			test_min_var_sol <- tryCatch({
 	    		test_min_var_sol <- NlcOptim::solnl(x0, var_objective, con_fun, 
-	    											A_var, B_var, 
+	    											A, B, 
 	    											maxIter = 400, 
 													maxnFun = 100*(2*m-1), 
 													tolX = 1e-6)
@@ -254,6 +215,18 @@ x_to_pmf <- function(x) {
 	list(support = support, prob_weights = probweights)
 }
 
+pmf_to_x <- function(theta, p) {
+	m <- length(theta)
+
+	if (m == 1){
+		x <- theta0
+	} else {
+		x <- c(p[1:(m-1)], theta)	
+	}
+	
+	x
+}
+
 tp_objective <- function(x, phi_W, sqrt_psi_W, weight) {
 	X_pmf <- x_to_pmf(x)
 
@@ -287,18 +260,19 @@ calculate_penalties <- function(phi_X, phi_W) {
 }
 
 var_objective <- function(x){
-	m <- (length(x) + 1) / 2
-	p <- c( x[ 1:(m - 1) ], 1 - sum( x[ 1:(m - 1) ] ) )
-	theta <- x[ m:(2 * m - 1) ]
+	X_pmf <- x_to_pmf(x)
+	p <- X_pmf$prob_weights
+	theta <- X_pmf$support
 	mean <- sum(p*theta)
 	var <- sum(p*(theta - mean)^2)
 	return(var)
 }
 
 constraints <- function(x, phi_W, sqrt_psi_W, weight, tp_max, penalties_max){
-	m <- (length(x) + 1) / 2
-	probweights <- c( x[ 1:m - 1 ], 1 - sum( x[ 1:m - 1 ] ) )
-	support <- x[ m:(2 * m - 1) ]
+	X_pmf <- x_to_pmf(x)
+	probweights <- X_pmf$prob_weights
+	support <- X_pmf$support
+
 	tt <- phi_W$t.values
 	# Calculate phi_X
 	phi_X <- ComputePhiPmf(support, probweights, tt)
@@ -365,3 +339,27 @@ print_diagnostic <- function(message, show_diagnostics){
 		print(message)
 	}
 }
+
+create_bound_matrices <- function(W, m){
+	# pj non-negative
+	A <- matrix(0, nrow = 2*m+1, ncol = 2*m-1)
+	A[1:m-1, 1:m-1] <- -diag(m - 1)
+	B <- numeric(2 * m - 1)
+	# pj sum to less than 1
+	A[m, 1:m-1] = matrix(1, nrow=1, ncol = m-1)
+	B[m] = 1
+	# thetaj are increasing
+	if (m > 1){
+		for (i in 1:(m-1)){
+			A[m+i, (m+i-1):(m+i)] <- c(1, -1)	
+		}
+	}
+	# min(W) < thetaj < max(W)
+	A[2*m, m] <- -1
+	A[2*m+1, 2*m-1] <- 1
+	B[2*m] <- -min(W)
+	B[2*m+1] <- max(W)
+
+	list(A = A, B = B)
+}
+
