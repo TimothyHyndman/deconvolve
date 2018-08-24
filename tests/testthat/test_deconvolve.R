@@ -5,11 +5,17 @@ set.seed(1)
 n <- 50
 W <- GenerateTestData(n, dist_type = "chi", error_type = "norm")
 
-test_that("symmetric error case gives expected result", {
+test_that("symmetric error pmftopdf gives expected result", {
 	skip_on_cran()
-	d_test <- deconvolve(W, m = 2)
-	load("sym_error_pmf_test_result.RData")
+	load('sym_error_pmf_input.RData')
+	d_test <- DeconErrSymPmfToPdf(X_pmf, W, phi_W, seq(min(W), max(W), length.out = 100), 'default', 1, NULL)
+	load("sym_error_pmftopdf_test_result.RData")
 	expect_equal(d_test, d)
+})
+
+test_that("symmetric error case gives reasonable result", {
+	d_test <- deconvolve(W, pmf = TRUE, m = 2)
+	expect_equal(length(d_test$support), 2)
 })
 
 test_that("replicates gives expected result", {

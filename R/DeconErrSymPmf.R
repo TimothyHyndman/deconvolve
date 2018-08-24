@@ -219,7 +219,7 @@ pmf_to_x <- function(theta, p) {
 	m <- length(theta)
 
 	if (m == 1){
-		x <- theta0
+		x <- theta
 	} else {
 		x <- c(p[1:(m-1)], theta)	
 	}
