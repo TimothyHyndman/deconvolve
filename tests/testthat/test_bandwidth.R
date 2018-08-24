@@ -35,18 +35,7 @@ n <- 500
 test_that("no error case gives expected result", {
 	skip_on_cran()
 	W <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm")
-
-	# NlcOptim works different on different OS (I think) so we need multiple tests
-	if (Sys.info()['sysname'] == "Windows"){
-		expect_equal(bandwidth(W), 0.1104239, tolerance = 0.0000001)
-	} else if (Sys.info()['sysname'] == "Darwin"){
-		expect_equal(bandwidth(W), 0.1104239, tolerance = 0.0000001)
-	} else if (Sys.info()['sysname'] == "Linux"){
-		expect_equal(bandwidth(W), 0.1104239, tolerance = 0.0000001)
-	} else {
-		warning("OS wasn't one of Windows, Darwin, or Linux and so test didn't work.")
-	}
-	
+	expect_equal(bandwidth(W), 0.1104239, tolerance = 0.0000001)
 })
 
 set.seed(1)
