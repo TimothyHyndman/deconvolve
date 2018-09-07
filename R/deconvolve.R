@@ -6,7 +6,6 @@
 #' 
 #' The function \code{deconvolve} chooses from one of four different methods 
 #' depending on how the error distribution is defined.
-#' TEST COMMENT
 #' 
 #' \strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied 
 #' then the error is calculated using replicates. This method was prototyped in  
