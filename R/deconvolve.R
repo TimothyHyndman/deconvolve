@@ -305,7 +305,7 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 		out <- DeconErrSymPmf(W1, m, kernel_type, show_diagnostics = show_diagnostics)
 		if (!pmf) {
 			phi.W <- out$phi_W
-			pdf <- DeconErrSymPmfToPdf(out, W1, phi.W, xx, kernel_type, rescale, 
+			pdf <- DeconErrSymPmfToPdf(out, W1, phi.W1, xx, kernel_type, rescale, 
 									   bw)
 			output <- list("x" = xx, "pdf" = pdf, "support" = out$support, 
 						   "probweights" = out$probweights, "W1" = W1)
