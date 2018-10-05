@@ -87,11 +87,6 @@
 #' that it integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
 #' \eqn{x} values that cover the whole range of \eqn{x}-values where the 
 #' estimated density is significantly non zero.
-#' @param pmf If \code{TRUE}, returns a probability mass function instead of a 
-#' density as the estimator. This is quicker than estimating a density. To use
-#' this option, the errors must not be provided.
-#-------------------------------------------------------------------------------
-# BUT WHY WOULD WE RETURN A PMF THOUGH?
 #-------------------------------------------------------------------------------
 #' @param kernel_type The kernel K to use when computing the estimator of the 
 #' density of \eqn{X}. The default kernel has characteristic function 
