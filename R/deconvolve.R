@@ -16,35 +16,40 @@
 #' is defined by either a single function \code{phiU}, or a single value 
 #' \code{sd_U} along with its \code{errortype} then the estimator of the density
 #' of \eqn{X} is the one in Stefanski and Carroll (1990). 
-ABOVE: DON'T WE ALSO ASSUME THAT PHI_U IS REAL? IS THE CODE WORKING ALSO FOR IMAGINARY PHI_U?
-IF NOT IT MEANS WE ASSUME THE ERRORS ARE SYMMETRIC
+#-------------------------------------------------------------------------------
+# ABOVE: DON'T WE ALSO ASSUME THAT PHI_U IS REAL? IS THE CODE WORKING ALSO FOR IMAGINARY PHI_U?
+# IF NOT IT MEANS WE ASSUME THE ERRORS ARE SYMMETRIC
+#-------------------------------------------------------------------------------
 #' 
 #' \strong{Known heteroscedastic error distributions:} If the error distributions are 
 #' defined by a either a vector of functions \code{phiU}, or a vector 
 #' \code{sd_U} along with their \code{errortype} then the method used is the
 #' one from Delaigle and Meister (2008).
-IS THE ERROR TYPE FOR ALL INDIVIDUALS EITHER LAPLACE OR NORMAL (NOT A MIX OF BOTH DEPENDING ON THE INDVIDUALS?
-IN OTHER WORDS IS THE ERRORTYPE A VECTOR?
-ALSO: DON'T WE ALSO ASSUME THAT PHI_U IS REAL? IS THE CODE WORKING ALSO FOR IMAGINARY PHI_U?
-IF NOT IT MEANS WE ASSUME THE ERRORS ARE SYMMETRIC
-
+#-------------------------------------------------------------------------------
+# IS THE ERROR TYPE FOR ALL INDIVIDUALS EITHER LAPLACE OR NORMAL (NOT A MIX OF BOTH DEPENDING ON THE INDVIDUALS?
+# IN OTHER WORDS IS THE ERRORTYPE A VECTOR?
+# ALSO: DON'T WE ALSO ASSUME THAT PHI_U IS REAL? IS THE CODE WORKING ALSO FOR IMAGINARY PHI_U?
+# IF NOT IT MEANS WE ASSUME THE ERRORS ARE SYMMETRIC
+#-------------------------------------------------------------------------------
 #' 
 #' \strong{Unknown homoscedastic error distribution when replicates are available:} If both 
-#' \code{W1} and \code{W2} are supplied and the error distribution is unknown but we know the
-#' errors are homoscedastic, then the error distribution is estimated using the replicates as 
+#' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{FALSE}, then the error distribution is estimated using the replicates as 
 #' in Delaigle, Hall and Meister (2008) and the estimator of the density of \eqn{X} is 
 #' computed as in Delaigle, Hall and Meister (2008) except that we do the tail correction of 
 #' the estimated characteristic function of the errors as in Delaigle and Hall (2016)
 #' and Camirand, Carroll and Delaigle (2018). 
-NEED TO SAY WHICH VERSION WE USE EXACTLY. DO YOU REMEMBER WHAT WE TAKE FROM CAMIRAND ET AL?
+#-------------------------------------------------------------------------------
+# NEED TO SAY WHICH VERSION WE USE EXACTLY. DO YOU REMEMBER WHAT WE TAKE FROM CAMIRAND ET AL?
+#-------------------------------------------------------------------------------
 #' 
 #' \strong{Unknown heteroscedastic error distribution when replicates are available:} If both  
-#' \code{W1} and \code{W2} are supplied and the errors are heteroscedastic and their distributions 
-#' are unknown, then these distributions are estimated using replicates, as in Delaigle and Meister (2008) 
+#' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{TRUE}, then these distributions are estimated using replicates, as in Delaigle and Meister (2008) 
 #' and the estimator of the density of \eqn{X} is computed as in Delaigle and Meister (2008)
 #' except that we do the tail correction of the estimated pooled characteristic function of 
 #' the errors as in Delaigle and Hall (2016) and Camirand, Carroll and Delaigle (2018).
-NEED TO SAY WHICH REFINEMENTS EXACTLY. DO YOU REMEMBER?
+#-------------------------------------------------------------------------------
+# NEED TO SAY WHICH REFINEMENTS EXACTLY. DO YOU REMEMBER?
+#-------------------------------------------------------------------------------
 #' 
 #' \strong{Unknown homoscedastic error distribution estimated without replicates:} 
 #' If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the error
@@ -52,19 +57,12 @@ NEED TO SAY WHICH REFINEMENTS EXACTLY. DO YOU REMEMBER?
 #' estimated as in Delaigle and Hall (2016). Then the estimator of the density of \eqn{X}
 #' is computed as in Delaigle and Hall (2016). Only suitable if the identifiability conditions of 
 #' Delaigle and Hall (2016) can reasonably be assumed.
-
-#' 
-WHERE IS THIS COMMENT BELOW GOING? I THINK IT SHOULD COME BEFORE THE ABOVE DESCRIPTIONS
-#' Errors can be defined by either a distribution type (\code{errortype}) along 
-#' with the standard deviation(s) (\code{sd_U}), or by the characteristic 
-#' function(s) of the errors (\code{phiU}). 
 #' 
 #' @param W1 A vector of size n containing the univariate contaminated data.
 #' @param W2 (optional) A vector of size n containing replicate measurements for the same 
 #' n individuals (in the same order) as W1. If supplied, then the error distribution
 #' will be estimated using the replicates.
 #' @param xx A vector of x values on which to compute the estimator of the density of \eqn{X}.
-SAY WHAT THE DEFAULT IS
 #' @param errortype The distribution of \eqn{U}, either "laplace" or "normal". 
 #' If you define the error distribution this way then you must also provide 
 #' \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
@@ -73,12 +71,16 @@ SAY WHAT THE DEFAULT IS
 #' homoscedastic errors and a vector of length \eqn{n} for heteroscedastic
 #' errors. This does not need to be provided if you define your error distribution
 #' using\code{phiU} and provide \code{bw}.
-IS THERE AN ERROR MESSAGE IF BOTH PHIU AND ERROR TYPE AND SIGU ARE PROVIDED OR IS ONE DOMINANT ON THE OTHER?
+#-------------------------------------------------------------------------------
+# IS THERE AN ERROR MESSAGE IF BOTH PHIU AND ERROR TYPE AND SIGU ARE PROVIDED OR IS ONE DOMINANT ON THE OTHER?
+#-------------------------------------------------------------------------------
 #' @param phiU Function(s) giving the characteristic function of the errors. A 
 #' single function for homoscedastic errors and a vector of \eqn{n} functions 
 #' for heteroscedastic errors. If you define the errors this way then you
 #' should not provide \code{errortype}.
-IS THERE AN ERROR MESSAGE IF BOTH PHIU AND ERROR TYPE AND SIGU ARE PROVIDED OR IS ONE DOMINANT ON THE OTHER?
+#-------------------------------------------------------------------------------
+# IS THERE AN ERROR MESSAGE IF BOTH PHIU AND ERROR TYPE AND SIGU ARE PROVIDED OR IS ONE DOMINANT ON THE OTHER?
+#-------------------------------------------------------------------------------
 #' @param bw The bandwidth to use when computing the kernel estimator of the density
 #' of \eqn{X}. If \code{NULL}, a bandwidth will be calculated using a plug-in estimator.
 #' @param rescale If \code{TRUE}, the estimator of the density of \eqn{X} is rescaled so 
@@ -88,35 +90,28 @@ IS THERE AN ERROR MESSAGE IF BOTH PHIU AND ERROR TYPE AND SIGU ARE PROVIDED OR I
 #' @param pmf If \code{TRUE}, returns a probability mass function instead of a 
 #' density as the estimator. This is quicker than estimating a density. To use
 #' this option, the errors must not be provided.
-BUT WHY WOULD WE RETURN A PMF THOUGH?
-# ' @param phiK A function giving the Fourier transform of the kernel \code{K}
-# ' used to compute the estimator of the density of \eqn{X}. If supplied, \code{muK2},
-# ' \code{RK} and \code{tt} must also be supplied. If not supplied it defaults 
-# ' to \eqn{(1 - t^2)^3} for \code{tt} in the interval \eqn{[-1,1]}.
-# ' @param muK2 The second moment of the kernel, i.e. \eqn{\int x^2 K(x) dx}.
-# ' @param RK The integral of the square of the kernel, i.e. \eqn{\int K^2(x) dx}.
-# ' @param tt A vector of evenly spaced t values on which to approximate the 
-# ' integral used to compute the deconvolution kernel estimator in the Fourier domain
-# ' and the integrals in the Fourier domain used to compute the plug-in bandwidth. 
-# ' If phiK is compactly supported, the first and last elements of \code{tt}
-# ' must be the lower and upper bound of the support of phiK. If phiK is not 
-# ' compactly supported, the first and last elements of \code{tt} must be large 
-# ' enough for your discretisation of the integrals on that grid to be accurate.
+#-------------------------------------------------------------------------------
+# BUT WHY WOULD WE RETURN A PMF THOUGH?
+#-------------------------------------------------------------------------------
 #' @param kernel_type The kernel K to use when computing the estimator of the 
 #' density of \eqn{X}. The default kernel has characteristic function 
-#' \eqn{(1-t^2)^3} for \eqn{t \in [-1,1}}.
+#' \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}.
 #' @param m The number of point masses to use to estimate the distribution of 
 #' \eqn{X} when the error distribution is not supplied and we use the method of
 #' Delaigle and Hall (2016).
-ISN'T THERE A DEFAULT? WE SHOULD HAVE A DEFAULT. ALSO NEED TO MENTION YOU USE A MODIFIED VERSION OF DH (2016)
-AND WHAT IS DIFFERENT FROM THERE.
+#-------------------------------------------------------------------------------
+# NEED TO MENTION YOU USE A MODIFIED VERSION OF DH (2016)
+# AND WHAT IS DIFFERENT FROM THERE.
+#-------------------------------------------------------------------------------
 #' @param show_diagnostics If \code{TRUE}, then diagnostic messages are printed 
 #' displaying the results of the various optimizations performed when the error
 #' distribution is not supplied and estimated by the method in Delaigle and
 #' Hall (2016). Intended to be used for developement only.
 #' @param het_replicates If \code{TRUE}, then a method more appropriate for 
 #' heteroscedastic errors is used. Only applicable if \code{W2} is supplied.
-HERE WE NEED TO BE TOTALLY EXPLICIT. WHAT ARE YOU TALKING ABOUT? DO YOU MEAN THAT THE KDE IS THE ONE AS IN DELAIGLE AND MEISTER (2008)?
+#-------------------------------------------------------------------------------
+# HERE WE NEED TO BE TOTALLY EXPLICIT. WHAT ARE YOU TALKING ABOUT? DO YOU MEAN THAT THE KDE IS THE ONE AS IN DELAIGLE AND MEISTER (2008)?
+#-------------------------------------------------------------------------------
 #' 
 #' @return An object of class "\code{deconvolve}".
 #' 
@@ -130,10 +125,14 @@ HERE WE NEED TO BE TOTALLY EXPLICIT. WHAT ARE YOU TALKING ABOUT? DO YOU MEAN THA
 #' evaluated at each point in \code{xx}}
 #' \item{support}{The support of the pmf found when the errors are assumed
 #' symmetric}
-WHAT IS THIS EXACTLY? NEED TO INFORM THE READER OR REMOVE. WHY DOES THIS NEED TO BE AN OUPUT?
+#-------------------------------------------------------------------------------
+# WHAT IS THIS EXACTLY? NEED TO INFORM THE READER OR REMOVE. WHY DOES THIS NEED TO BE AN OUPUT?
+#-------------------------------------------------------------------------------
 #' \item{probweights}{The probability masses of the pmf found when the errors
 #' are assumed symmetric}
-WHAT IS THIS EXACTLY? NEED TO INFORM THE READER OR REMOVE. WHY DOES THIS NEED TO BE AN OUPUT?
+#-------------------------------------------------------------------------------
+# WHAT IS THIS EXACTLY? NEED TO INFORM THE READER OR REMOVE. WHY DOES THIS NEED TO BE AN OUPUT?
+#-------------------------------------------------------------------------------
 #' 
 #' @section Warnings:
 #' \itemize{
@@ -152,7 +151,9 @@ WHAT IS THIS EXACTLY? NEED TO INFORM THE READER OR REMOVE. WHY DOES THIS NEED TO
 #' 	without having problems with oscillations.
 #' }
 #' 
-IS IT STANDARD IN R TO NOT LIST THE REFERENCES IN ALPHABETICL ORDER?
+#-------------------------------------------------------------------------------
+# IS IT STANDARD IN R TO NOT LIST THE REFERENCES IN ALPHABETICL ORDER?
+#-------------------------------------------------------------------------------
 #' @section References:
 #' Stefanski, L.A. and Carroll, R.J. (1990). Deconvolving kernel density
 #' estimators. \emph{Statistics}, 21, 2, 169-184.
@@ -305,7 +306,7 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 		out <- DeconErrSymPmf(W1, m, kernel_type, show_diagnostics = show_diagnostics)
 		if (!pmf) {
 			phi.W <- out$phi_W
-			pdf <- DeconErrSymPmfToPdf(out, W1, phi.W1, xx, kernel_type, rescale, 
+			pdf <- DeconErrSymPmfToPdf(out, W1, phi.W, xx, kernel_type, rescale, 
 									   bw)
 			output <- list("x" = xx, "pdf" = pdf, "support" = out$support, 
 						   "probweights" = out$probweights, "W1" = W1)

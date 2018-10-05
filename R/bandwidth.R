@@ -92,7 +92,7 @@
 #'
 #' @export
 
-bandwidth <- function(W, 
+bandwidth <- function(W1, 
 					  W2 = NULL, 
 					  errortype = NULL, 
 					  sd_U = NULL, 
@@ -130,12 +130,12 @@ bandwidth <- function(W,
 	# Check inputs -------------------------------------------------------------
 	if (errors == "het") {
 		if (is.null(phiU)) {
-			if ((length(sd_U) == length(W)) == FALSE) {
-				stop("sd_U must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
+			if ((length(sd_U) == length(W1)) == FALSE) {
+				stop("sd_U must be either length 1 for homoscedastic errors or have the same length as W1 for heteroscedastic errors.")
 			}
 		} else {
-			if ((length(phiU) == length(W)) == FALSE) {
-				stop("phiU must be either length 1 for homoscedastic errors or have the same length as W for heteroscedastic errors.")
+			if ((length(phiU) == length(W1)) == FALSE) {
+				stop("phiU must be either length 1 for homoscedastic errors or have the same length as W1 for heteroscedastic errors.")
 			}
 		}
 	}
@@ -145,8 +145,8 @@ bandwidth <- function(W,
 	}
 
 	if (errors == "rep"){
-		if (!(length(W) == length(W2))) {
-			stop("W and W2 must be the same length.")
+		if (!(length(W1) == length(W2))) {
+			stop("W1 and W2 must be the same length.")
 		}
 	}
 
@@ -195,7 +195,7 @@ bandwidth <- function(W,
 	# }
 
 	# --------------------------------------------------------------------------
-	n <- length(W)
+	n <- length(W1)
 
 	if (algorithm == "SIMEX") {
 		kernel_list <- kernel(kernel_type, coarse = TRUE)
@@ -219,32 +219,32 @@ bandwidth <- function(W,
 	# Perform appropriate bandwidth calculation --------------------------------
 
 	if (algorithm == "CV"){
-		output <- CVdeconv(n, W, phiU, phiK, muK2, RK, deltat, tt)
+		output <- CVdeconv(n, W1, phiU, phiK, muK2, RK, deltat, tt)
 	}
 
 	if (algorithm == "SIMEX" & errors == "hom") {
-		generate_U_star <- create_generate_U_star(W, W2, errortype, sd_U)
-		output <- hSIMEXUknown(W, Y, generate_U_star, sd_U, phiU, kernel_type, 
+		generate_U_star <- create_generate_U_star(W1, W2, errortype, sd_U)
+		output <- hSIMEXUknown(W1, Y, generate_U_star, sd_U, phiU, kernel_type, 
 							   n_cores, seed)
 	}
 
 	if (algorithm == "SIMEX" & errors == "rep") {
-		diff <- W - W2
+		diff <- W1 - W2
 		sd_U <- sqrt(stats::var(diff)/2)
-		n <- length(W)
+		n <- length(W1)
 		hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
-			sqrt(stats::var(W)) * n^(-1/5)
+			sqrt(stats::var(W1)) * n^(-1/5)
 		h_min <- hnaive / 3
 		t_search <- tt/h_min
-		phi_U <- create_replicates_phi_U(W, W2, t_search)
-		generate_U_star <- create_generate_U_star(W, W2, errortype, sd_U, use_alt_SIMEX_rep_opt)
+		phi_U <- create_replicates_phi_U(W1, W2, t_search)
+		generate_U_star <- create_generate_U_star(W1, W2, errortype, sd_U, use_alt_SIMEX_rep_opt)
 
 		if (use_alt_SIMEX_rep_opt) {
-			W_bar <- (W + W2)/2
+			W_bar <- (W1 + W2)/2
 			output <- hSIMEXUknown(W_bar, Y, generate_U_star, sd_U, phi_U, kernel_type, 
 								   n_cores, seed)
 		} else {
-			W_full <- c(W, W2)
+			W_full <- c(W1, W2)
 			Y_full <- c(Y, Y)
 			output <- hSIMEXUknown(W_full, Y_full, generate_U_star, sd_U, phi_U, kernel_type, 
 								   n_cores, seed)
@@ -252,34 +252,34 @@ bandwidth <- function(W,
 	}
 
 	if (algorithm == "PI" & errors == "het") {
-		n <- length(W)
-		varX <- max(mean(W^2) - (mean(W))^2 - sum(sd_U^2) / n, 1/n)
-		output <- PI_deconvUknownth4het(n, W, varX, phiU, phiK, muK2, RK, 
+		n <- length(W1)
+		varX <- max(mean(W1^2) - (mean(W1))^2 - sum(sd_U^2) / n, 1/n)
+		output <- PI_deconvUknownth4het(n, W1, varX, phiU, phiK, muK2, RK, 
 										deltat, tt)
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		sd_X <- max( sqrt(stats::var(W) - sd_U^2), 1/n)
-		output <- plugin_bandwidth(W, phiU, sd_X, kernel_type)
+		sd_X <- max( sqrt(stats::var(W1) - sd_U^2), 1/n)
+		output <- plugin_bandwidth(W1, phiU, sd_X, kernel_type)
 	}
 
 	if (algorithm == "PI" & errors == "rep") {
-		diff <- W - W2
+		diff <- W1 - W2
 		sd_U <- sqrt(stats::var(diff)/2)
-		n <- length(c(W, W2))
-		sd_X <- max(sqrt(stats::var(c(W, W2)) - sd_U^2), 1/n)
+		n <- length(c(W1, W2))
+		sd_X <- max(sqrt(stats::var(c(W1, W2)) - sd_U^2), 1/n)
 		hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
-			sqrt(stats::var(c(W, W2))) * n^(-1/5)
+			sqrt(stats::var(c(W1, W2))) * n^(-1/5)
 		h_min <- hnaive / 3
 		t_search <- tt/h_min
-		phi_U <- create_replicates_phi_U(W, W2, t_search)
+		phi_U <- create_replicates_phi_U(W1, W2, t_search)
 
-		output <- plugin_bandwidth(c(W, W2), phi_U, sd_X, kernel_type)
+		output <- plugin_bandwidth(c(W1, W2), phi_U, sd_X, kernel_type)
 	}
 
 	if (algorithm == "PI" & errors == "sym") {
 		warning("The plug-in bandwidth method when the error is unknown and assumed symmetric is slow and unreliable in R. Consider instead using the MATLAB code found at <github.com/TimothyHyndman/deconvolve-supp>.")
-		d <- DeconErrSymPmf(W, 10, kernel_type)
+		d <- DeconErrSymPmf(W1, 10, kernel_type)
 		theta <- d$support
 		p <- d$probweights
 		t <- tt
@@ -288,7 +288,7 @@ bandwidth <- function(W,
 		# Estimate Var(U) ------------------------------------------------------
 		tt.BB.length <- 200		# Use a finer grid than tt
 		tt.BB <- seq(tt[1], tt[length(tt)], length.out = tt.BB.length)
-		sd_U <- sqrt(estimate_var_u(W, tt.BB, theta, p))
+		sd_U <- sqrt(estimate_var_u(W1, tt.BB, theta, p))
 
 		# Estimate PhiX and PhiU -----------------------------------------------
 		phi.X <- ComputePhiPmf(theta, p, tt)
@@ -300,8 +300,8 @@ bandwidth <- function(W,
 		}
 		
 		# Actually find bandwidth
-		sd_X <- max(sqrt(stats::var(W) - sd_U^2), 1 / n)
-		output <- plugin_bandwidth(W, phi_U_splined, sd_X, kernel_type)
+		sd_X <- max(sqrt(stats::var(W1) - sd_U^2), 1 / n)
+		output <- plugin_bandwidth(W1, phi_U_splined, sd_X, kernel_type)
 	}
 
 	output

@@ -7,7 +7,7 @@
 #' #' The function \code{reg_deconvolve} chooses from one of two different 
 #' methods depending on how the error distribution is defined.
 #' 
-#' \strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied 
+#' \strong{Error from Replicates:} If both \code{W1} and \code{W2} are supplied 
 #' then the error is calculated using replicates. This method was prototyped in  
 #' Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
 #' Hall 2016, and Camirand, Carroll, and Delaigle 2018. 
@@ -16,7 +16,7 @@
 #' function \code{phiU}, or a single value \code{sd_U} along with its 
 #' \code{errortype} then the method used is as described in Fan and Truong 1993.
 #' 
-#' @param W A vector of the univariate contaminated data W_1, ..., W_n.
+#' @param W1 A vector of the univariate contaminated data W_1, ..., W_n.
 #' @param W2 A vector of replicate measurements. If supplied, then the error 
 #' will be estimated using replicates.
 #' @param Y A vector of the response data Y_1, ..., Y_n.
@@ -89,9 +89,9 @@
 #' @export
 
 reg_deconvolve <- function(Y, 
-                           W, 
+                           W1, 
                            W2 = NULL, 
-                           xx = seq(min(W), max(W), length.out = 100), 
+                           xx = seq(min(W1), max(W1), length.out = 100), 
                            errortype = NULL, 
                            sd_U = NULL, 
                            phiU = NULL, 
@@ -139,8 +139,8 @@ reg_deconvolve <- function(Y,
     }
 
     if (errors == "rep"){
-        if (!(length(W) == length(W2))) {
-            stop("W and W2 must be the same length.")
+        if (!(length(W1) == length(W2))) {
+            stop("W1 and W2 must be the same length.")
         }
     }
 
@@ -169,7 +169,7 @@ reg_deconvolve <- function(Y,
 
     # Calculate bandwidth ------------------------------------------------------
     if (is.null(bw) | is.null(rho)) {
-        outcome_tmp <- bandwidth(W = W, 
+        outcome_tmp <- bandwidth(W1 = W1, 
                                  W2 = W2,
                                  errortype = errortype, 
                                  sd_U = sd_U,
@@ -186,25 +186,25 @@ reg_deconvolve <- function(Y,
 
     # Compute estimate for m(X) ------------------------------------------------
     if (errors == "rep") {
-        diff <- W - W2
+        diff <- W1 - W2
         sd_U <- sqrt(stats::var(diff)/2)
-        n <- length(W)
+        n <- length(W1)
         hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
-            sqrt(stats::var(W)) * n^(-1/5)
+            sqrt(stats::var(W1)) * n^(-1/5)
         h_min <- hnaive / 3
         t_search <- tt/h_min
-        phi_U <- create_replicates_phi_U(W, W2, t_search)
+        phi_U <- create_replicates_phi_U(W1, W2, t_search)
 
         if (use_alt_SIMEX_rep_opt) {
-            W_bar <- (W + W2)/2
+            W_bar <- (W1 + W2)/2
             y <- NWDecUknown(xx, W_bar, Y, phi_U, bw, rho, phiK, tt, deltat)
         } else {
-            W_full <- c(W, W2)
+            W_full <- c(W1, W2)
             Y_full <- c(Y, Y)
             y <- NWDecUknown(xx, W_full, Y_full, phi_U, bw, rho, phiK, tt, deltat)
         }
     } else {
-        y <- NWDecUknown(xx, W, Y, phiU, bw, rho, phiK, tt, deltat)    
+        y <- NWDecUknown(xx, W1, Y, phiU, bw, rho, phiK, tt, deltat)    
     }
 
     structure(list(pdf = y, bw = bw, rho = rho, x = xx), 
