@@ -5,15 +5,15 @@
 \title{Compute the measurement error version of the Nadaraya-Watson regression
 estimator}
 \usage{
-reg_deconvolve(Y, W, W2 = NULL, xx = seq(min(W), max(W), length.out =
-  100), errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
+reg_deconvolve(Y, W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out
+  = 100), errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
   rho = NULL, n_cores = NULL, kernel_type = c("default", "normal",
   "sinc"), seed = NULL, use_alt_SIMEX_rep_opt = FALSE)
 }
 \arguments{
 \item{Y}{A vector of the response data Y_1, ..., Y_n.}
 
-\item{W}{A vector of the univariate contaminated data W_1, ..., W_n.}
+\item{W1}{A vector of the univariate contaminated data W_1, ..., W_n.}
 
 \item{W2}{A vector of replicate measurements. If supplied, then the error 
 will be estimated using replicates.}
@@ -66,7 +66,7 @@ Estimates \eqn{m(x) = E[Y | X = x]} from data \eqn{(W, Y)} where
 #' The function \code{reg_deconvolve} chooses from one of two different 
 methods depending on how the error distribution is defined.
 
-\strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied 
+\strong{Error from Replicates:} If both \code{W1} and \code{W2} are supplied 
 then the error is calculated using replicates. This method was prototyped in  
 Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
 Hall 2016, and Camirand, Carroll, and Delaigle 2018.

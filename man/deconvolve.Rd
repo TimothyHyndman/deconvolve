@@ -4,128 +4,137 @@
 \alias{deconvolve}
 \title{Deconvolution Kernel Density Estimator}
 \usage{
-deconvolve(W, W2 = NULL, xx = seq(min(W), max(W), length.out = 100),
+deconvolve(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 100),
   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL,
   rescale = FALSE, pmf = FALSE, kernel_type = c("default", "normal",
   "sinc"), het_replicates = FALSE, m = 20, show_diagnostics = FALSE)
 }
 \arguments{
-\item{W}{A vector of the univariate contaminated data.}
+\item{W1}{A vector of size n containing the univariate contaminated data.}
 
-\item{W2}{A vector of replicate measurements. If supplied, then the error 
-will be estimated using replicates.}
+\item{W2}{(optional) A vector of size n containing replicate measurements for the same 
+n individuals (in the same order) as W1. If supplied, then the error distribution
+will be estimated using the replicates.}
 
-\item{xx}{A vector of x values on which to compute the density.}
+\item{xx}{A vector of x values on which to compute the estimator of the density of \eqn{X}.}
 
-\item{errortype}{The distribution type of \eqn{U}. Either "laplace" or 
-"normal". If you define the errors this way then you must also provide 
+\item{errortype}{The distribution of \eqn{U}, either "laplace" or "normal". 
+If you define the error distribution this way then you must also provide 
 \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
 and partially matched.}
 
-\item{sd_U}{The standard deviations of \eqn{U}. A single value for
-homoscedastic errors and a vector having the same length as \code{W} for 
-heteroscedastic errors. This does not need to be provided if you define your
-error using phiU and provide \code{bw}.}
+\item{sd_U}{The standard deviation(s) of \eqn{U}: a single value for
+homoscedastic errors and a vector of length \eqn{n} for heteroscedastic
+errors. This does not need to be provided if you define your error distribution
+using\code{phiU} and provide \code{bw}.}
 
-\item{phiU}{A function giving the characteristic function of \eqn{U}. A 
-single value for homoscedastic errors and a vector having the same length as 
-\code{W} for heteroscedastic errors. If you define the errors this way then 
-you should not provide \code{errortype}.}
+\item{phiU}{Function(s) giving the characteristic function of the errors. A 
+single function for homoscedastic errors and a vector of \eqn{n} functions 
+for heteroscedastic errors. If you define the errors this way then you
+should not provide \code{errortype}.}
 
-\item{bw}{The bandwidth to use. If \code{NULL}, a bandwidth will be
-calculated using an appropriate plug-in estimator.}
+\item{bw}{The bandwidth to use when computing the kernel estimator of the density
+of \eqn{X}. If \code{NULL}, a bandwidth will be calculated using a plug-in estimator.}
 
-\item{rescale}{If \code{TRUE}, estimator is rescaled so that it 
-integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
-\eqn{x} values that covers the whole range of \eqn{x}-values where the 
+\item{rescale}{If \code{TRUE}, the estimator of the density of \eqn{X} is rescaled so 
+that it integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
+\eqn{x} values that cover the whole range of \eqn{x}-values where the 
 estimated density is significantly non zero.}
 
 \item{pmf}{If \code{TRUE}, returns a probability mass function instead of a 
 density as the estimator. This is quicker than estimating a density. To use
 this option, the errors must not be provided.}
 
-\item{kernel_type}{The deconvolution kernel to use. The default kernel has
-characteristic function \eqn{(1-t^2)^3}.}
+\item{kernel_type}{The kernel K to use when computing the estimator of the 
+density of \eqn{X}. The default kernel has characteristic function 
+\eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}.}
 
 \item{het_replicates}{If \code{TRUE}, then a method more appropriate for 
 heteroscedastic errors is used. Only applicable if \code{W2} is supplied.}
 
 \item{m}{The number of point masses to use to estimate the distribution of 
-\eqn{X} when the error is not supplied.}
+\eqn{X} when the error distribution is not supplied and we use the method of
+Delaigle and Hall (2016).}
 
 \item{show_diagnostics}{If \code{TRUE}, then diagnostic messages are printed 
 displaying the results of the various optimizations performed when the error
-is not supplied. Intended to be used for developement only.}
+distribution is not supplied and estimated by the method in Delaigle and
+Hall (2016). Intended to be used for developement only.}
 }
 \value{
 An object of class "\code{deconvolve}".
 
-The function \code{plot} produces a plot of the deconvolution KDE.
+The function \code{plot} produces a plot of the deconvolution KDE of the density of \eqn{X} on the grid \code{xx}.
 
 An object of class "\code{deconvolve}" is a list containing at least some of
 the elements:
-\item{W}{The original contaminated data}
+\item{W1}{The original vector of contaminated data}
 \item{x}{The values on which the deconvolution KDE is evaluated.}
-\item{pdf}{A vector containing the deconvolution KDE evaluated at each point 
-in \code{x}}
+\item{pdf}{A vector containing the deconvolution KDE of the density of \eqn{X}, 
+evaluated at each point in \code{xx}}
 \item{support}{The support of the pmf found when the errors are assumed
 symmetric}
 \item{probweights}{The probability masses of the pmf found when the errors
 are assumed symmetric}
 }
 \description{
-Computes the deconvolution kernel density estimator (KDE) of \eqn{X} from 
-data \eqn{W = X + U} when the distribution of \eqn{U} is known, unknown, or
-estimated from replicates, \eqn{W_2 = X + U_2}.
+Computes the deconvolution kernel estimator (KDE) of the density of \eqn{X} from 
+data \eqn{W_i = X_i + U_i, i=1,...,n} when the distribution of \eqn{U_i} is known 
+or unknown and estimated from replicates, \eqn{W_{i1} = X_i + U_{i1}} and 
+\eqn{W_{i2} = X_i + U_{i2}}, or without replicates if replicates are not available.
+In the homoscedastic error case, the codes are suitable only if the charactersitic 
+function of the errors is nonzero everywhere. In the heteroscedastic error case, 
+the pooled characteristic function of the errors used by Delaigle and Meister (2006)
+must be nonzero everywhere
 }
 \details{
-The function \code{deconvolve} chooses from one of four different methods 
-depending on how the error distribution is defined.
+The function \code{deconvolve} chooses from one of five different methods 
+depending on how the error distribution is computed:
 
-\strong{Error from Replicates:} If both \code{W} and \code{W2} are supplied 
-then the error is calculated using replicates. This method was prototyped in  
-Delaigle, Hall, and Meister 2008 and then further refined in Delaigle and  
-Hall 2016, and Camirand, Carroll, and Delaigle 2018.
+\strong{Known homoscedastic error distribution:} If the error distribution 
+is defined by either a single function \code{phiU}, or a single value 
+\code{sd_U} along with its \code{errortype} then the estimator of the density
+of \eqn{X} is the one in Stefanski and Carroll (1990).
 
-\strong{Heteroscedastic Error from Replicates}: If both \code{W} and 
-\code{W2} are supplied then the error is caculated as described in Delaigle
-and Meister 2008, using the alternative estimator for when the errors are 
-heteroscedastic. Refinements have been made based on Delaigle and Hall 2016, 
-and Camirand, Carroll, and Delaigle 2018.
+\strong{Known heteroscedastic error distributions:} If the error distributions are 
+defined by a either a vector of functions \code{phiU}, or a vector 
+\code{sd_U} along with their \code{errortype} then the method used is the
+one from Delaigle and Meister (2008).
 
-\strong{Symmetric Error:} If none of \code{errortype}, \code{phiU}, or 
-\code{W2} are supplied then the error is assumed symmetric and the 
-deconvolution method is based on the method described in Delaigle and Hall 
-2016.
+\strong{Unknown homoscedastic error distribution when replicates are available:} If both 
+\code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{FALSE}, then the error distribution is estimated using the replicates as 
+in Delaigle, Hall and Meister (2008) and the estimator of the density of \eqn{X} is 
+computed as in Delaigle, Hall and Meister (2008) except that we do the tail correction of 
+the estimated characteristic function of the errors as in Delaigle and Hall (2016)
+and Camirand, Carroll and Delaigle (2018).
 
-\strong{Homoscedastic Error:} If the errors are defined by either a single 
-function \code{phiU}, or a single value \code{sd_U} along with its 
-\code{errortype} then the method used is as described in Stefanski and
-Carroll 1990.
+\strong{Unknown heteroscedastic error distribution when replicates are available:} If both  
+\code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{TRUE}, then these distributions are estimated using replicates, as in Delaigle and Meister (2008) 
+and the estimator of the density of \eqn{X} is computed as in Delaigle and Meister (2008)
+except that we do the tail correction of the estimated pooled characteristic function of 
+the errors as in Delaigle and Hall (2016) and Camirand, Carroll and Delaigle (2018).
 
-\strong{Heteroscedastic Errors:} If the errors are defined by a either a 
-vector of functions \code{phiU}, or a vector \code{sd_U} along with its 
-\code{errortype} then the method used is as described in Delaigle and 
-Meister 2008.
-
-Errors can be defined by either a distribution type (\code{errortype}) along 
-with the standard deviation(s) (\code{sd_U}), or by the characteristic 
-function(s) of the errors (\code{phiU}).
+\strong{Unknown homoscedastic error distribution estimated without replicates:} 
+If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the error
+density is assumed symmetric, and the density of \eqn{X} is assumed asymmetric and 
+estimated as in Delaigle and Hall (2016). Then the estimator of the density of \eqn{X}
+is computed as in Delaigle and Hall (2016). Only suitable if the identifiability conditions of 
+Delaigle and Hall (2016) can reasonably be assumed.
 }
 \section{Warnings}{
 
 \itemize{
-\item The method for deconvolution when the error is unknown and assumed
-  symmetric (as described in Delaigle and Hall (2016)) requires solving 
+\item The method for deconvolution when the error distribution is unknown and assumed
+  symmetric, and estimated without replicates, as in Delaigle and Hall (2016), requires solving 
 	 multiple non-linear optimizations with both linear and non-linear 
-	 constraints. The currently implementation can be slow and unreliable. An 
+	 constraints. The current implementation can be slow and unreliable. An 
 	 alternative MATLAB implementation can be found at 
 	 <github.com/TimothyHyndman/deconvolve-supp> which may work better in some 
 	 circumstances.
 \item If you supply your own bandwidth, then you should ensure that the
 	kernel used here matches the one you used to calculate your bandwidth.
 \item The DKDE can also be computed using the Fast Fourier Transform, which 
-	is a bit more complex. See Delaigle and Gijbels 2007. However if the grid of 
+	is a bit more complex. See Delaigle and Gijbels (2007). However if the grid of 
 	t-values is fine enough, the estimator can simply be computed like here 
 	without having problems with oscillations.
 }
@@ -140,7 +149,7 @@ Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
 integrals and optimizing objective functions: a case study in density 
 deconvolution. \emph{Statistics and Computing}, 17, 349-355.
 
-Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
+Delaigle, A., Hall, P. and Meister, A. (2008). On Deconvolution with  
 repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
 
 Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
@@ -151,7 +160,7 @@ deconvolution when the error distribution is unknown. \emph{Journal of the
 Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
 231-252.
 
-Camirand, F., Carroll, R.J., and Delaigle, A. (2018). Estimating the  
+Camirand, F., Carroll, R.J. and Delaigle, A. (2018). Estimating the  
 distribution of episodically consumed food measured with errors.  
 \emph{Manuscript.}
 }
