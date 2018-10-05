@@ -1,38 +1,43 @@
 #' Bandwidth Selectors for Deconvolution Kernel Density Estimation
 #'
-#' Computes a bandwidth for use in deconvolution kernel density estimation of
-#' \eqn{X} from data \eqn{W = X + U} when the distribution of \eqn{U} is known,
-#' unknown, or estimated from replicates, \eqn{W_2 = X + U_2}. If 'SIMEX' 
-#' algorithm used, computes a bandwidth for use in deconvolution regression of 
-#' data \eqn{(W, Y)}  where \eqn{Y = g(X) + V} and \eqn{W = X + U}.
+#' Computes a bandwidth for the deconvolution kernel estimator of the density of
+#' \eqn{X} from data \eqn{W_{i1} = X_i + U_{i1}, i=1,...,n} when the distribution 
+#' of \eqn{U_i} is known, unknown, or estimated from replicates, \eqn{W_{i1} = X_i + U_{i1}}
+#' and \eqn{W_{i2} = X_i + U_{i2}}. If 'SIMEX' algorithm used, computes a bandwidth for use in
+#' deconvolution regression of data \eqn{(W_i, Y_i)}  where \eqn{Y_i = g(X_i) + V_i} and \eqn{W_i = X_i + U_i}.
 #'
 #' The function \code{bandwidth} chooses from one of six different methods
-#' depending on how the error distribution is defined and which algorithm is
-#' selected.
+#' depending on how the error distribution is defined/computed and which 
+#' algorithm is selected.
 #'
-#' \strong{PI for Homoscedastic Error:} If \code{algorithm = "PI"} and the errors
-#' are defined by either a single function \code{phiU}, or a single value
+#' \strong{PI for known homoscedastic error distribution:} If \code{algorithm = "PI"} and the error
+#' distribution is defined by either a single function \code{phiU}, or a single value
 #' \code{sd_U} along with its \code{errortype}, then the method used is as
-#' described in Delaigle and Gijbels 2002, and Delaigle and Gijbels 2004.
+#' described in Delaigle and Gijbels (2002), and Delaigle and Gijbels (2004).
 #'
-#' \strong{PI for Heteroscedastic Error:} If \code{algorithm = "PI"} and the
-#' errors are defined by a either a vector of functions \code{phiU}, or a vector
-#' \code{sd_U} along with its \code{errortype} then the method used is as
-#' described in Delaigle and Meister 2008.
+#' \strong{PI for known heteroscedastic error distributions:} If \code{algorithm = "PI"} and the
+#' error distributions are defined by a either a vector of functions \code{phiU}, or a vector
+#' \code{sd_U} along with its (unique) \code{errortype} then the method used is as
+#' described in Delaigle and Meister (2008).
 #'
-#' \strong{PI for Replicates:} If \code{algorithm = "PI"} and a replicate 
-#' vector \code{W2} is supplied, then the error is estimated using replicates.
+#' \strong{PI for unknown homoscedastic error distribution estimated from replicates:} 
+#' If \code{algorithm = "PI"} and a replicate vector \code{W2} is supplied, then 
+#' the error distribution is estimated using replicates as in Delaigle, Hall and Meister (2008).
 #' 
-#' \strong{PI for Unknown Error:} If \code{algorithm = "PI"} and the errors are
-#' not supplied, then the error is estimated using the method described in
-#' Delaigle and Hall 2016 and then the bandwidth is calculated using the method
-#' described in Delaigle and Gijbels 2002, and Delaigle and Gijbels 2004.
+#' \strong{PI for unknown homoscedastic error distribution estimated without replicates:} 
+#' If \code{algorithm = "PI"} and the errors are not supplied, then the error distribution 
+#' is estimated using the method described in Delaigle and Hall (2016) and then the bandwidth 
+#' is calculated using the method described in Delaigle and Gijbels (2002) and Delaigle and 
+#' Gijbels (2004) except that the error distribution is replaced by its estimator.
 #'
-#' \strong{CV:} If \code{algorithm = "CV"} then the method used is as described
-#' in Stefanski and Carroll 1990, and Delaigle and Gijbels 2004.
+#' \strong{CV:} If \code{algorithm = "CV"} then the method used is the corss-validation described
+#' in Stefanski and Carroll (1990) and Delaigle and Gijbels (2004).
 #'
-#' \strong{SIMEX:} If \code{algorithm = "SIMEX"} then the method used is as
-#' described in Delaigle and Hall 2008.
+#' \strong{SIMEX:} If \code{algorithm = "SIMEX"} then the method used is the SIMEX procedure
+#' described in Delaigle and Hall (2008).
+#-------------------------------------------------------------
+# Is this only for regression (above)? Same question below:
+#-------------------------------------------------------------
 #' 
 #' \strong{SIMEX for Replicates:} If \code{algorithm = "SIMEX"} and a 
 #' replicate vector \code{W2} is supplied, then \eqn{phi_U} is calculated using 
@@ -40,28 +45,30 @@
 #' \code{use_alt_SIMEX_rep_opt}.
 #'
 #' @inheritParams deconvolve
-#' @param algorithm One of \code{"PI"} for plug-in estimator, \code{"CV"} for
-#' cross-validation estimator or \code{"SIMEX"}. If \code{"CV"} then the errors 
-#' must be homoscedastic.
-#' @param Y A vector of the univariate dependent data. Only required for 'SIMEX'
-#' algorithm.
+#' @param algorithm One of \code{"PI"} for plug-in bandwidth, \code{"CV"} for
+#' cross-validation bandwidth or \code{"SIMEX"}. If \code{"CV"} then the errors 
+#' must be homoscedastic. \code{"PI"} can only be used if your kernel has finite 
+#' second order moment and finite squared integral.
+#' @param Y A vector of the univariate dependent data (used in the regression setting). 
+#' Only required for 'SIMEX' algorithm.
 #' @param n_cores Number of cores to use when using SIMEX algorithm. If
 #' \code{NULL}, the number of cores to use will be automatically detected.
 #' @param sd_U The standard deviations of \eqn{U}. A single value for
-#' homoscedastic errors and a vector having the same length as \code{W} for
+#' homoscedastic errors and a vector having the same length as \code{W1} for
 #' heteroscedastic errors.
 #' @param seed Set seed for SIMEX. Allows for reproducible results using SIMEX.
-#' @param use_alt_SIMEX_rep_opt Only used with SIMEX using replicates. If 
+#' @param use_alt_SIMEX_rep_opt Only used with SIMEX based on replicates. If 
 #' \code{TRUE}, performs SIMEX on \eqn{W = (W1 + W2)/2} and samples \eqn{U*} 
-#' from (W1 - W2). The default performs SIMEX on \eqn{W = (W1, W2)} and 
+#' from \eqn{(W1 - W2)}. The default performs SIMEX on \eqn{W = (W1, W2)} and 
 #' and samples \eqn{U*} from \eqn{(W1 - W2)/\sqrt 2}.
+#----------------------------------------------------------------------------
+# Does U^* really come from (W1 - W2) since this has twice the variance of W?
+#----------------------------------------------------------------------------
 #'
-#' @return The bandwidth estimator. If using 'SIMEX' algorithm then returns a
+#' @return A data-driven bandwidth. If using 'SIMEX' algorithm then returns a
 #' list containing the bandwidth 'h' and ridge parameter 'rho'.
 #'
 #' @section References:
-#' Stefanski, L. and Carroll, R.J. (1990). Deconvoluting kernel density
-#' estimators. \emph{Statistics}, 21, 2, 169-184.
 #' 
 #' Delaigle, A. and Gijbels, I. (2002). Estimation of integrated squared density
 #' derivatives from a contaminated sample. \emph{Journal of the Royal
@@ -75,16 +82,19 @@
 #' in errors-in-variables problems. \emph{Journal of the American Statistical
 #' Association}, 103, 481, 280-287
 #' 
+#' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric
+#' deconvolution when the error distribution is unknown. \emph{Journal of the
+#' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1,
+#' 231-252.
+#' 
 #' Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
 #' repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
 #' 
 #' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic
 #' error. \emph{Bernoulli}, 14, 2, 562-579.
 #'
-#' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric
-#' deconvolution when the error distribution is unknown. \emph{Journal of the
-#' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1,
-#' 231-252.
+#' Stefanski, L. and Carroll, R.J. (1990). Deconvoluting kernel density
+#' estimators. \emph{Statistics}, 21, 2, 169-184.
 #'
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #'

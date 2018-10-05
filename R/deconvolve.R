@@ -1,7 +1,7 @@
 #' Deconvolution Kernel Density Estimator
 #' 
 #' Computes the deconvolution kernel estimator (KDE) of the density of \eqn{X} from 
-#' data \eqn{W_i = X_i + U_i, i=1,...,n} when the distribution of \eqn{U_i} is known 
+#' data \eqn{W_{i1} = X_i + U_{i1}, i=1,...,n} when the distribution of \eqn{U_i} is known 
 #' or unknown and estimated from replicates, \eqn{W_{i1} = X_i + U_{i1}} and 
 #' \eqn{W_{i2} = X_i + U_{i2}}, or without replicates if replicates are not available.
 #' All error densities need to be symmetric. In the homoscedastic error case, the codes
@@ -10,7 +10,7 @@
 #' used by Delaigle and Meister (2006) must be nonzero everywhere
 #' 
 #' The function \code{deconvolve} chooses from one of five different methods 
-#' depending on how the error distribution is computed:
+#' depending on how the error distribution is defined/computed:
 #' 
 #' \strong{Known homoscedastic error distribution:} If the error distribution 
 #' is defined by either a single function \code{phiU}, or a single value 
@@ -23,7 +23,8 @@
 #' then the method used is the one from Delaigle and Meister (2008).
 #' 
 #' \strong{Unknown homoscedastic error distribution when replicates are available:} If both 
-#' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{FALSE}, then the error distribution is estimated using the replicates as 
+#' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{FALSE}, then the 
+#' error distribution is estimated using the replicates as 
 #' in Delaigle, Hall and Meister (2008) and the estimator of the density of \eqn{X} is 
 #' computed as in Delaigle, Hall and Meister (2008) except that we do the tail correction of 
 #' the estimated characteristic function of the errors as in Delaigle and Hall (2016)
@@ -33,7 +34,8 @@
 #-------------------------------------------------------------------------------
 #' 
 #' \strong{Unknown heteroscedastic error distribution when replicates are available:} If both  
-#' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{TRUE}, then these distributions are estimated using replicates, as in Delaigle and Meister (2008) 
+#' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{TRUE}, then these 
+#' distributions are estimated using replicates, as in Delaigle and Meister (2008) 
 #' and the estimator of the density of \eqn{X} is computed as in Delaigle and Meister (2008)
 #' except that we do the tail correction of the estimated pooled characteristic function of 
 #' the errors as in Delaigle and Hall (2016) and Camirand, Carroll and Delaigle (2018).
@@ -73,7 +75,12 @@
 #' estimated density is significantly non zero.
 #' @param kernel_type The kernel K to use when computing the estimator of the 
 #' density of \eqn{X}. The default kernel has characteristic function 
-#' \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}.
+#' \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}. The normal kernel is the standard normal density.
+#' The sinc kernel has characteristic function equal to 1 for \eqn{t \in [-1,1]}
+#-------------------------------------------------------------------------------
+# IS IT THE CASE THE ONLY ONE OF THOSE THREE KERNELS CAN BE USED, I.E. THE USER CANNOT PROVIDE THEIR OWN KERNEL?
+# IS THERE AN ERROR MESSAGE IF THE USER PROVIDES A WRONG KERNEL?
+#-------------------------------------------------------------------------------
 #' @param m The number of point masses to use to estimate the distribution of 
 #' \eqn{X} when the error distribution is not supplied and we use the method of
 #' Delaigle and Hall (2016).
@@ -102,6 +109,8 @@
 #' 
 #' @section Warnings:
 #' \itemize{
+#'  	\item In your errors have a Laplace distribution, \code{sd_U} is not the usual parameter
+#'  	of a Laplace distribution but its standard deviation.
 #'	\item The method for deconvolution when the error distribution is unknown and assumed
 #'   symmetric, and estimated without replicates, as in Delaigle and Hall (2016), requires solving 
 #' 	 multiple non-linear optimizations with both linear and non-linear 
