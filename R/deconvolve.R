@@ -4,10 +4,10 @@
 #' data \eqn{W_i = X_i + U_i, i=1,...,n} when the distribution of \eqn{U_i} is known 
 #' or unknown and estimated from replicates, \eqn{W_{i1} = X_i + U_{i1}} and 
 #' \eqn{W_{i2} = X_i + U_{i2}}, or without replicates if replicates are not available.
-#' In the homoscedastic error case, the codes are suitable only if the charactersitic 
-#' function of the errors is nonzero everywhere. In the heteroscedastic error case, 
-#' the pooled characteristic function of the errors used by Delaigle and Meister (2006)
-#' must be nonzero everywhere
+#' All error densities need to be symmetric. In the homoscedastic error case, the codes
+#'  are suitable only if the charactersitic function of the errors is nonzero everywhere. 
+#' In the heteroscedastic error case, the pooled characteristic function of the errors 
+#' used by Delaigle and Meister (2006) must be nonzero everywhere
 #' 
 #' The function \code{deconvolve} chooses from one of five different methods 
 #' depending on how the error distribution is computed:
@@ -16,21 +16,11 @@
 #' is defined by either a single function \code{phiU}, or a single value 
 #' \code{sd_U} along with its \code{errortype} then the estimator of the density
 #' of \eqn{X} is the one in Stefanski and Carroll (1990). 
-#-------------------------------------------------------------------------------
-# ABOVE: DON'T WE ALSO ASSUME THAT PHI_U IS REAL? IS THE CODE WORKING ALSO FOR IMAGINARY PHI_U?
-# IF NOT IT MEANS WE ASSUME THE ERRORS ARE SYMMETRIC
-#-------------------------------------------------------------------------------
 #' 
 #' \strong{Known heteroscedastic error distributions:} If the error distributions are 
 #' defined by a either a vector of functions \code{phiU}, or a vector 
-#' \code{sd_U} along with their \code{errortype} then the method used is the
-#' one from Delaigle and Meister (2008).
-#-------------------------------------------------------------------------------
-# IS THE ERROR TYPE FOR ALL INDIVIDUALS EITHER LAPLACE OR NORMAL (NOT A MIX OF BOTH DEPENDING ON THE INDVIDUALS?
-# IN OTHER WORDS IS THE ERRORTYPE A VECTOR?
-# ALSO: DON'T WE ALSO ASSUME THAT PHI_U IS REAL? IS THE CODE WORKING ALSO FOR IMAGINARY PHI_U?
-# IF NOT IT MEANS WE ASSUME THE ERRORS ARE SYMMETRIC
-#-------------------------------------------------------------------------------
+#' \code{sd_U} along with their \code{errortype} (one single error type for all individuals)
+#' then the method used is the one from Delaigle and Meister (2008).
 #' 
 #' \strong{Unknown homoscedastic error distribution when replicates are available:} If both 
 #' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{FALSE}, then the error distribution is estimated using the replicates as 
@@ -71,23 +61,16 @@
 #' homoscedastic errors and a vector of length \eqn{n} for heteroscedastic
 #' errors. This does not need to be provided if you define your error distribution
 #' using\code{phiU} and provide \code{bw}.
-#-------------------------------------------------------------------------------
-# IS THERE AN ERROR MESSAGE IF BOTH PHIU AND ERROR TYPE AND SIGU ARE PROVIDED OR IS ONE DOMINANT ON THE OTHER?
-#-------------------------------------------------------------------------------
 #' @param phiU Function(s) giving the characteristic function of the errors. A 
 #' single function for homoscedastic errors and a vector of \eqn{n} functions 
 #' for heteroscedastic errors. If you define the errors this way then you
 #' should not provide \code{errortype}.
-#-------------------------------------------------------------------------------
-# IS THERE AN ERROR MESSAGE IF BOTH PHIU AND ERROR TYPE AND SIGU ARE PROVIDED OR IS ONE DOMINANT ON THE OTHER?
-#-------------------------------------------------------------------------------
 #' @param bw The bandwidth to use when computing the kernel estimator of the density
 #' of \eqn{X}. If \code{NULL}, a bandwidth will be calculated using a plug-in estimator.
 #' @param rescale If \code{TRUE}, the estimator of the density of \eqn{X} is rescaled so 
 #' that it integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
 #' \eqn{x} values that cover the whole range of \eqn{x}-values where the 
 #' estimated density is significantly non zero.
-#-------------------------------------------------------------------------------
 #' @param kernel_type The kernel K to use when computing the estimator of the 
 #' density of \eqn{X}. The default kernel has characteristic function 
 #' \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}.
@@ -102,11 +85,9 @@
 #' displaying the results of the various optimizations performed when the error
 #' distribution is not supplied and estimated by the method in Delaigle and
 #' Hall (2016). Intended to be used for developement only.
-#' @param het_replicates If \code{TRUE}, then a method more appropriate for 
-#' heteroscedastic errors is used. Only applicable if \code{W2} is supplied.
-#-------------------------------------------------------------------------------
-# HERE WE NEED TO BE TOTALLY EXPLICIT. WHAT ARE YOU TALKING ABOUT? DO YOU MEAN THAT THE KDE IS THE ONE AS IN DELAIGLE AND MEISTER (2008)?
-#-------------------------------------------------------------------------------
+#' @param het_replicates If \code{TRUE}, then the errors are not assumed to be 
+#' homoscedastic and the code for heteroscedastic errors is used. Only applicable 
+#' if \code{W2} is supplied.
 #' 
 #' @return An object of class "\code{deconvolve}".
 #' 
@@ -118,16 +99,6 @@
 #' \item{x}{The values on which the deconvolution KDE is evaluated.}
 #' \item{pdf}{A vector containing the deconvolution KDE of the density of \eqn{X}, 
 #' evaluated at each point in \code{xx}}
-#' \item{support}{The support of the pmf found when the errors are assumed
-#' symmetric}
-#-------------------------------------------------------------------------------
-# WHAT IS THIS EXACTLY? NEED TO INFORM THE READER OR REMOVE. WHY DOES THIS NEED TO BE AN OUPUT?
-#-------------------------------------------------------------------------------
-#' \item{probweights}{The probability masses of the pmf found when the errors
-#' are assumed symmetric}
-#-------------------------------------------------------------------------------
-# WHAT IS THIS EXACTLY? NEED TO INFORM THE READER OR REMOVE. WHY DOES THIS NEED TO BE AN OUPUT?
-#-------------------------------------------------------------------------------
 #' 
 #' @section Warnings:
 #' \itemize{
@@ -146,16 +117,19 @@
 #' 	without having problems with oscillations.
 #' }
 #' 
-#-------------------------------------------------------------------------------
-# IS IT STANDARD IN R TO NOT LIST THE REFERENCES IN ALPHABETICL ORDER?
-#-------------------------------------------------------------------------------
 #' @section References:
-#' Stefanski, L.A. and Carroll, R.J. (1990). Deconvolving kernel density
-#' estimators. \emph{Statistics}, 21, 2, 169-184.
 #' 
+#' Camirand, F., Carroll, R.J. and Delaigle, A. (2018). Estimating the  
+#' distribution of episodically consumed food measured with errors.  
+
 #' Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating 
 #' integrals and optimizing objective functions: a case study in density 
 #' deconvolution. \emph{Statistics and Computing}, 17, 349-355.
+#' 
+#' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
+#' deconvolution when the error distribution is unknown. \emph{Journal of the 
+#' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
+#' 231-252.
 #' 
 #' Delaigle, A., Hall, P. and Meister, A. (2008). On Deconvolution with  
 #' repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
@@ -163,13 +137,8 @@
 #' Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic 
 #' error. \emph{Bernoulli}, 14, 2, 562-579.
 #' 
-#' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
-#' deconvolution when the error distribution is unknown. \emph{Journal of the 
-#' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
-#' 231-252.
-#' 
-#' Camirand, F., Carroll, R.J. and Delaigle, A. (2018). Estimating the  
-#' distribution of episodically consumed food measured with errors.  
+#' Stefanski, L.A. and Carroll, R.J. (1990). Deconvolving kernel density
+#' estimators. \emph{Statistics}, 21, 2, 169-184.
 #' \emph{Manuscript.} 
 #' 
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
