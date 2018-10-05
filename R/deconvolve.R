@@ -44,11 +44,10 @@
 #-------------------------------------------------------------------------------
 #' 
 #' \strong{Unknown homoscedastic error distribution estimated without replicates:} 
-#' If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the error
-#' density is assumed symmetric, and the density of \eqn{X} is assumed asymmetric and 
-#' estimated as in Delaigle and Hall (2016). Then the estimator of the density of \eqn{X}
-#' is computed as in Delaigle and Hall (2016). Only suitable if the identifiability conditions of 
-#' Delaigle and Hall (2016) can reasonably be assumed.
+#' If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the density 
+#' of \eqn{X} is assumed asymmetric and to satisfy the identifiability conditions of
+#' Delaigle and Hall (2016). The estimator of the density of \eqn{X} is computed as in 
+#' Delaigle and Hall (2016). 
 #' 
 #' @param W1 A vector of size n containing the univariate contaminated data.
 #' @param W2 (optional) A vector of size n containing replicate measurements for the same 
@@ -184,7 +183,7 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 		}
 	} else if (is.null(errortype) & is.null(phiU)) {
 		errors <- "sym"
-		warning("The method for deconvolution when the error is unknown and assumed symmetric is slow and unreliable in R. Consider instead using the MATLAB code found at <github.com/TimothyHyndman/deconvolve-supp>.")
+		warning("The method for deconvolution when the error is unknown is slow and unreliable in R. Consider instead using the MATLAB code found at <github.com/TimothyHyndman/deconvolve-supp>.")
 	} else if ((length(sd_U) > 1) | length(phiU) > 1){
 		errors <- "het"
 	} else {
@@ -223,8 +222,8 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 	}
 
 	if (kernel_type == "normal") {
-		warning("You should only use the 'normal' kernel when the errors are 
-			Laplace or convolutions of Laplace.")
+		warning("You should only use the 'normal' kernel when the errors are ordinary 
+			smooth such as Laplace or convolutions of Laplace.")
 	}
 
 	if (kernel_type == "sinc") {
@@ -234,6 +233,7 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 
 	# Calculate Bandwidth if not supplied --------------------------------------
 	if (is.null(bw) & !(errors == "sym")) {
+	#DON'T YOU NEED TO PROVIDE THE ALGORITHM TO USE IN BANDWIDTH?
 			bw <- bandwidth(W1, W2, errortype, sd_U, phiU, 
 							kernel_type = kernel_type)
 	}

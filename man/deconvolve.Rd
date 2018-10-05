@@ -111,11 +111,10 @@ except that we do the tail correction of the estimated pooled characteristic fun
 the errors as in Delaigle and Hall (2016) and Camirand, Carroll and Delaigle (2018).
 
 \strong{Unknown homoscedastic error distribution estimated without replicates:} 
-If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the error
-density is assumed symmetric, and the density of \eqn{X} is assumed asymmetric and 
-estimated as in Delaigle and Hall (2016). Then the estimator of the density of \eqn{X}
-is computed as in Delaigle and Hall (2016). Only suitable if the identifiability conditions of 
-Delaigle and Hall (2016) can reasonably be assumed.
+If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the density 
+of \eqn{X} is assumed asymmetric and to satisfy the identifiability conditions of
+Delaigle and Hall (2016). The estimator of the density of \eqn{X} is computed as in 
+Delaigle and Hall (2016).
 }
 \section{Warnings}{
 
