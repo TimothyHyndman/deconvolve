@@ -317,19 +317,19 @@ bandwidth <- function(W1,
 	output
 }
 
-create_generate_U_star <- function(W, W2, errortype, sd_U, use_alt_SIMEX_rep_opt) {
+create_generate_U_star <- function(W1, W2, errortype, sd_U, use_alt_SIMEX_rep_opt) {
 	# Generates vector of length n with same distribution as U
-	n <- length(W)
+	n <- length(W1)
 
 	if (!is.null(W2)) {
 		if (use_alt_SIMEX_rep_opt) {
 			generate_U_star <- function() {
-				U_star <- sample((W - W2), replace = TRUE)
+				U_star <- sample((W1 - W2), replace = TRUE)
 				U_star	
 			}
 		} else {
 			generate_U_star <- function() {
-				U_star <- sample((W - W2)/sqrt(2), size = 2*n, replace = TRUE)
+				U_star <- sample((W1 - W2)/sqrt(2), size = 2*n, replace = TRUE)
 				U_star	
 			}
 		}

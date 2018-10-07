@@ -12,7 +12,7 @@ kernel <- function(type = "default", coarse = FALSE){
   rk <- switch(type,
                "default" = 1024 / 3003 / pi,
                "normal" = 1 / (2 * sqrt(pi)),
-               "sinc" = 2)
+               "sinc" = 1/pi)
 
   if (coarse) {
     tt <- switch(type,
@@ -42,5 +42,8 @@ normalK <- function(t) {
 }
 
 sincK <- function(t) {
-  t*0 + 1
+  y <- t*0 + 1
+  y[abs(t) > 1] <- 0
+  y
+  
 }
