@@ -6,16 +6,12 @@ DeconErrKnownHetPdf <- function(xx, W, h, phiUkvec, rescale, phiK, muK2, RK, tt)
 	}
 
 	#--------------------------------------------------------------------------#
-	# Compute DKDE
+	# Compute DKDE as in Delaigle and Meister (2008)
 	#--------------------------------------------------------------------------#
 
 	W <- as.vector(W)
 	n <- length(W)
 	deltat <- tt[2] - tt[1]
-
-	# Default values of phiU(t)=characteristic function of the errors
-	# If you want to consider another error type, simply replace phiU by the 
-	# characteristic function of your error type
 
 	OO <- outer(tt / h, W)
 
@@ -25,7 +21,7 @@ DeconErrKnownHetPdf <- function(xx, W, h, phiUkvec, rescale, phiK, muK2, RK, tt)
 	for (k in 1:n)
 		matphiU[, k] <- phiUk(tt / h, k)
 
-	# Sum by rows of the matrix. This produces a vector of size equal to that of 
+	# Sum of squares by rows of the matrix. This produces a vector of size equal to that of 
 	# tt
 	phiUsqth <- apply(matphiU^2, 1, sum)
 

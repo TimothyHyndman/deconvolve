@@ -4,6 +4,8 @@ find_t_cutoff <- function(phi_U, t_phi_U){
 	ind <- which(t_phi_U >= 0)
 	d_phi_U <- phi_U[ind[2:length(ind)]] - phi_U[ind[1:(length(ind) - 1)]]
 
+	#IN FACT WE SHOULD MAKE SURE PHI_u IS POSITIVE SO WE SHOULD TRUNCATE T_CUTOFF FOR THIS TO HAPPEN
+
 	if (length(which(d_phi_U >= 0)) == 0) {
 		# phi_U is always decreasing for positive t
 		t_cutoff <- t_phi_U[length(t_phi_U)]

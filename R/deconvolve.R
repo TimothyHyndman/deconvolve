@@ -24,14 +24,11 @@
 #' 
 #' \strong{Unknown homoscedastic error distribution when replicates are available:} If both 
 #' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{FALSE}, then the 
-#' error distribution is estimated using the replicates as 
-#' in Delaigle, Hall and Meister (2008) and the estimator of the density of \eqn{X} is 
-#' computed as in Delaigle, Hall and Meister (2008) except that we do the tail correction of 
-#' the estimated characteristic function of the errors as in Delaigle and Hall (2016)
-#' and Camirand, Carroll and Delaigle (2018). 
-#-------------------------------------------------------------------------------
-# NEED TO SAY WHICH VERSION WE USE EXACTLY. DO YOU REMEMBER WHAT WE TAKE FROM CAMIRAND ET AL?
-#-------------------------------------------------------------------------------
+#' error distribution is estimated using the replicates as in Delaigle, Hall and Meister (2008)
+#' and the estimator of the density of \eqn{X} is computed as in Delaigle, Hall and Meister (2008)
+#' except that the interval A at page 678 of that paper is replaced by the one used by
+#' Camirand, Carroll and Delaigle (2018), which is a refined version of the one used by
+#' Delaigle and Hall (2016).
 #' 
 #' \strong{Unknown heteroscedastic error distribution when replicates are available:} If both  
 #' \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{TRUE}, then these 
@@ -155,6 +152,8 @@
 #' 
 #' @export
 
+# WILL NEED TO REMOVE THE THINGS RELATED TO pmf 
+
 deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 100), 
 					   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, 
 					   rescale = FALSE, pmf = FALSE, 
@@ -221,6 +220,7 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 		}
 	}
 
+	#CAN WE STOP THE CODE WITH AN ERROR MESSAGE IF THE USER CHOSE THE NORMAL KERNEL AND A NORMAL ERROR TYPE?
 	if (kernel_type == "normal") {
 		warning("You should only use the 'normal' kernel when the errors are ordinary 
 			smooth such as Laplace or convolutions of Laplace.")
@@ -233,7 +233,7 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 
 	# Calculate Bandwidth if not supplied --------------------------------------
 	if (is.null(bw) & !(errors == "sym")) {
-	#DON'T YOU NEED TO PROVIDE THE ALGORITHM TO USE IN BANDWIDTH?
+	# IF USER DID NOT PROVIDE BW METHOD CHOICE, PUT PI UNLESS SINC, THEN PUT CV
 			bw <- bandwidth(W1, W2, errortype, sd_U, phiU, 
 							kernel_type = kernel_type)
 	}
