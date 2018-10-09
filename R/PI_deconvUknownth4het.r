@@ -4,7 +4,6 @@ PI_deconvUknownth4het <- function(n, W, varX, phiUkvec, phiK, muK2, RK, deltat,
 #Author: Aurore Delaigle
 #compute 2-stage plug-in bandwidth for heteroscedastic kerndel deconvolution estimator as in:
 # !!! This code is only valid for a kernel of order 2 !!!!
-
 #Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic error. Bernoulli, 14, 562-579
 
 #----------------------------
@@ -14,37 +13,13 @@ PI_deconvUknownth4het <- function(n, W, varX, phiUkvec, phiK, muK2, RK, deltat,
 #n: sample size
 #W: vector of univariate contaminated data
 #varX:estimator of variance of X
-
-
-#Error distribution, which can be defined in two ways:
-
-#Option 1: provide error type and standard deviation of the errors
-#errortype: 'Lap' for Laplace errors and 'norm' for normal errors. If you use this way of defining the error then you also need to provide the value of sigU below.
-#sigUj: vector of length n which contains the standard deviations of each of the n errors. 
-
-#Option 2: define the characeristic function of the n errors:
 #phiUveck: vector of n functions that give the characteristic functiona of the n errors. Produce this vector by c(func1,func2,...,funcn) where each funcj is a function of tt
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------
-#Changing the kernel: (if you change one of the arguments below you must change them all as they need to correspond to the same kernel):
-#-------------------------------------------------------------------------------------------------------------------------------------
-# !!! This code is only valid for a kernel of order 2 !!!!
-#phiK: Fourier transfrom of the kernel. The default is (1-t^2)^3 on the interval [-1,1]
-#muK2: second moment of the kernel, i.e. \int x^2 K(x) dx
-#RK: integral of the square of the kernel, i.e. \int K^2(x) dx
-#tt: vector of discrete t values on which you approximate the integrals in the Fourier domain. 
-#	If phiK is compactly supported, the first and last elements of t must be the lower and upper bound of the support of phiK.
-#	If phiK is not compactly supported, the first and last elements of t must be larger enough for your discretisation of the intergals to be accurate
-#deltat: distance between two points of the t grid 
-
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #								WARNINGS:
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #
 # The kernel K here must match the phiK used to compute the bandwidth (PI, CV or other)
-# !!! This code is only valid for a kernel of order 2 !!!!
 #
 # The DKDE can also be computed using the Fast Fourier Transform, which is a bit more complex. 
 # See Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating integrals and optimizing objective functions: a case study in density deconvolution.   Statistics and Computing,  17,  349 - 355

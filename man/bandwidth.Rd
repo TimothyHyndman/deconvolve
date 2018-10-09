@@ -27,7 +27,7 @@ homoscedastic errors and a vector having the same length as \code{W1} for
 heteroscedastic errors.}
 
 \item{phiU}{Function(s) giving the characteristic function of the errors. A 
-single function for homoscedastic errors and a vector of \eqn{n} functions 
+single real valued function for homoscedastic errors and a vector of \eqn{n} real valued functions 
 for heteroscedastic errors. If you define the errors this way then you
 should not provide \code{errortype}.}
 
@@ -42,8 +42,8 @@ second order moment and finite squared integral.}
 \item{n_cores}{Number of cores to use when using SIMEX algorithm. If
 \code{NULL}, the number of cores to use will be automatically detected.}
 
-\item{kernel_type}{The kernel K to use when computing the estimator of the 
-density of \eqn{X}. The default kernel has characteristic function 
+\item{kernel_type}{A string giving the kernel K to use when computing the estimator of the 
+density of \eqn{X}. Either "default", "normal", or "sinc". The default kernel has characteristic function 
 \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}. The normal kernel is the standard normal density.
 The sinc kernel has characteristic function equal to 1 for \eqn{t \in [-1,1]}}
 

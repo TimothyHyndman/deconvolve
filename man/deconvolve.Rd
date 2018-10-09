@@ -30,7 +30,7 @@ errors. This does not need to be provided if you define your error distribution
 using\code{phiU} and provide \code{bw}.}
 
 \item{phiU}{Function(s) giving the characteristic function of the errors. A 
-single function for homoscedastic errors and a vector of \eqn{n} functions 
+single real valued function for homoscedastic errors and a vector of \eqn{n} real valued functions 
 for heteroscedastic errors. If you define the errors this way then you
 should not provide \code{errortype}.}
 
@@ -42,8 +42,8 @@ that it integrates to 1. Rescaling requires \code{xx} to be a fine grid of equis
 \eqn{x} values that cover the whole range of \eqn{x}-values where the 
 estimated density is significantly non zero.}
 
-\item{kernel_type}{The kernel K to use when computing the estimator of the 
-density of \eqn{X}. The default kernel has characteristic function 
+\item{kernel_type}{A string giving the kernel K to use when computing the estimator of the 
+density of \eqn{X}. Either "default", "normal", or "sinc". The default kernel has characteristic function 
 \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}. The normal kernel is the standard normal density.
 The sinc kernel has characteristic function equal to 1 for \eqn{t \in [-1,1]}}
 
@@ -52,8 +52,7 @@ homoscedastic and the code for heteroscedastic errors is used. Only applicable
 if \code{W2} is supplied.}
 
 \item{m}{The number of point masses to use to estimate the distribution of 
-\eqn{X} when the error distribution is not supplied and we use the method of
-Delaigle and Hall (2016).}
+\eqn{X} in the case of an unknown homoscedastic error distribution estimated without replicates.}
 
 \item{show_diagnostics}{If \code{TRUE}, then diagnostic messages are printed 
 displaying the results of the various optimizations performed when the error
@@ -80,7 +79,7 @@ data \eqn{W_{i1} = X_i + U_{i1}, i=1,...,n} when the distribution of \eqn{U_i} i
 or unknown and estimated from replicates, \eqn{W_{i1} = X_i + U_{i1}} and 
 \eqn{W_{i2} = X_i + U_{i2}}, or without replicates if replicates are not available.
 All error densities need to be symmetric. In the homoscedastic error case, the codes
- are suitable only if the charactersitic function of the errors is nonzero everywhere. 
+are suitable only if the characteristic function of the errors is nonzero everywhere. 
 In the heteroscedastic error case, the pooled characteristic function of the errors 
 used by Delaigle and Meister (2006) must be nonzero everywhere
 }
@@ -114,10 +113,11 @@ except that we do the tail correction of the estimated pooled characteristic fun
 the errors as in Delaigle and Hall (2016) and Camirand, Carroll and Delaigle (2018).
 
 \strong{Unknown homoscedastic error distribution estimated without replicates:} 
-If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the density 
+If none of \code{phiU}, \code{errortype} and \code{sd_U}, or \code{W2} are supplied then the density 
 of \eqn{X} is assumed asymmetric and to satisfy the identifiability conditions of
 Delaigle and Hall (2016). The estimator of the density of \eqn{X} is computed as in 
-Delaigle and Hall (2016).
+Delaigle and Hall (2016) except that we use far fewer points of support for 
+the estimating discrete distribution and we allow the location of these point masses to vary.
 
 The order in which we choose the methods is as follows:
 \enumerate{

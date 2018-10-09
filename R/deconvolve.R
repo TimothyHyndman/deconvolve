@@ -5,7 +5,7 @@
 #' or unknown and estimated from replicates, \eqn{W_{i1} = X_i + U_{i1}} and 
 #' \eqn{W_{i2} = X_i + U_{i2}}, or without replicates if replicates are not available.
 #' All error densities need to be symmetric. In the homoscedastic error case, the codes
-#'  are suitable only if the charactersitic function of the errors is nonzero everywhere. 
+#' are suitable only if the characteristic function of the errors is nonzero everywhere. 
 #' In the heteroscedastic error case, the pooled characteristic function of the errors 
 #' used by Delaigle and Meister (2006) must be nonzero everywhere
 #' 
@@ -44,10 +44,11 @@
 #-------------------------------------------------------------------------------
 #' 
 #' \strong{Unknown homoscedastic error distribution estimated without replicates:} 
-#' If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the density 
+#' If none of \code{phiU}, \code{errortype} and \code{sd_U}, or \code{W2} are supplied then the density 
 #' of \eqn{X} is assumed asymmetric and to satisfy the identifiability conditions of
 #' Delaigle and Hall (2016). The estimator of the density of \eqn{X} is computed as in 
-#' Delaigle and Hall (2016). 
+#' Delaigle and Hall (2016) except that we use far fewer points of support for 
+#' the estimating discrete distribution and we allow the location of these point masses to vary.
 #' 
 #' The order in which we choose the methods is as follows:
 #' \enumerate{
@@ -76,7 +77,7 @@
 #' errors. This does not need to be provided if you define your error distribution
 #' using\code{phiU} and provide \code{bw}.
 #' @param phiU Function(s) giving the characteristic function of the errors. A 
-#' single function for homoscedastic errors and a vector of \eqn{n} functions 
+#' single real valued function for homoscedastic errors and a vector of \eqn{n} real valued functions 
 #' for heteroscedastic errors. If you define the errors this way then you
 #' should not provide \code{errortype}.
 #' @param bw The bandwidth to use when computing the kernel estimator of the density
@@ -85,21 +86,12 @@
 #' that it integrates to 1. Rescaling requires \code{xx} to be a fine grid of equispaced 
 #' \eqn{x} values that cover the whole range of \eqn{x}-values where the 
 #' estimated density is significantly non zero.
-#' @param kernel_type The kernel K to use when computing the estimator of the 
-#' density of \eqn{X}. The default kernel has characteristic function 
+#' @param kernel_type A string giving the kernel K to use when computing the estimator of the 
+#' density of \eqn{X}. Either "default", "normal", or "sinc". The default kernel has characteristic function 
 #' \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}. The normal kernel is the standard normal density.
 #' The sinc kernel has characteristic function equal to 1 for \eqn{t \in [-1,1]}
-#-------------------------------------------------------------------------------
-# IS IT THE CASE THE ONLY ONE OF THOSE THREE KERNELS CAN BE USED, I.E. THE USER CANNOT PROVIDE THEIR OWN KERNEL?
-# IS THERE AN ERROR MESSAGE IF THE USER PROVIDES A WRONG KERNEL?
-#-------------------------------------------------------------------------------
 #' @param m The number of point masses to use to estimate the distribution of 
-#' \eqn{X} when the error distribution is not supplied and we use the method of
-#' Delaigle and Hall (2016).
-#-------------------------------------------------------------------------------
-# NEED TO MENTION YOU USE A MODIFIED VERSION OF DH (2016)
-# AND WHAT IS DIFFERENT FROM THERE.
-#-------------------------------------------------------------------------------
+#' \eqn{X} in the case of an unknown homoscedastic error distribution estimated without replicates.
 #' @param show_diagnostics If \code{TRUE}, then diagnostic messages are printed 
 #' displaying the results of the various optimizations performed when the error
 #' distribution is not supplied and estimated by the method in Delaigle and
@@ -222,7 +214,10 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 		} else {
 			warning("Errortype and sd_U as well as W2 have been provided. Continuing using errors defined by errortype and sd_U and augmenting W1 with the data in W2.")
 		}
-		
+	}
+
+	if (!is.null(phiU) & !is.null(errortype)) {
+		warning("Both phiU and errortype provided. Continuing ignoring errortype.")
 	}
 
 	# Check inputs -------------------------------------------------------------
@@ -253,20 +248,28 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 	}
 
 	if (kernel_type == "normal") {
-		warning("You should only use the 'normal' kernel when the errors are ordinary 
-			smooth such as Laplace or convolutions of Laplace.")
+		if (errortype == "normal") {
+			stop("You cannot use the 'normal' kernel when the errors are normal.")
+		} else {
+			warning("You should only use the 'normal' kernel when the errors are ordinary 
+				smooth such as Laplace or convolutions of Laplace.")
+		}
 	}
 
-	if (kernel_type == "sinc") {
+	if (kernel_type == "sinc" & !is.null(bw)) {
 		warning("You should ensure that you are not using a plug-in bandwidth 
 			method for the bandwidth.")
 	}
 
 	# Calculate Bandwidth if not supplied --------------------------------------
 	if (is.null(bw) & !(errors == "sym")) {
-	#DON'T YOU NEED TO PROVIDE THE ALGORITHM TO USE IN BANDWIDTH?
+		if (kernel_type == "sinc") {
 			bw <- bandwidth(W1, W2, errortype, sd_U, phiU, 
-							kernel_type = kernel_type)
+							kernel_type = kernel_type, algorithm = "CV")
+		} else {
+			bw <- bandwidth(W1, W2, errortype, sd_U, phiU, 
+							kernel_type = kernel_type, algorithm = "PI")
+		}
 	}
 
 	# --------------------------------------------------------------------------

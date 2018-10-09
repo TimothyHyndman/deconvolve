@@ -9,19 +9,12 @@ CVdeconv <- function(n, W, phiU, phiK, muK2, RK, deltat, tt) {
 # Analysis, 45, 249-267
 
 #----------------------------
-# Required arguments:
+# arguments:
 #----------------------------
 
 # n: sample size
 # W: vector of univariate contaminated data
 # phiU:function that gives the characteristic function of the error
-
-
-#------------------------------------------------------------------------------------------------------------------------
-# Optional arguments (if you change one of them you must change all of them as they need to correspond to the same kernel):
-#------------------------------------------------------------------------------------------------------------------------
-
-
 #phiK: Fourier transfrom of the kernel. The default is (1-t^2)^3 on the interval [-1,1]
 #muK2: second moment of the kernel, i.e. \int x^2 K(x) dx
 #RK: integral of the square of the kernel, i.e. \int K^2(x) dx
@@ -34,10 +27,6 @@ CVdeconv <- function(n, W, phiU, phiK, muK2, RK, deltat, tt) {
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #								WARNINGS:
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#The kernel you use must be the same as the kernel defined in the function fdecUknown, so if you change the optional arguments here you must change them in fdecUknown.
-#
-#If you change the kernel you have to chage muK2, RK and the range of t-values (these must correspond to the support of phiK), and thus also delatat
-#
 #In case of multiple bandwidth solutions, by default this code takes the largest solution: you can change this to your preferred way of breaking ties.
 #Often if you plot CV you will see that the first few solutions seem unreasonable (CV fluctuates widely). You can take the first minimum that looks reasonable.
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------
