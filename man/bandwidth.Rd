@@ -14,9 +14,10 @@ bandwidth(W1, W2 = NULL, errortype = NULL, sd_U = NULL,
 
 \item{W2}{(optional) A vector of size n containing replicate measurements for the same 
 n individuals (in the same order) as W1. If supplied, then the error distribution
-will be estimated using the replicates.}
+will be estimated using the replicates only if \code{phiU}, and both of \code{errortype}
+and \code{sd_U} are not provided.}
 
-\item{errortype}{The distribution of \eqn{U}, either "laplace" or "normal". 
+\item{errortype}{A single string giving the distribution of \eqn{U}, either "laplace" or "normal". 
 If you define the error distribution this way then you must also provide 
 \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
 and partially matched.}
@@ -26,7 +27,7 @@ homoscedastic errors and a vector having the same length as \code{W1} for
 heteroscedastic errors.}
 
 \item{phiU}{Function(s) giving the characteristic function of the errors. A 
-single function for homoscedastic errors and a vector of \eqn{n} functions 
+single real valued function for homoscedastic errors and a vector of \eqn{n} real valued functions 
 for heteroscedastic errors. If you define the errors this way then you
 should not provide \code{errortype}.}
 
@@ -41,8 +42,8 @@ second order moment and finite squared integral.}
 \item{n_cores}{Number of cores to use when using SIMEX algorithm. If
 \code{NULL}, the number of cores to use will be automatically detected.}
 
-\item{kernel_type}{The kernel K to use when computing the estimator of the 
-density of \eqn{X}. The default kernel has characteristic function 
+\item{kernel_type}{A string giving the kernel K to use when computing the estimator of the 
+density of \eqn{X}. Either "default", "normal", or "sinc". The default kernel has characteristic function 
 \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}. The normal kernel is the standard normal density.
 The sinc kernel has characteristic function equal to 1 for \eqn{t \in [-1,1]}}
 

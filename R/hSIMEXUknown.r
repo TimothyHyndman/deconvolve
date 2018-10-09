@@ -11,14 +11,8 @@
 #
 # Use the function NWDecUknown to compute the regression estimator with this rho
 # and this h
-
-# W: vector of contaminated data W_1,...,W_n
-# Y: vector of data Y_1,...,Y_n
+# outputs
 # h: bandwidth
-#
-# errortype: 'laplace' for Laplace errors and 'normal' for normal errors. For other
-# error distributions, simply redefine phiU below
-# sd_U: parameter of Laplace or normal errors used only to define phiU.
 # rho: ridge parameter.
 
 hSIMEXUknown <- function(W, Y, generate_U_star, sd_U, phiU, kernel_type, n_cores, 

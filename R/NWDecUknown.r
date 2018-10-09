@@ -4,30 +4,19 @@
 # Goal: estimate m where Y=m(X)+epsilon,  and we observe data on (W, Y),  where 
 # W=X+U.
 # See Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With 
-# Errors in Variables,  The Annals of Statistics,  21,  19001925
+# Errors in Variables,  The Annals of Statistics,  21,  1900-1925
 
 # xx: vector of x-values where to compute the regression estimator
 # W: vector of contaminated data W_1, ..., W_n
 # Y: vector of data Y_1, ..., Y_n
 # h: bandwidth
-# 
-# 
-# errortype: 'Lap' for Laplace errors and 'norm' for normal errors. For other 
-# error distributions,  simply redefine phiU below 
-# 
 # rho: ridge parameter. See
 # Delaigle,  A. and Hall,  P. (2008). Using SIMEX for smoothing-parameter choice 
 # in errors-in-variables problems.  JASA,  103,  280-287 
-
-
-
+#
 #  -----------------------------------------------------------------------------
 # 								WARNINGS:
 #  -----------------------------------------------------------------------------
-# 
-# The range of t-values -1 and 1 correspond to the support of phiK. 
-# If you change phiK and take a kernel for which phiK is not supported on 
-# [-1, 1] you have to change -1 and 1 accordingly.
 # 
 # The phiK here must match the phiK used to compute the bandwidth (SIMEX or 
 # other).

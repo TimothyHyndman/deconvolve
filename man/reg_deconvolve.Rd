@@ -13,15 +13,17 @@ reg_deconvolve(Y, W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out
 \arguments{
 \item{Y}{A vector of the response data Y_1, ..., Y_n.}
 
-\item{W1}{A vector of the univariate contaminated data W_1, ..., W_n.}
+\item{W1}{A vector of size n containing the univariate contaminated data.}
 
-\item{W2}{A vector of replicate measurements. If supplied, then the error 
-will be estimated using replicates.}
+\item{W2}{(optional) A vector of size n containing replicate measurements for the same 
+n individuals (in the same order) as W1. If supplied, then the error distribution
+will be estimated using the replicates only if \code{phiU}, and both of \code{errortype}
+and \code{sd_U} are not provided.}
 
 \item{xx}{A vector of x values on which to compute the regression estimator.}
 
-\item{errortype}{The distribution type of \eqn{U}. Either "laplace" or
-"normal". If you define the errors this way then you must also provide
+\item{errortype}{A single string giving the distribution of \eqn{U}, either "laplace" or "normal". 
+If you define the error distribution this way then you must also provide 
 \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
 and partially matched.}
 
@@ -43,10 +45,12 @@ also provide \code{bw}.}
 \item{n_cores}{Number of cores to use when calculating the bandwidth. If
 \code{NULL}, the number of cores to use will be automatically detected.}
 
-\item{kernel_type}{The deconvolution kernel to use. The default kernel has
-characteristic function \eqn{(1-t^2)^3}.}
+\item{kernel_type}{The deconvolution kernel to use. The default kernel has characteristic function 
+\eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}. The normal kernel is the standard normal density.
+The sinc kernel has characteristic function equal to 1 for \eqn{t \in [-1,1]}}
 
-\item{seed}{Set seed for SIMEX. Otherwise a default seed will be automatically set.}
+\item{seed}{Set seed for SIMEX. Allows for reproducible results using SIMEX.
+Otherwise a default seed will be automatically set.}
 
 \item{use_alt_SIMEX_rep_opt}{Only used with SIMEX using replicates. If 
 \code{TRUE}, performs SIMEX on \eqn{W = (W1 + W2)/2} and samples \eqn{U*} 
@@ -87,8 +91,9 @@ which is faster, but more complex. See Delaigle and Gijbels 2007.
 
 \section{References}{
 
-Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
-in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
+Camirand, F., Carroll, R.J., and Delaigle, A. (2018). Estimating the  
+distribution of episodically consumed food measured with errors.  
+\emph{Manuscript.} 
 
 Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
 integrals and optimizing objective functions: a case study in density
@@ -98,17 +103,16 @@ Delaigle, A. and Hall, P. (2008). Using SIMEX for smoothing-parameter choice
 in errors-in-variables problems. \emph{Journal of the American Statistical
 Association}, 103, 481, 280-287
 
-Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
-repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
-
 Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
 deconvolution when the error distribution is unknown. \emph{Journal of the 
 Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
 231-252.
 
-Camirand, F., Carroll, R.J., and Delaigle, A. (2018). Estimating the  
-distribution of episodically consumed food measured with errors.  
-\emph{Manuscript.}
+Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
+repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
+
+Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
+in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 }
 
 \examples{
