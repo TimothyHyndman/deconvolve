@@ -264,12 +264,11 @@ bandwidth <- function(W1,
 	if (algorithm == "PI" & errors == "het") {
 		n <- length(W1)
 		varX <- max(mean(W1^2) - (mean(W1))^2 - sum(sd_U^2) / n, 1/n)
-		output <- PI_deconvUknownth4het(n, W1, varX, phiU, phiK, muK2, RK, 
-										deltat, tt)
+		output <- PI_deconvUknownth4het(W1, varX, phiU, kernel_type)
 	}
 
 	if (algorithm == "PI" & errors == "hom") {
-		sd_X <- max( sqrt(max(stats::var(W1) - sd_U^2, 0)), 1/n)
+		sd_X <- sqrt(max(stats::var(W1) - sd_U^2, 1/n))
 		output <- plugin_bandwidth(W1, phiU, sd_X, kernel_type)
 	}
 
@@ -277,7 +276,7 @@ bandwidth <- function(W1,
 		diff <- W1 - W2
 		sd_U <- sqrt(stats::var(diff)/2)
 		n <- length(c(W1, W2))
-		sd_X <- max(sqrt(max(stats::var(c(W1, W2)) - sd_U^2, 0)), 1/n)
+		sd_X <- sqrt(max(stats::var(c(W1, W2)) - sd_U^2, 1/n))
 		hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
 			sqrt(stats::var(c(W1, W2))) * n^(-1/5)
 		h_min <- hnaive / 3
@@ -310,7 +309,7 @@ bandwidth <- function(W1,
 		}
 		
 		# Actually find bandwidth
-		sd_X <- max(sqrt(max(stats::var(W1) - sd_U^2, 0)), 1 / n)
+		sd_X <- sqrt(max(stats::var(W1) - sd_U^2, 1 / n))
 		output <- plugin_bandwidth(W1, phi_U_splined, sd_X, kernel_type)
 	}
 

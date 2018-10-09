@@ -36,9 +36,6 @@
 #' and the estimator of the density of \eqn{X} is computed as in Delaigle and Meister (2008)
 #' except that we do the tail correction of the estimated pooled characteristic function of 
 #' the errors as in Delaigle and Hall (2016) and Camirand, Carroll and Delaigle (2018).
-#-------------------------------------------------------------------------------
-# NEED TO SAY WHICH REFINEMENTS EXACTLY. DO YOU REMEMBER?
-#-------------------------------------------------------------------------------
 #' 
 #' \strong{Unknown homoscedastic error distribution estimated without replicates:} 
 #' If none of \code{phiU}, \code{errortype} and \code{sd_U}, or \code{W2} are supplied then the density 
@@ -159,8 +156,6 @@
 #' 
 #' @export
 
-# WILL NEED TO REMOVE THE THINGS RELATED TO pmf 
-
 deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 100), 
 					   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, 
 					   rescale = FALSE,
@@ -246,7 +241,6 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 		}
 	}
 
-	#CAN WE STOP THE CODE WITH AN ERROR MESSAGE IF THE USER CHOSE THE NORMAL KERNEL AND A NORMAL ERROR TYPE?
 	if (kernel_type == "normal") {
 		if (errortype == "normal") {
 			stop("You cannot use the 'normal' kernel when the errors are normal.")

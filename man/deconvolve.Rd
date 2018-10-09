@@ -99,11 +99,11 @@ then the method used is the one from Delaigle and Meister (2008).
 
 \strong{Unknown homoscedastic error distribution when replicates are available:} If both 
 \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{FALSE}, then the 
-error distribution is estimated using the replicates as 
-in Delaigle, Hall and Meister (2008) and the estimator of the density of \eqn{X} is 
-computed as in Delaigle, Hall and Meister (2008) except that we do the tail correction of 
-the estimated characteristic function of the errors as in Delaigle and Hall (2016)
-and Camirand, Carroll and Delaigle (2018).
+error distribution is estimated using the replicates as in Delaigle, Hall and Meister (2008)
+and the estimator of the density of \eqn{X} is computed as in Delaigle, Hall and Meister (2008)
+except that the interval A at page 678 of that paper is replaced by the one used by
+Camirand, Carroll and Delaigle (2018), which is a refined version of the one used by
+Delaigle and Hall (2016).
 
 \strong{Unknown heteroscedastic error distribution when replicates are available:} If both  
 \code{W1} and \code{W2} are supplied and \code{het_replicates} is \code{TRUE}, then these 
