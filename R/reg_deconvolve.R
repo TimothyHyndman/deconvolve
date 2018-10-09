@@ -59,8 +59,9 @@
 #' }
 #'
 #' @section References:
-#' Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
-#' in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
+#' Camirand, F., Carroll, R.J., and Delaigle, A. (2018). Estimating the  
+#' distribution of episodically consumed food measured with errors.  
+#' \emph{Manuscript.} 
 #'
 #' Delaigle, A. and Gijbels, I. (2007). Frequent problems in calculating
 #' integrals and optimizing objective functions: a case study in density
@@ -70,17 +71,16 @@
 #' in errors-in-variables problems. \emph{Journal of the American Statistical
 #' Association}, 103, 481, 280-287
 #' 
-#' Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
-#' repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
-#' 
 #' Delaigle, A. and Hall, P. (2016). Methodology for non-parametric 
 #' deconvolution when the error distribution is unknown. \emph{Journal of the 
 #' Royal Statistical Society: Series B (Statistical Methodology)}, 78, 1, 
 #' 231-252.
 #' 
-#' Camirand, F., Carroll, R.J., and Delaigle, A. (2018). Estimating the  
-#' distribution of episodically consumed food measured with errors.  
-#' \emph{Manuscript.} 
+#' Delaigle, A., Hall, P., and Meister, A. (2008). On Deconvolution with  
+#' repeated measurements. \emph{Annals of Statistics}, 36, 665-685 
+#' 
+#' Fan,  J.,  and Truong,  Y. K. (1993),  Nonparametric Regression With Errors
+#' in Variables,  \emph{The Annals of Statistics}.  21,  1900-1925.
 #' 
 #' @author Aurore Delaigle, Timothy Hyndman, Tianying Wang
 #' 

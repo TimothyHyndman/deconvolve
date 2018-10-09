@@ -108,7 +108,7 @@
 #' 
 #' @section Warnings:
 #' \itemize{
-#'  	\item In your errors have a Laplace distribution, \code{sd_U} is not the usual parameter
+#'  \item If your errors have a Laplace distribution, \code{sd_U} is not the usual parameter
 #'  	of a Laplace distribution but its standard deviation.
 #'	\item The method for deconvolution when the error distribution is unknown and assumed
 #'   symmetric, and estimated without replicates, as in Delaigle and Hall (2016), requires solving 
@@ -157,7 +157,7 @@
 
 deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 100), 
 					   errortype = NULL, sd_U = NULL, phiU = NULL, bw = NULL, 
-					   rescale = FALSE, pmf = FALSE, 
+					   rescale = FALSE,
 					   kernel_type = c("default", "normal", "sinc"), 
 					   het_replicates = FALSE,
 					   m = 20,
@@ -209,10 +209,6 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 
 	if (!is.null(phiU) & is.null(bw) & is.null(sd_U)){
 		stop("You must provide sd_U along with phiU if you do not provide bw.")
-	}
-
-	if (pmf & !(errors == "sym")){
-		stop("Option pmf cannot be used when the error is provided.")
 	}
 
 	if (errors == "rep"){
@@ -277,17 +273,11 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 
 	if (errors == "sym") {
 		out <- DeconErrSymPmf(W1, m, kernel_type, show_diagnostics = show_diagnostics)
-		if (!pmf) {
-			phi.W <- out$phi_W
-			pdf <- DeconErrSymPmfToPdf(out, W1, phi.W, xx, kernel_type, rescale, 
-									   bw)
-			output <- list("x" = xx, "pdf" = pdf, "support" = out$support, 
-						   "probweights" = out$probweights, "W1" = W1)
-		} else {
-			output <- list("support" = out$support,
-						   "probweights" = out$probweights,
-						   "W1" = W1)
-		}
+		phi.W <- out$phi_W
+		pdf <- DeconErrSymPmfToPdf(out, W1, phi.W, xx, kernel_type, rescale, 
+								   bw)
+		output <- list("x" = xx, "pdf" = pdf, "support" = out$support, 
+					   "probweights" = out$probweights, "W1" = W1)
 	}
 
 	# Output object of class "deconvolve" --------------------------------------

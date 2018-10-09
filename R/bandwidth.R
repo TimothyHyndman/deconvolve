@@ -318,7 +318,7 @@ bandwidth <- function(W1,
 }
 
 create_generate_U_star <- function(W1, W2, errortype, sd_U, use_alt_SIMEX_rep_opt) {
-	# Generates vector of length n with same distribution as U
+	# Create function to generate vector of length n with same distribution as U
 	n <- length(W1)
 
 	if (!is.null(W2)) {

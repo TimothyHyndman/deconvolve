@@ -14,7 +14,7 @@ test_that("symmetric error pmftopdf gives expected result", {
 })
 
 test_that("symmetric error case gives reasonable result", {
-	d_test <- deconvolve(W, pmf = TRUE, m = 2)
+	d_test <- deconvolve(W, m = 2)
 	expect_equal(length(d_test$support), 2)
 })
 
