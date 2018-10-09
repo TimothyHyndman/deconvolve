@@ -27,6 +27,7 @@ create_replicates_phi_U  <- function(W1, W2, t_search) {
 		phiU_spline(t, sd_U, t_cutoff, t_search, phi_U_rep)
 	}
 
+	phi_U
 }
 
 phiU_spline <- function(t, sd_U, t_cutoff, t_phiU, phiU) {
