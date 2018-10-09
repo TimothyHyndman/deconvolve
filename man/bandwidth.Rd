@@ -14,9 +14,10 @@ bandwidth(W1, W2 = NULL, errortype = NULL, sd_U = NULL,
 
 \item{W2}{(optional) A vector of size n containing replicate measurements for the same 
 n individuals (in the same order) as W1. If supplied, then the error distribution
-will be estimated using the replicates.}
+will be estimated using the replicates only if \code{phiU}, and both of \code{errortype}
+and \code{sd_U} are not provided.}
 
-\item{errortype}{The distribution of \eqn{U}, either "laplace" or "normal". 
+\item{errortype}{A single string giving the distribution of \eqn{U}, either "laplace" or "normal". 
 If you define the error distribution this way then you must also provide 
 \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
 and partially matched.}

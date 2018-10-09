@@ -14,11 +14,12 @@ deconvolve(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 100),
 
 \item{W2}{(optional) A vector of size n containing replicate measurements for the same 
 n individuals (in the same order) as W1. If supplied, then the error distribution
-will be estimated using the replicates.}
+will be estimated using the replicates only if \code{phiU}, and both of \code{errortype}
+and \code{sd_U} are not provided.}
 
 \item{xx}{A vector of x values on which to compute the estimator of the density of \eqn{X}.}
 
-\item{errortype}{The distribution of \eqn{U}, either "laplace" or "normal". 
+\item{errortype}{A single string giving the distribution of \eqn{U}, either "laplace" or "normal". 
 If you define the error distribution this way then you must also provide 
 \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
 and partially matched.}
@@ -64,12 +65,14 @@ An object of class "\code{deconvolve}".
 
 The function \code{plot} produces a plot of the deconvolution KDE of the density of \eqn{X} on the grid \code{xx}.
 
-An object of class "\code{deconvolve}" is a list containing at least some of
-the elements:
+An object of class "\code{deconvolve}" is a list containing at least the 
+following elements:
 \item{W1}{The original vector of contaminated data}
 \item{x}{The values on which the deconvolution KDE is evaluated.}
 \item{pdf}{A vector containing the deconvolution KDE of the density of \eqn{X}, 
 evaluated at each point in \code{xx}}
+It may also contain
+\item{W2}{The original vector of replicates}
 }
 \description{
 Computes the deconvolution kernel estimator (KDE) of the density of \eqn{X} from 
@@ -115,6 +118,17 @@ If none of \code{errortype}, \code{phiU}, or \code{W2} are supplied then the den
 of \eqn{X} is assumed asymmetric and to satisfy the identifiability conditions of
 Delaigle and Hall (2016). The estimator of the density of \eqn{X} is computed as in 
 Delaigle and Hall (2016).
+
+The order in which we choose the methods is as follows:
+\enumerate{
+	\item If provided, use \code{phiU} to define the errors, otherwise
+	\item If provided use \code{errortype} and \code{sd_u} to define the errors, otherwise
+	\item If provided, use the vector of replicates \code{W2} to estimate the error distribution, otherwise
+	\item We use the method for unknown homoscedastic error distribution estimated without replicates.
+}
+
+Note that in both 1 and 2, if a vector of replicates \code{W2} is provided we
+augment the data in \code{W1} with that in \code{W2}.
 }
 \section{Warnings}{
 

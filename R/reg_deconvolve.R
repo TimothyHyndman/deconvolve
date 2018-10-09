@@ -16,15 +16,8 @@
 #' function \code{phiU}, or a single value \code{sd_U} along with its 
 #' \code{errortype} then the method used is as described in Fan and Truong 1993.
 #' 
-#' @param W1 A vector of the univariate contaminated data W_1, ..., W_n.
-#' @param W2 A vector of replicate measurements. If supplied, then the error 
-#' will be estimated using replicates.
 #' @param Y A vector of the response data Y_1, ..., Y_n.
 #' @param xx A vector of x values on which to compute the regression estimator.
-#' @param errortype The distribution type of \eqn{U}. Either "laplace" or
-#' "normal". If you define the errors this way then you must also provide
-#' \code{sd_U} but should not provide \code{phiU}. Argument is case-insensitive
-#' and partially matched.
 #' @param sd_U The standard deviation of \eqn{U}. This does not need to be
 #' provided if you define your error using phiU and provide \code{bw} and
 #' \code{rho}.
@@ -38,13 +31,16 @@
 #' also provide \code{bw}.
 #' @param n_cores Number of cores to use when calculating the bandwidth. If
 #' \code{NULL}, the number of cores to use will be automatically detected.
-#' @param kernel_type The deconvolution kernel to use. The default kernel has
-#' characteristic function \eqn{(1-t^2)^3}.
-#' @param seed Set seed for SIMEX. Otherwise a default seed will be automatically set.
+#' @param kernel_type The deconvolution kernel to use. The default kernel has characteristic function 
+#' \eqn{(1-t^2)^3} for \eqn{t \in [-1,1]}. The normal kernel is the standard normal density.
+#' The sinc kernel has characteristic function equal to 1 for \eqn{t \in [-1,1]}
+#' @param seed Set seed for SIMEX. Allows for reproducible results using SIMEX.
+#' Otherwise a default seed will be automatically set.
 #' @param use_alt_SIMEX_rep_opt Only used with SIMEX using replicates. If 
 #' \code{TRUE}, performs SIMEX on \eqn{W = (W1 + W2)/2} and samples \eqn{U*} 
 #' from (W1 - W2). The default performs SIMEX on \eqn{W = (W1, W2)} and 
 #' and samples \eqn{U*} from \eqn{(W1 - W2)/\sqrt 2}.
+#' @inheritParams deconvolve
 #'
 #' @return An object of class deconvolve containing the regression estimator, 
 #' as well as the bandwidth and ridge parameter rho. Using SIMEX to choose 
