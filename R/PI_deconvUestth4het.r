@@ -1,9 +1,11 @@
-PI_deconvUknownth4het <- function(W, varX, phiUkvec, kernel_type){
+PI_deconvUestth4het <- function(W1,W2,hnaive,stdevx,Den, kernel_type){
+
 #compute 2-stage plug-in bandwidth for heteroscedastic kerndel deconvolution estimator as in:
 #Delaigle, A. and Meister, A. (2008). Density estimation with heteroscedastic error. Bernoulli, 14, 562-579
+#in the case where the error distributions are estimated through replicates
 # !!! This code is only valid for a kernel of order 2 !!!!
-#phiUveck: vector of n functions that give the characteristic functiona of the n errors. Produce this vector by c(func1,func2,...,funcn) where each funcj is a function of tt
-
+#Den=Den of the estimator in Delaigle and Meister (2008)
+#in the case where the error distributions are unknown and estimated from replicates.
 
 
 	kernel_list <- kernel(kernel_type)
@@ -12,45 +14,22 @@ PI_deconvUknownth4het <- function(W, varX, phiUkvec, kernel_type){
 	RK <- kernel_list$rk
 	tt <- kernel_list$tt
 	deltat <- tt[2] - tt[1]
-	n <- length(W)
-
-	W=as.vector(W)
+	n <- length(W1)
 
 	#Grid of h on which to search for a solution. If you did not find a minimum on that grid you can redefine it
-	maxh=(max(W)-min(W))/10
-	#normal reference bandwidth of the naive KDE estimator (estimator that ignores the errors) using the same kernel as above
-	hnaive=((8*sqrt(pi)*RK/3/mu_K2^2)^0.2)*sqrt(stats::var(W))*n^(-1/5)
-	hgrid=seq(hnaive/3,maxh,(maxh-hnaive/3)/100)
-	lh = length(hgrid)
-	dim(hgrid)=c(1,lh)
-
-
-	#Estimator of the standard deviation of X
-	stdevx = sqrt(max(varX,1/n))
+	maxh=(max(W1)-min(W1))/10
+	lh <- 101
+	hgrid <- seq(hnaive / 3, maxh, length.out = lh)
 
 	#Quantities that will be needed several times in the computations below
-	toverh=tt%*%(1/hgrid)
-	phiKsq=(phiK(tt))^2
-	phiKsq=as.vector(phiKsq)
-
-	# Convert vector of functions to single function ---------------------------
-	phiUk <- function(tt,k) {
-		phiUkvec[[k]](tt)
-	}
-
-	#Compute sum over k of phiU_k(tt/h)^2
-	phiUsq=matrix(0,length(tt),length(hgrid))
-	for (k in seq_len(n))
-		{
-		matphiU=phiUk(toverh,k)
-		phiUsq=phiUsq+matphiU^2
-		}
-
+	toverh <- tt %*% t(1 / hgrid)
+	phiKsq <- phiK(tt)^2
+	deno_th <- Den(toverh)^2
 
 	calculate_indh <- function(rr, th) {
 		term1 <- -hgrid^2 * mu_K2 * th
-		term2 <- kronecker(matrix(1, 1, lh), tt^(2*rr) * phiKsq) / phiUsq
-		term2 <- colSums(term2) * deltat  / (2 * pi * hgrid^(2 * rr + 1))
+		term2 <- kronecker(matrix(1, 1, lh), tt^(2*rr) * phiKsq) / deno_th
+		term2 <- n*colSums(term2) * deltat  / (2 * pi * hgrid^(2 * rr + 1))
 		ABias2 <- (term1 + term2)^2
 
 		indh <- which.min(ABias2)
@@ -70,29 +49,11 @@ PI_deconvUknownth4het <- function(W, varX, phiUkvec, kernel_type){
 
 	calculate_th <- function(h, indh) {
 		
-		#Estimate empirical characteristic function of W at t/h
-		OO <- outer(tt / h, W)
-		
-		# Compute phiU(-t/h) -- since phiU is symmetric, this is the same as phiU(t/h)
-		matphiU=OO
-		for (k in seq_len(n))
-			{matphiU[,k]=phiUk(tt/h,k)}
-		
-		#Estimate empirical characteristic function of X at t/h
-		rehatphiX=apply(cos(OO)*matphiU,1,sum)
-		imhatphiX=apply(sin(OO)*matphiU,1,sum)
-		
-		rm(OO)
-		
-		#Compute th
-		normhatphiX2=(rehatphiX^2+imhatphiX^2)/(phiUsq[,indh])^2
-		th = sum(tt^(2*rr) * normhatphiX2 * phiKsq)
+		phi_W <- ComputePhiEmp((W1+W2)/2, tt/h)
+		th <- sum(tt^(2 * rr) * (n*phi_W$norm)^2 * phiKsq / deno_th[, indh])
 		th * deltat / (2 * pi * h^(2 * rr + 1))
-	
 		
 	}
-
-
 
 
 	#---------------------------------------------------------------------------
@@ -127,9 +88,9 @@ PI_deconvUknownth4het <- function(W, varX, phiUkvec, kernel_type){
 	# ------------------------------------------------------------------------------------------------------
 
 	term1=hgrid^4*mu_K2^2*th2/4
-	term2=kronecker(matrix(1,1,lh),phiKsq)/phiUsq
+	term2=kronecker(matrix(1,1,lh),phiKsq)/deno_th
 	term2=apply(term2,2,sum)*deltat/(2*pi*hgrid)
-	AMISE=term1+term2
+	AMISE=term1+n*term2
 
 	indh=which.min(AMISE)
 	hPI = hgrid[indh]

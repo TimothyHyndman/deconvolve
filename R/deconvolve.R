@@ -259,10 +259,10 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 	if (is.null(bw) & !(errors == "sym")) {
 		if (kernel_type == "sinc") {
 			bw <- bandwidth(W1, W2, errortype, sd_U, phiU, 
-							kernel_type = kernel_type, algorithm = "CV")
+							kernel_type = kernel_type, algorithm = "CV", het_replicates = het_replicates)
 		} else {
 			bw <- bandwidth(W1, W2, errortype, sd_U, phiU, 
-							kernel_type = kernel_type, algorithm = "PI")
+							kernel_type = kernel_type, algorithm = "PI", het_replicates = het_replicates)
 		}
 	}
 
@@ -299,7 +299,8 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 	}
 
 	if (errors == "het_rep") {
-		pdf <- decon_err_het_replicates(xx, W1, W2, kernel_type, bw, rescale)
+		deno_U <- create_deno_het_phi_U(W1, W2, tt/bw)
+		pdf <- decon_err_het_replicates(xx, W1, W2, deno_U, kernel_type, bw, rescale)
 		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, "W2" = W2)
 	}
 

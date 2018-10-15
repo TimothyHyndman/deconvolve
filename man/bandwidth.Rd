@@ -7,7 +7,7 @@
 bandwidth(W1, W2 = NULL, errortype = NULL, sd_U = NULL,
   phiU = NULL, Y = NULL, algorithm = c("PI", "CV", "SIMEX"),
   n_cores = NULL, kernel_type = c("default", "normal", "sinc"),
-  seed = NULL, use_alt_SIMEX_rep_opt = FALSE)
+  seed = NULL, use_alt_SIMEX_rep_opt = FALSE, het_replicates = FALSE)
 }
 \arguments{
 \item{W1}{A vector of size n containing the univariate contaminated data.}
@@ -53,6 +53,10 @@ The sinc kernel has characteristic function equal to 1 for \eqn{t \in [-1,1]}}
 \code{TRUE}, performs SIMEX on \eqn{W = (W1 + W2)/2} and samples \eqn{U*} 
 from \eqn{(W1 - W2)}. The default performs SIMEX on \eqn{W = (W1, W2)} and 
 and samples \eqn{U*} from \eqn{(W1 - W2)/\sqrt 2}.}
+
+\item{het_replicates}{If \code{TRUE}, then the errors are not assumed to be 
+homoscedastic and the code for heteroscedastic errors is used. Only applicable 
+if \code{W2} is supplied.}
 }
 \value{
 A data-driven bandwidth. If using 'SIMEX' algorithm then returns a

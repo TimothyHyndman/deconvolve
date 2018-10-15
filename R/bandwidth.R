@@ -112,7 +112,8 @@ bandwidth <- function(W1,
 					  n_cores = NULL,
 					  kernel_type = c("default", "normal", "sinc"), 
 					  seed = NULL,
-					  use_alt_SIMEX_rep_opt = FALSE){
+					  use_alt_SIMEX_rep_opt = FALSE,
+					  het_replicates = FALSE){
 
 	# Determine error type provided --------------------------------------------
 	if (!is.null(W2)) {
@@ -272,7 +273,7 @@ bandwidth <- function(W1,
 		output <- plugin_bandwidth(W1, phiU, sd_X, kernel_type)
 	}
 
-	if (algorithm == "PI" & errors == "rep") {
+	if ((algorithm == "PI" & errors == "rep")& het_replicates == FALSE) {
 		diff <- W1 - W2
 		sd_U <- sqrt(stats::var(diff)/2)
 		n <- length(c(W1, W2))
@@ -284,6 +285,21 @@ bandwidth <- function(W1,
 		phi_U <- create_replicates_phi_U(W1, W2, t_search)
 
 		output <- plugin_bandwidth(c(W1, W2), phi_U, sd_X, kernel_type)
+	}
+	
+	if ((algorithm == "PI" & errors == "rep") & het_replicates) {
+		#Code here
+		diff2 <- (W1 - W2)/2
+		sum2 <- (W1 + W2)/2
+		sd_U2 <- sqrt(stats::var(diff2))
+		n <- length(W1)
+		sd_X <- sqrt(max(stats::var(sum2) - sd_U2^2, 1/n))
+		hnaive <- ((8 * sqrt(pi) * RK/3/muK2^2)^0.2) * 
+			sqrt(stats::var(sum2)) * n^(-1/5)
+		h_min <- hnaive / 3
+		t_search <- tt/h_min
+		deno_U <- create_deno_het_phi_U(W1, W2, t_search)
+		output <- PI_deconvUestth4het(W1,W2,hnaive, sd_X, deno_U, kernel_type)
 	}
 
 	if (algorithm == "PI" & errors == "sym") {

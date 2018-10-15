@@ -28,7 +28,7 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2,
 	phi_W <- ComputePhiEmp(W, tt)
 
 	# Calculate t*
-	t_star <- find_t_cutoff(phi_W$norm, tt)
+	t_star <- find_t_cutoff(phi_W$norm, tt, n)
 
 	# Calculate phi_W on [-t*,t*]
 	tt_new_length <- 100

@@ -12,14 +12,14 @@ create_replicates_phi_U  <- function(W1, W2, t_search) {
 	tout <- outer(t_search, diff)
 	phi_U_rep <- rowSums(cos(tout))/n_diff
 	phi_U_rep[phi_U_rep < 0] <- 0
-	phi_U_rep <- sqrt(phi_U_rep)
 
 	# Find range of t for which phi_U_rep is reliable. Plays the role of the interval A 
 	# at page 678 of Delaigle, Hall and Meister (2008). 
 	# Cutoff is computed as in Camirand, Carroll and Delaigle (2018), which is a refined
 	# version of the cutoff proposed by Delaigle and Hall (2016) 
 	
-	t_cutoff <- find_t_cutoff(phi_U_rep, t_search)
+	t_cutoff <- find_t_cutoff(phi_U_rep, t_search,n_diff)
+	phi_U_rep <- sqrt(phi_U_rep)
 	
 	# Outside the reliable t-range, pretend the error is Laplace. Elsewhere 
 	#produce a smooth estimator of phiU via a spline approximation.
