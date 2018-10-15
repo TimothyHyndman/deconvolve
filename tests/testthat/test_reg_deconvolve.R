@@ -16,7 +16,7 @@ test_that("reg_deconvolve gives expected result", {
 	expect_equal(output_test, output)
 })
 
-test_that("replicates re_deconvolve", {
+test_that("replicates reg_deconvolve", {
 	skip_on_cran()
 	set.seed(1)
 	data <- GenerateTestData(n, sd_X, sd_U, dist_type = "mix", error_type = "norm", replicates = TRUE)
