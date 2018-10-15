@@ -30,6 +30,13 @@ test_that("replicates case gives expected result", {
 	expect_equal(bandwidth(data$W1, data$W2), 0.09959522, tolerance = 0.0000001)
 })
 
+set.seed(1)
+data <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm", replicates = TRUE)
+test_that("het_replicates", {
+	skip_on_cran()
+	expect_equal(bandwidth(data$W1, data$W2, het_replicates = TRUE), 0.1168119, tolerance = 0.0000001)
+})
+
 set.seed(2)
 n <- 500
 test_that("no error case gives expected result", {
