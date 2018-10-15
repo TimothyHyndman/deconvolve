@@ -6,14 +6,14 @@
 #' and \eqn{W_{i2} = X_i + U_{i2}}. If 'SIMEX' algorithm used, computes a bandwidth for use in
 #' deconvolution regression of data \eqn{(W_i, Y_i)}  where \eqn{Y_i = g(X_i) + V_i} and \eqn{W_i = X_i + U_i}.
 #'
-#' The function \code{bandwidth} chooses from one of six different methods
+#' The function \code{bandwidth} chooses from one of seven different methods
 #' depending on how the error distribution is defined/computed and which 
 #' algorithm is selected.
 #'
 #' \strong{PI for known homoscedastic error distribution:} If \code{algorithm = "PI"} and the error
 #' distribution is defined by either a single function \code{phiU}, or a single value
 #' \code{sd_U} along with its \code{errortype}, then the method used is as
-#' described in Delaigle and Gijbels (2002), and Delaigle and Gijbels (2004).
+#' described in Delaigle and Gijbels (2002) and Delaigle and Gijbels (2004).
 #'
 #' \strong{PI for known heteroscedastic error distributions:} If \code{algorithm = "PI"} and the
 #' error distributions are defined by a either a vector of functions \code{phiU}, or a vector
@@ -21,9 +21,18 @@
 #' described in Delaigle and Meister (2008).
 #'
 #' \strong{PI for unknown homoscedastic error distribution estimated from replicates:} 
-#' If \code{algorithm = "PI"} and a replicate vector \code{W2} is supplied, then 
-#' the error distribution is estimated using replicates as in Delaigle, Hall and Meister (2008).
+#' If \code{algorithm = "PI"} and a replicate vector \code{W2} is supplied and the errors are
+#' assumed to be homoscedastic, then the error distribution is estimated using replicates as 
+#' described in the main deconvolution code and then the PI bandwidth for known errors is used,
+#' with the true error distribution replaced by its estimator.
 #' 
+#' \strong{PI for unknown heteroscedastic error distribution estimated from replicates:} 
+#' If \code{algorithm = "PI"} and a replicate vector \code{W2} is supplied and the errors are
+#' heteroscedastic, then the density of \eqn{X} is estimated as described in Delaigle and Meister (2008)
+#' with adjustments described in \code{deconvolve} and the PI bandwidth uses arguments similars to the 
+#' ones used for the PI bandwidth for known errors, described in Delaigle and Meister (2008),
+#' is used, but adapated to the unknown error case.
+
 #' \strong{PI for unknown homoscedastic error distribution estimated without replicates:} 
 #' If \code{algorithm = "PI"} and the errors are not supplied, then the error distribution 
 #' is estimated using the method described in Delaigle and Hall (2016) and then the bandwidth 
