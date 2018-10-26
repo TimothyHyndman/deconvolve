@@ -51,8 +51,8 @@ PI_deconvUestth4het <- function(W1,W2,hnaive,stdevx,Den, kernel_type){
 		
 		phi_W <- ComputePhiEmp((W1+W2)/2, tt/h)
 		th <- sum(tt^(2 * rr) * (n*phi_W$norm)^2 * phiKsq / deno_th[, indh])
+
 		th * deltat / (2 * pi * h^(2 * rr + 1))
-		
 	}
 
 

@@ -5,7 +5,7 @@ create_deno_het_phi_U  <- function(W1, W2, t_search) {
 	#Compute means and differences
 	diff2 <- (W1 - W2)/2
 	#Estimate 1/2 var of U
-	varU2 <- sqrt(stats::var(diff2))
+	varU2 <- stats::var(diff2)
 	#Number of replicates
 	n_diff <- length(diff2)
 	#Estimate characteristic function of U at t_search from replicates
