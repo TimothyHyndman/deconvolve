@@ -32,7 +32,7 @@
 #' with adjustments described in \code{deconvolve} and the PI bandwidth uses arguments similars to the 
 #' ones used for the PI bandwidth for known errors, described in Delaigle and Meister (2008),
 #' is used, but adapated to the unknown error case.
-
+#'
 #' \strong{PI for unknown homoscedastic error distribution estimated without replicates:} 
 #' If \code{algorithm = "PI"} and the errors are not supplied, then the error distribution 
 #' is estimated using the method described in Delaigle and Hall (2016) and then the bandwidth 
@@ -52,6 +52,17 @@
 #' replicate vector \code{W2} is supplied, then \eqn{phi_U} is calculated using 
 #' replicates and SIMEX is performed as according to 
 #' \code{use_alt_SIMEX_rep_opt}.
+#' 
+#' The order in which we choose the methods is as follows:
+#' \enumerate{
+#' 	\item If provided, use \code{phiU} to define the errors, otherwise
+#' 	\item If provided use \code{errortype} and \code{sd_u} to define the errors, otherwise
+#' 	\item If provided, use the vector of replicates \code{W2} to estimate the error distribution, otherwise
+#' 	\item We use the method for unknown homoscedastic error distribution estimated without replicates.
+#' }
+#' 
+#' Note that in both 1 and 2, if a vector of replicates \code{W2} is provided we
+#' augment the data in \code{W1} with that in \code{W2}.
 #'
 #' @inheritParams deconvolve
 #' @param algorithm One of \code{"PI"} for plug-in bandwidth, \code{"CV"} for
@@ -124,17 +135,6 @@ bandwidth <- function(W1,
 					  use_alt_SIMEX_rep_opt = FALSE,
 					  het_replicates = FALSE){
 
-	# Determine error type provided --------------------------------------------
-	if (!is.null(W2)) {
-		errors <- "rep"
-	} else if (is.null(errortype) & is.null(phiU)) {
-		errors <- "sym"
-	} else if (length(sd_U) > 1  | length(phiU) > 1){
-		errors <- "het"
-	} else {
-		errors <- "hom"
-	}
-
 	# Partial matching ---------------------------------------------------------
 	dist_types <- c("normal", "laplace")
 	if (!is.null(errortype)) {
@@ -146,6 +146,44 @@ bandwidth <- function(W1,
 
 	algorithm <- match.arg(algorithm)
 	kernel_type <- match.arg(kernel_type)
+
+	# Determine error type provided --------------------------------------------
+	if (!is.null(phiU)) {
+		if (length(phiU) > 1) {
+			errors <- "het"
+		} else {
+			errors <- "hom"
+		}
+	} else if (!is.null(errortype) & !is.null(sd_U)) {
+		if (length(sd_U) > 1) {
+			errors <- "het"
+		} else {
+			errors <- "hom"
+		}
+	} else if (!is.null(W2)) {
+		if (het_replicates) {
+			errors <- "het_rep"
+		} else {
+			errors <- "rep"
+		}
+	} else {
+		errors <- "sym"
+	}
+
+	# Augment W1 with W2 if provided along with phiU or sd_U and errortype
+	if ((errors == "het" | errors == "hom") & !is.null(W2)) {
+		W1 <- c(W1, W2)
+		W2 <- NULL
+		if (!is.null(phiU)) {
+			warning("Both phiU and W2 have been provided. Continuing using errors defined by phiU and augmenting W1 with the data in W2.")
+		} else {
+			warning("Errortype and sd_U as well as W2 have been provided. Continuing using errors defined by errortype and sd_U and augmenting W1 with the data in W2.")
+		}
+	}
+
+	if (!is.null(phiU) & !is.null(errortype)) {
+		warning("Both phiU and errortype provided. Continuing ignoring errortype.")
+	}
 
 	# Check inputs -------------------------------------------------------------
 	if (errors == "het") {
@@ -282,7 +320,7 @@ bandwidth <- function(W1,
 		output <- plugin_bandwidth(W1, phiU, sd_X, kernel_type)
 	}
 
-	if ((algorithm == "PI" & errors == "rep")& het_replicates == FALSE) {
+	if (algorithm == "PI" & errors == "rep") {
 		diff <- W1 - W2
 		sd_U <- sqrt(stats::var(diff)/2)
 		n <- length(c(W1, W2))
@@ -296,7 +334,7 @@ bandwidth <- function(W1,
 		output <- plugin_bandwidth(c(W1, W2), phi_U, sd_X, kernel_type)
 	}
 	
-	if ((algorithm == "PI" & errors == "rep") & het_replicates) {
+	if (algorithm == "PI" & errors == "het_rep") {
 		#Code here
 		diff2 <- (W1 - W2)/2
 		sum2 <- (W1 + W2)/2

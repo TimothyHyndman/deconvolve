@@ -16,6 +16,16 @@
 #' function \code{phiU}, or a single value \code{sd_U} along with its 
 #' \code{errortype} then the method used is as described in Fan and Truong 1993.
 #' 
+#' The order in which we choose the methods is as follows:
+#' \enumerate{
+#'  \item If provided, use \code{phiU} to define the errors, otherwise
+#'  \item If provided use \code{errortype} and \code{sd_u} to define the errors, otherwise
+#'  \item If provided, use the vector of replicates \code{W2} to estimate the error distribution.
+#' }
+#' 
+#' Note that in both 1 and 2, if a vector of replicates \code{W2} is provided we
+#' augment the data in \code{W1} with that in \code{W2}.
+#' 
 #' @param Y A vector of the response data Y_1, ..., Y_n.
 #' @param xx A vector of x values on which to compute the regression estimator.
 #' @param sd_U The standard deviation of \eqn{U}. This does not need to be
@@ -109,28 +119,47 @@ reg_deconvolve <- function(Y,
 
     kernel_type <- match.arg(kernel_type)
 
-    if (!is.null(W2)) {
+    # Determine error type provided --------------------------------------------
+    if (!is.null(phiU)) {
+        errors <- "hom"
+    } else if (!is.null(errortype)) {
+        errors <- "hom"
+    } else if (!is.null(W2)) {
         errors <- "rep"
     } else {
-        errors <- "hom"
+        errors<- "not_defined_properly"
+    }
+
+    # Augment W1 with W2 if provided along with phiU or sd_U and errortype
+    if (errors == "hom" & !is.null(W2)) {
+        W1 <- c(W1, W2)
+        W2 <- NULL
+        if (!is.null(phiU)) {
+            warning("Both phiU and W2 have been provided. Continuing using errors defined by phiU and augmenting W1 with the data in W2.")
+        } else {
+            warning("Errortype and sd_U as well as W2 have been provided. Continuing using errors defined by errortype and sd_U and augmenting W1 with the data in W2.")
+        }
+    }
+
+    if (!is.null(phiU) & !is.null(errortype) & !is.null(bw) & !is.null(rho)) {
+        warning("Both phiU and errortype provided. Continuing ignoring errortype.")
     }
 
     # Check inputs -------------------------------------------------------------
-    if (is.null(errortype) & is.null(phiU) & is.null(W2)) {
-        stop("You must provide either errortype, phiU, or W2.")
+    if (errors == 'not_defined_properly') {
+        if (is.null(errortype) & is.null(phiU) & is.null(W2)) {
+            stop("You must provide either errortype, phiU, or W2.")
+        }
     }
     
+    
     if (errors == "hom") {
-        if (!is.null(errortype) & is.null(sd_U)) {
+        if (is.null(phiU) & !is.null(errortype) & is.null(sd_U)) {
             stop("You must provide sd_U along with errortype.")
         }
 
         if ((is.null(bw) | is.null(rho)) & (is.null(sd_U) | is.null(errortype))) {
-            stop("If the bandwidth is not provided then you must provide errortype and sd_U.")
-        }
-
-        if ((is.null(bw) | is.null(rho)) & is.null(sd_U)){
-            stop("You must provide sd_U if you do not provide bw and rho.")
+            stop("If the bw and rho are not provided then you must provide errortype and sd_U.")
         }
     }
 

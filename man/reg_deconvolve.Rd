@@ -78,6 +78,16 @@ Hall 2016, and Camirand, Carroll, and Delaigle 2018.
 \strong{Homoscedastic Error:} If the errors are defined by either a single 
 function \code{phiU}, or a single value \code{sd_U} along with its 
 \code{errortype} then the method used is as described in Fan and Truong 1993.
+
+The order in which we choose the methods is as follows:
+\enumerate{
+ \item If provided, use \code{phiU} to define the errors, otherwise
+ \item If provided use \code{errortype} and \code{sd_u} to define the errors, otherwise
+ \item If provided, use the vector of replicates \code{W2} to estimate the error distribution.
+}
+
+Note that in both 1 and 2, if a vector of replicates \code{W2} is provided we
+augment the data in \code{W1} with that in \code{W2}.
 }
 \section{Warnings}{
 
