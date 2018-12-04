@@ -181,7 +181,7 @@ bandwidth <- function(W1,
 		}
 	}
 
-	if (!is.null(phiU) & !is.null(errortype)) {
+	if (!is.null(phiU) & !is.null(errortype) & !(algorithm == "SIMEX")) {
 		warning("Both phiU and errortype provided. Continuing ignoring errortype.")
 	}
 

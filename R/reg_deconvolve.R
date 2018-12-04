@@ -196,7 +196,7 @@ reg_deconvolve <- function(Y,
     if (is.null(bw) | is.null(rho)) {
         outcome_tmp <- bandwidth(W1 = W1, 
                                  W2 = W2,
-                                 errortype = errortype, 
+                                 errortype = errortype,
                                  sd_U = sd_U,
                                  phiU = phiU, 
                                  Y = Y, 
