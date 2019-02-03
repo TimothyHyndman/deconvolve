@@ -1,4 +1,4 @@
-DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 5, n_var_iter = 2, 
+DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 2, 
 						   show_diagnostics = FALSE){
 
 	diagnostic <- function(message){
@@ -237,14 +237,18 @@ tp_objective <- function(x, phi_W, sqrt_psi_W, weight) {
 	tp <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	penalties <- calculate_penalties(phi_X, phi_W)
 
-	tp + sum(penalties)
+	penalty_scale <- 500
+	tp + penalty_scale * sum(penalties)
 }
 
 calculate_tp <- function(phi_X, phi_W, sqrt_psi_W, weight){
 	
 	tt <- phi_W$t.values
 	dt <- tt[2] - tt[1]
-	integrand <- abs(phi_W$complex - sqrt_psi_W * phi_X / Mod(phi_X))^2 * weight
+	# integrand <- abs(phi_W$complex - sqrt_psi_W * phi_X / Mod(phi_X))^2 * weight
+
+	integrand <- abs(phi_W$complex * Mod(phi_X) - sqrt_psi_W * phi_X)^2 * weight
+
 	tp <- dt * sum(integrand)
 
 	tp
@@ -254,7 +258,7 @@ calculate_penalties <- function(phi_X, phi_W) {
 	penalty1 = sum(abs(Re(phi_X) * phi_W$im - Im(phi_X) * phi_W$re))
 
 	mod_phi_U = phi_W$norm / Mod(phi_X)
-	penalty2 = sum(mod_phi_U[mod_phi_U > 1])
+	penalty2 = sum(mod_phi_U[mod_phi_U > 1] - 1)
 
 	c(penalty1, penalty2)
 }

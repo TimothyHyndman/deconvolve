@@ -42,7 +42,7 @@ n <- 500
 test_that("no error case gives expected result", {
 	skip_on_cran()
 	W <- GenerateTestData(n, sd_X, sd_U, dist_type = "chi", error_type = "norm")
-	expect_equal(bandwidth(W), 0.1104239, tolerance = 0.0000001)
+	expect_equal(bandwidth(W), 0.09025839, tolerance = 0.0000001)
 })
 
 set.seed(1)
