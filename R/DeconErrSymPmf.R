@@ -114,7 +114,9 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 2,
 
 	tp_max <- calculate_tp(phi_X, phi_W, sqrt_psi_W, weight)
 	diagnostic(paste("tp_max = ", tp_max))
-	penalties_max <- calculate_penalties(phi_X, phi_W)
+
+	penalty_tolerance_scale = 0.00
+	penalties_max <- calculate_penalties(phi_X, phi_W) * (1 + penalty_tolerance_scale)
 	diagnostic(paste("penalties = ", penalties_max))
 
 	con_fun <- function(x){
@@ -122,6 +124,8 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 2,
 		constraints(x, phi_W, sqrt_psi_W, weight, tp_max, penalties_max)
 	}
 	
+	diagnostic(is_feasible(X_pmf$support, X_pmf$prob_weights, A, B, con_fun))
+
 	diagnostic("Minimizing Variance")
 
 	var_min <- Inf
@@ -154,8 +158,18 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 2,
 
 			if (is.null(test_min_var_sol)) {
 				looping <- TRUE
+			} else {
+				X_pmf <- x_to_pmf(test_min_var_sol$par)
+				if (is_feasible(X_pmf$support, X_pmf$prob_weights, A, B, con_fun)) {
+					diagnostic("feasible solution returned")
+				} else {
+					diagnostic("non feasible solution returned")
+					# looping <- TRUE
+				}
 			}
 		}
+
+
 		
 		if (test_min_var_sol$fn < var_min){
 			var_min <- test_min_var_sol$fn
@@ -186,17 +200,17 @@ DeconErrSymPmf <- function(W, m, kernel_type, n_tp_iter = 20, n_var_iter = 2,
 	x_sol <- min_var_sol$par
 	p_sol <- c( x_sol[1:m-1], 1 - sum(x_sol[1:m-1]))
 	theta_sol <- x_sol[m:(2 * m - 1)]
-	simple_sol <- simplify_pmf(theta_sol, p_sol)
-	p_sol <- simple_sol$ProbWeights
-	theta_sol <- simple_sol$Support
+	# simple_sol <- simplify_pmf(theta_sol, p_sol)
+	# p_sol <- simple_sol$ProbWeights
+	# theta_sol <- simple_sol$Support
 
 	x_min_tp <- min_tp_sol$par
 	p_min_tp <- c( x_min_tp[1:m-1], 1 - sum(x_min_tp[1:m-1]))
 	theta_min_tp <- x_min_tp[m:(2 * m - 1)]
 
-	simple_min_tp <- simplify_pmf(theta_min_tp, p_min_tp)
-	p_min_tp <- simple_min_tp$ProbWeights
-	theta_min_tp <- simple_min_tp$Support
+	# simple_min_tp <- simplify_pmf(theta_min_tp, p_min_tp)
+	# p_min_tp <- simple_min_tp$ProbWeights
+	# theta_min_tp <- simple_min_tp$Support
 
 	list("support" = theta_sol, 
 		 "probweights" = p_sol, 
@@ -225,6 +239,24 @@ pmf_to_x <- function(theta, p) {
 	}
 	
 	x
+}
+
+is_feasible <- function(xj, pj, A, B, nonlcon) {
+	flag <- TRUE
+	x <- pmf_to_x(xj, pj)
+
+	lin_tol <- 1e-5
+	if (any(A %*% x - B > lin_tol)) {
+		flag <- FALSE
+	}
+
+	non_lin_tol <- 1e-5
+	cons <- nonlcon(x)
+	if (any(cons$c > non_lin_tol)) {
+		flag <- FALSE
+	}
+
+	flag
 }
 
 tp_objective <- function(x, phi_W, sqrt_psi_W, weight) {
