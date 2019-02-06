@@ -196,7 +196,7 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 		}
 	} else {
 		errors <- "sym"
-		warning("The method for deconvolution when the error is unknown is slow and unreliable in R. Consider instead using the MATLAB code found at <github.com/TimothyHyndman/deconvolve-supp>.")
+		warning("The method for deconvolution when the error is unknown can be slow and unreliable in R. Consider instead using the MATLAB code found at <github.com/TimothyHyndman/deconvolve-supp>.")
 	}
 
 	# Augment W1 with W2 if provided along with phiU or sd_U and errortype
