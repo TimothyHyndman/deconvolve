@@ -67,9 +67,10 @@ The function \code{plot} produces a plot of the deconvolution KDE of the density
 An object of class "\code{deconvolve}" is a list containing at least the 
 following elements:
 \item{W1}{The original vector of contaminated data}
-\item{x}{The values on which the deconvolution KDE is evaluated.}
+\item{x}{The values on which the deconvolution KDE is evaluated}
 \item{pdf}{A vector containing the deconvolution KDE of the density of \eqn{X}, 
-evaluated at each point in \code{xx}}
+evaluated at each point in \code{x}}
+\item{bw}{The bandwidth used to calculate the KDE}
 It may also contain
 \item{W2}{The original vector of replicates}
 }

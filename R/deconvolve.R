@@ -101,9 +101,10 @@
 #' An object of class "\code{deconvolve}" is a list containing at least the 
 #' following elements:
 #' \item{W1}{The original vector of contaminated data}
-#' \item{x}{The values on which the deconvolution KDE is evaluated.}
+#' \item{x}{The values on which the deconvolution KDE is evaluated}
 #' \item{pdf}{A vector containing the deconvolution KDE of the density of \eqn{X}, 
-#' evaluated at each point in \code{xx}}
+#' evaluated at each point in \code{x}}
+#' \item{bw}{The bandwidth used to calculate the KDE}
 #' It may also contain
 #' \item{W2}{The original vector of replicates}
 #' 
@@ -284,24 +285,24 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 	# Perform appropriate deconvolution ----------------------------------------
 	if (errors == "hom"){
 		pdf <- DeconErrKnownPdf(xx, W1, bw, phiU, kernel_type, rescale)
-		output <- list("x" = xx, "pdf" = pdf, "W1" = W1)
+		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, "bw" = bw)
 	}
 
 	if (errors == "het"){
 		pdf <- DeconErrKnownHetPdf(xx, W1, bw, phiU, rescale, phiK, muK2, RK, tt)
-		output <- list("x" = xx, "pdf" = pdf, "W1" = W1)
+		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, "bw" = bw)
 	}
 
 	if (errors == "rep") {
 		phi_U <- create_replicates_phi_U(W1, W2, tt/bw)
 		pdf <- DeconErrKnownPdf(xx, c(W1, W2), bw, phi_U, kernel_type, rescale)
-		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, "W2" = W2)
+		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, "W2" = W2, "bw" = bw)
 	}
 
 	if (errors == "het_rep") {
 		deno_U <- create_deno_het_phi_U(W1, W2, tt/bw)
 		pdf <- decon_err_het_replicates(xx, W1, W2, deno_U, kernel_type, bw, rescale)
-		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, "W2" = W2)
+		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, "W2" = W2, "bw" = bw)
 	}
 
 	if (errors == "sym") {
@@ -310,7 +311,8 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 		pdf <- DeconErrSymPmfToPdf(out, W1, phi.W, xx, kernel_type, rescale, 
 								   bw)
 		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, 
-					   "support" = out$support, "probweights" = out$probweights)
+					   "support" = out$support, "probweights" = out$probweights,
+					   "bw" = bw)
 	}
 
 	# Output object of class "deconvolve" --------------------------------------

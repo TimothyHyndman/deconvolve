@@ -28,7 +28,7 @@ test_that("replicates gives expected result", {
     replicates = TRUE)
   yy_test <- deconvolve(data$W1, data$W2)
   load("hom_error_rep_test_result.RData")
-  expect_equal(yy_test, yy)
+  expect_equal(yy_test$pdf, yy$pdf)
 })
 
 test_that("het_replicates", {
@@ -41,7 +41,7 @@ test_that("het_replicates", {
 	replicates = TRUE)
 	yy_test <- deconvolve(data$W1, data$W2, het_replicates = TRUE)
 	load("het_error_rep_test_result.RData")
-	expect_equal(yy_test, yy)
+	expect_equal(yy_test$pdf, yy$pdf)
 })
 
 
@@ -54,7 +54,7 @@ test_that("hom error gives expected result", {
 	skip_on_cran()
 	yy_test <- deconvolve(W, errortype = "norm", sd_U = sd_U)
 	load("hom_error_test_result.RData")
-	expect_equal(yy_test, yy)
+	expect_equal(yy_test$pdf, yy$pdf)
 })
 
 set.seed(1)
@@ -75,5 +75,5 @@ test_that("het error gives expected result", {
 	skip_on_cran()
 	yy_test <- deconvolve(W, sd_U = sd_U_vec, phiU = phiU_vec)
 	load("het_error_test_result.RData")
-	expect_equal(yy_test, yy)
+	expect_equal(yy_test$pdf, yy$pdf)
 })
