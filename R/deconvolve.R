@@ -308,11 +308,11 @@ deconvolve <- function(W1, W2 = NULL, xx = seq(min(W1), max(W1), length.out = 10
 	if (errors == "sym") {
 		out <- DeconErrSymPmf(W1, m, kernel_type, show_diagnostics = show_diagnostics)
 		phi.W <- out$phi_W
-		pdf <- DeconErrSymPmfToPdf(out, W1, phi.W, xx, kernel_type, rescale, 
+		out_pdf <- DeconErrSymPmfToPdf(out, W1, phi.W, xx, kernel_type, rescale, 
 								   bw)
-		output <- list("x" = xx, "pdf" = pdf, "W1" = W1, 
+		output <- list("x" = xx, "pdf" = out_pdf$pdf, "W1" = W1, 
 					   "support" = out$support, "probweights" = out$probweights,
-					   "bw" = bw)
+					   "bw" = out_pdf$bw)
 	}
 
 	# Output object of class "deconvolve" --------------------------------------

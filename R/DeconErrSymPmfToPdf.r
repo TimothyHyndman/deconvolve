@@ -28,6 +28,8 @@ DeconErrSymPmfToPdf <- function(X_pmf, W, phi_W, xx, kernel_type, rescale, h){
 	
 	# --------------------------------------------------------------------------
 	fX <- DeconErrKnownPdf(xx, W, h, phi_U_splined, kernel_type, rescale)
+
+	list(pdf = fX, bw = h)
 }
 
 estimate_var_u <- function(W, tt_BB, theta, p){

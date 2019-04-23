@@ -10,7 +10,7 @@ test_that("symmetric error pmftopdf gives expected result", {
 	load('sym_error_pmf_input.RData')
 	d_test <- DeconErrSymPmfToPdf(X_pmf, W, phi_W, seq(min(W), max(W), length.out = 100), 'default', 1, NULL)
 	load("sym_error_pmftopdf_test_result.RData")
-	expect_equal(d_test, d)
+	expect_equal(d_test$pdf, d)
 })
 
 test_that("symmetric error case gives reasonable result", {
